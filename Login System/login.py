@@ -4,6 +4,11 @@ import mariadb
 import sys
 import binascii
 
+#leitura do config.ini
+import configparser
+config = configparser.ConfigParser()
+config.read('config.ini')
+#fim leitura do config.ini
 
 print("Login")
 print("Username:")
@@ -15,11 +20,11 @@ input_password = input() # The users password
 # procura se existe o utilizador na base de dados
 try:
     conn = mariadb.connect(
-        user="cteam",
-        password="w3KY3.EjFCMv5VBp",
-        host="dlavareda.ddns.net",
-        port=3300,
-        database="cteam_projectosi"
+        user=config['DATABASE']['user'],
+        password=config['DATABASE']['password'],
+        host=config['DATABASE']['host'],
+        port=int(config['DATABASE']['port']),
+        database=config['DATABASE']['database']
 
     )
 except mariadb.Error as e:
@@ -38,6 +43,6 @@ new_key = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), binascii
 
 
 if new_key == binascii.unhexlify(key):
-    print('Password is correct')
+    print('Password is correct - Welcome back Cryptography Master')
 else:
-    print('Password is incorrect')
+    print('Password is incorrect - Cya Later Alligator!!')
