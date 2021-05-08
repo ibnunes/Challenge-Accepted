@@ -3,6 +3,8 @@ import os
 import mariadb
 import sys
 import binascii
+#Para esconder o input da password
+from getpass import getpass
 
 #leitura do config.ini
 import configparser
@@ -14,7 +16,7 @@ print("Login")
 print("Username:")
 input_username = input() # The users username
 print("Password:")
-input_password = input() # The users password
+input_password = getpass("") # The users password
 
 
 # procura se existe o utilizador na base de dados
