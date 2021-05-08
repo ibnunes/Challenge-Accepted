@@ -3,6 +3,13 @@ import os
 import mariadb
 import sys
 import binascii
+#Para esconder o input da password
+from getpass import getpass
+#leitura do config.ini
+import configparser
+config = configparser.ConfigParser()
+config.read('config.ini')
+#fim leitura do config.ini
 
 print("Registo de novo utilizador")
 print("Username:")
@@ -10,17 +17,17 @@ username = input()
 print("Email:")
 email = input()
 print("Password:")
-password = input()
+password = getpass("")
 
 
 # procura se existe o utilizador na base de dados
 try:
     conn = mariadb.connect(
-        user="cteam",
-        password="w3KY3.EjFCMv5VBp",
-        host="dlavareda.ddns.net",
-        port=3300,
-        database="cteam_projectosi"
+        user=config['DATABASE']['user'],
+        password=config['DATABASE']['password'],
+        host=config['DATABASE']['host'],
+        port=int(config['DATABASE']['port']),
+        database=config['DATABASE']['database']
 
     )
 except mariadb.Error as e:
@@ -32,7 +39,7 @@ cur.execute(
     (username,))
 for (user) in cur:
     print(f"O utilizador: {username} já está registado")
-    break
+    exit()
 
 #Utilizador não existe na BD pode continuar
 
@@ -48,5 +55,5 @@ try:
 except mariadb.Error as e: 
     print(f"Error: {e}")
 conn.commit() 
-print("Registo efectuado com sucesso!")
+print("Registo efectuado com sucesso - Let the challenges beggin!")
 conn.close()
