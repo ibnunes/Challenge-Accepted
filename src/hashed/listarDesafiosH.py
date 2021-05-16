@@ -29,8 +29,3 @@ def listarDesafios():
     x = from_db_cursor(cur) 
 
     print(x)
-
-#print(tabulate(table, headers='firstrow', showindex='always'))
-
-
-

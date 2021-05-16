@@ -30,5 +30,3 @@ def listarDesafios():
 
 
     print(x)
-
-#print(tabulate(table, headers='firstrow', showindex='always'))

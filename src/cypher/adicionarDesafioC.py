@@ -1,7 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
 import hashlib
-import sys
 import binascii
 import Padding
 import base64
@@ -16,31 +15,31 @@ config.read(os.getcwd() + '/login/config.ini')
 
 id_user = 27
 
-def encrypt(plaintext,key, mode):
+def encryptECB(plaintext,key, mode):
 	encobj = AES.new(key,mode)
 	return(encobj.encrypt(plaintext))
 
-def decrypt(ciphertext,key, mode):
+def decryptECB(ciphertext,key, mode):
 	encobj = AES.new(key,mode)
 	return(encobj.decrypt(ciphertext))
 
-def encrypt2(plaintext,key, mode,iv):
+def encryptCBC(plaintext,key, mode,iv):
 	encobj = AES.new(key,mode,iv)
 	return(encobj.encrypt(plaintext))
 
-def decrypt2(ciphertext,key, mode,iv):
+def decryptCBC(ciphertext,key, mode,iv):
 	encobj = AES.new(key,mode,iv)
 	return(encobj.decrypt(ciphertext))
 
 def int_of_string(s):
     return int(binascii.hexlify(s), 16)
 
-def encrypt3(plaintext,key, mode, iv):
+def encryptCTR(plaintext,key, mode, iv):
     ctr = Counter.new(128, initial_value=int_of_string(iv))
     encobj = AES.new(key,mode,counter=ctr)
     return(encobj.encrypt(plaintext))
 
-def decrypt3(ciphertext,key, mode, iv):
+def decryptCTR(ciphertext,key, mode, iv):
     ctr = Counter.new(128, initial_value=int_of_string(iv))
     encobj = AES.new(key,mode,counter=ctr)
     return(encobj.decrypt(ciphertext))
@@ -87,7 +86,7 @@ def adicionarDesafioCypher():
         
         plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
 
-        ciphertext = encrypt(plaintext.encode(),key,AES.MODE_ECB)
+        ciphertext = encryptECB(plaintext.encode(),key,AES.MODE_ECB)
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
 
@@ -108,7 +107,7 @@ def adicionarDesafioCypher():
         plaintext=val
         plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
 
-        ciphertext = encrypt2(plaintext.encode(),key,AES.MODE_CBC,iv.encode())
+        ciphertext = encryptCBC(plaintext.encode(),key,AES.MODE_CBC,iv.encode())
         
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
@@ -132,7 +131,7 @@ def adicionarDesafioCypher():
         plaintext=val
         plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
 
-        ciphertext = encrypt3(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+        ciphertext = encryptCTR(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
         
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
