@@ -16,7 +16,7 @@ import sys, os
 
 #
 from login import login, register
-from hashed import adicionarDesafioH
+from hashed import adicionarDesafioH, listarDesafios
 from cypher import adicionarDesafioC
 
 
@@ -284,6 +284,7 @@ def menuhome():
 # Menu List of Challenges
 def menuchallenges():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafios.listarDesafios()
     print ("Insert number of challenge you want to answer:\n")
     print ("1. Submit solution")
     print ("9. Back")
