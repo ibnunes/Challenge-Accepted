@@ -17,7 +17,8 @@ def loginUser():
     input_username = input(" >>  ")
     print ("Insert Password:")
     input_password = getpass(" >>  ")
-
+    password = ""
+    salt = ""
 
     # procura se existe o utilizador na base de dados
     try:
@@ -40,12 +41,17 @@ def loginUser():
         salt = salt
         key = password
         id_user = id_user
-
-
-    new_key = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), binascii.unhexlify(salt), 100000)
-
-
-    if new_key == binascii.unhexlify(key):
-        return True
+    if (password != "" and salt != ""):
+        new_key = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), binascii.unhexlify(salt), 100000)
+        if new_key == binascii.unhexlify(key):
+            return True
+        else:
+            print ("Senha errada")
+            print("Tentar novamente?")
+            a = input()
+            return False
     else:
+        print("Utilizador não encontrado")
+        print("Tentar novamente?")
+        a = input()
         return False
