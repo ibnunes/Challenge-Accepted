@@ -1,11 +1,14 @@
 import mariadb
 from prettytable import PrettyTable
 from prettytable import from_db_cursor
+import hashed.responderDesafioHash as responderDesafioHash
+import os
+
 
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
-config.read('src/login/config.ini')
+config.read(os.getcwd() + '/login/config.ini')
 #Ligação a BD
 try:
     conn = mariadb.connect(
@@ -29,8 +32,8 @@ x = from_db_cursor(cur)
 
 print(x)
 
-#print(tabulate(table, headers='firstrow', showindex='always'))
-
+print("Escolha o desafio a resolver: ")
+responderDesafioHash.responderDesafioHasha(input())
 
 
 
