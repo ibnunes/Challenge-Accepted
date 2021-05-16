@@ -16,6 +16,8 @@ import sys, os
 
 #
 from login import login, register
+from hashed import adicionarDesafioH
+from cypher import adicionarDesafioC
 
 
 # Main definition - constants
@@ -307,14 +309,9 @@ def menunewchallenge():
 
 # Menu New Decipher Challenge
 def menunewctype1():
-    print ("DECIPHER CHALLENGE\n")
-    print ("Insert your message") # mensagem a cifrar
-    message = input(" >>  ")
-    print ("Insert the cipherkey") # cifra
-    key = input(" >>  ")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
+    choice = str(adicionarDesafioC.adicionarDesafioCypher())
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc1(choice)
     return
 
@@ -322,12 +319,9 @@ def menunewctype1():
 
 # Menu New Challenge Hash
 def menunewctype2():
-    print ("HASH CHALLENGE\n")
-    print ("Insert your message") # mensagem para calcular hash
-    message = input(" >>  ")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
+    choice = str(adicionarDesafioH.adicionarDesafioHash())
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc2(choice)
     return
 
@@ -446,6 +440,7 @@ submenunewc_actions = {
 # Message Decipher Challenge Menu definition
 submenunewc1_actions = {
     'menunewctype1': menunewctype1,
+    '1': menuchallenges,
     '9': backhome,
     '0': exit,
 }
@@ -453,6 +448,7 @@ submenunewc1_actions = {
 # Hash Challenge Menu definition
 submenunewc2_actions = {
     'menunewctype2': menunewctype2,
+    '1': menuchallenges,
     '9': backhome,
     '0': exit,
 }
