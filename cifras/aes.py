@@ -7,6 +7,7 @@ import hashlib
 import sys
 import binascii
 import Padding
+import base64
 
 print("Mensagem a cifrar")
 val = input()
@@ -55,6 +56,7 @@ def decrypt3(ciphertext,key, mode, iv):
     return(encobj.decrypt(ciphertext))
 
 #Gerar um hash de 128bits pra uso como key no AES
+#Derivação da password
 key = hashlib.md5(password.encode()).digest()
 
 iv= hex(ival)[2:8].zfill(16)
@@ -65,10 +67,12 @@ plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode
 print ("Input data (CMS): "+binascii.hexlify(plaintext.encode()).decode())
 
 ciphertext = encrypt(plaintext.encode(),key,AES.MODE_ECB)
-print ("Cipher (ECB): "+binascii.hexlify(bytearray(ciphertext)).decode())
+#String a guardar na BD
+msg = base64.b64encode(bytearray(ciphertext)).decode()
+print ("Cipher (ECB): "+ msg)
 
 
-plaintext = decrypt(ciphertext,key,AES.MODE_ECB)
+plaintext = decrypt(base64.b64decode(msg),key,AES.MODE_ECB)
 plaintext = Padding.removePadding(plaintext.decode(),mode=0)
 print ("  decrypt: "+plaintext)
 

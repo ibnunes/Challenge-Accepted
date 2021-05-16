@@ -13,6 +13,11 @@
 # Import the modules needed to run the script.
 import sys, os
 
+
+#
+from login import login, register
+
+
 # Main definition - constants
 menu_actions  = {}  
 
@@ -228,32 +233,20 @@ def exec_menusettings(choice):
 
 # Login Menu
 def menulogin():
-    print ("Login Menu\n")
-    print ("Insert Username:")
-    username = input(" >>  ")
-    print ("Insert Password:")
-    password = input(" >>  ")
-    print ("Press 0 to cancel or 1 to login")
-    choice = input(" >>  ")
-    exec_menulogin(choice)
+    if (login.loginUser()): 
+        exec_menulogin("1")
+    else:
+        exec_menulogin("0")
     return
 
 # =======================
 
 # Register Menu
 def menuregister():
-    print ("Create Account Menu\n")
-    print ("Insert New Email:")
-    email = input(" >>  ")
-    print ("Insert New Username:")
-    username = input(" >>  ")
-    print ("Insert New Password:")
-    password = input(" >>  ")
-    print ("Confirm New Password:")
-    password = input(" >>  ")
-    print ("Press 0 to cancel or 1 to register")
-    choice = input(" >>  ")
-    exec_menureg(choice)
+    if (register.registerUser()): 
+        exec_menureg("1")
+    else:
+        exec_menureg("0")
     return
 
 # =======================
@@ -412,7 +405,7 @@ submenulogin_actions = {
 submenuregister_actions = {
     'menuregister': menuregister,
     '0': back,
-    '1': menuhome,
+    '1': menulogin,
 }
 
 # Help Menu definition
