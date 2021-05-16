@@ -13,6 +13,13 @@
 # Import the modules needed to run the script.
 import sys, os
 
+
+#
+from login import login, register
+from hashed import adicionarDesafioH, listarDesafiosH, responderDesafioHash
+from cypher import adicionarDesafioC, listarDesafiosC, responderDesafioC
+import banner
+
 # Main definition - constants
 menu_actions  = {}  
 
@@ -23,8 +30,7 @@ menu_actions  = {}
 # Main menu
 def main_menu():
     os.system('clear')
-    
-    print ("CHALLENGE ACCEPTED 1.0.0\n")
+    banner.printbanner()
     print ("Welcome! \n")
     print ("Please choose an option to start with:")
     print ("1. Login")
@@ -182,17 +188,32 @@ def exec_menunc2(choice):
 
 # =======================
 
-def exec_menusubmit(choice):
+def exec_menusubmitc(choice):
     os.system('clear')
     ch = choice.lower()
     if ch == '':
-        submenusubmit_actions['']()
+        submenusubmitc_actions['']()
     else:
         try:
-            submenusubmit_actions[ch]()
+            submenusubmitc_actions[ch]()
         except KeyError:
             print ("Invalid selection, please try again.\n")
-            submenusubmit_actions['submit']()
+            submenusubmitc_actions['submit']()
+    return
+
+# =======================
+
+def exec_menusubmith(choice):
+    os.system('clear')
+    ch = choice.lower()
+    if ch == '':
+        submenusubmith_actions['']()
+    else:
+        try:
+            submenusubmith_actions[ch]()
+        except KeyError:
+            print ("Invalid selection, please try again.\n")
+            submenusubmith_actions['submit']()
     return
 
 # =======================
@@ -228,32 +249,20 @@ def exec_menusettings(choice):
 
 # Login Menu
 def menulogin():
-    print ("Login Menu\n")
-    print ("Insert Username:")
-    username = input(" >>  ")
-    print ("Insert Password:")
-    password = input(" >>  ")
-    print ("Press 0 to cancel or 1 to login")
-    choice = input(" >>  ")
-    exec_menulogin(choice)
+    if (login.loginUser()): 
+        exec_menulogin("1")
+    else:
+        exec_menulogin("")
     return
 
 # =======================
 
 # Register Menu
 def menuregister():
-    print ("Create Account Menu\n")
-    print ("Insert New Email:")
-    email = input(" >>  ")
-    print ("Insert New Username:")
-    username = input(" >>  ")
-    print ("Insert New Password:")
-    password = input(" >>  ")
-    print ("Confirm New Password:")
-    password = input(" >>  ")
-    print ("Press 0 to cancel or 1 to register")
-    choice = input(" >>  ")
-    exec_menureg(choice)
+    if (register.registerUser()): 
+        exec_menureg("1")
+    else:
+        exec_menureg("0")
     return
 
 # =======================
@@ -289,12 +298,44 @@ def menuhome():
 # Menu List of Challenges
 def menuchallenges():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
-    print ("Insert number of challenge you want to answer:\n")
-    print ("1. Submit solution")
+    print ("1. AES CYPHER CHALLENGES")
+    print ("2. HASH CHALLENGES")
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
     exec_menuc(choice)
+    return
+
+# =======================
+
+# Menu List of Challenges Cypher
+def menuchallengesc():
+    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafiosC.listarDesafios()
+    print ("Insert number of challenge you want to answer:\n")
+    global idc
+    idc = input(" >>  ")
+    print ("1. Submit solution")
+    print ("9. Back")
+    print ("0. Quit") 
+    choice = input(" >>  ")
+    exec_menusubmitc(choice)
+    return
+
+# =======================
+
+# Menu List of Challenges Hash
+def menuchallengesh():
+    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafiosH.listarDesafios()
+    print ("Insert number of challenge you want to answer:\n")
+    global idc
+    idc = input(" >>  ")
+    print ("1. Submit solution")
+    print ("9. Back")
+    print ("0. Quit") 
+    choice = input(" >>  ")
+    exec_menusubmith(choice)
     return
 
 # =======================
@@ -314,14 +355,9 @@ def menunewchallenge():
 
 # Menu New Decipher Challenge
 def menunewctype1():
-    print ("DECIPHER CHALLENGE\n")
-    print ("Insert your message") # mensagem a cifrar
-    message = input(" >>  ")
-    print ("Insert the cipherkey") # cifra
-    key = input(" >>  ")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
+    choice = str(adicionarDesafioC.adicionarDesafioCypher())
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc1(choice)
     return
 
@@ -329,25 +365,32 @@ def menunewctype1():
 
 # Menu New Challenge Hash
 def menunewctype2():
-    print ("HASH CHALLENGE\n")
-    print ("Insert your message") # mensagem para calcular hash
-    message = input(" >>  ")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
+    choice = str(adicionarDesafioH.adicionarDesafioHash())
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc2(choice)
     return
 
 # =======================
 
-# Menu Submit Challenge
-def submitchallenge(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
-    print ("Insert the solution\n")
-    solution = input(" >>  ")
+# Menu Submit Challenge Hash
+def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
+    responderDesafioHash.responderDesafioHash(idc)
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
-    exec_menusubmit(choice)
+    exec_menusubmith(choice)
+    return
+
+# =======================
+
+# Menu Submit Challenge Hash
+def submitchallengec(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
+    responderDesafioC.responderDesafioCrypto(idc)
+    print ("9. Back")
+    print ("0. Quit") 
+    choice = input(" >>  ")
+    exec_menusubmitc(choice)
     return
 
 # =======================
@@ -412,7 +455,7 @@ submenulogin_actions = {
 submenuregister_actions = {
     'menuregister': menuregister,
     '0': back,
-    '1': menuhome,
+    '1': menulogin,
 }
 
 # Help Menu definition
@@ -436,7 +479,8 @@ submenuhome_actions = {
 # Challenges Menu definition
 submenuc_actions = {
     'menuchallenges': menuchallenges,
-    '1': submitchallenge,
+    '1': menuchallengesc,
+    '2': menuchallengesh,
     '9': backhome,
     '0': exit,
 }
@@ -453,6 +497,7 @@ submenunewc_actions = {
 # Message Decipher Challenge Menu definition
 submenunewc1_actions = {
     'menunewctype1': menunewctype1,
+    '1': menuchallenges,
     '9': backhome,
     '0': exit,
 }
@@ -460,14 +505,22 @@ submenunewc1_actions = {
 # Hash Challenge Menu definition
 submenunewc2_actions = {
     'menunewctype2': menunewctype2,
+    '1': menuchallenges,
     '9': backhome,
     '0': exit,
 }
 
-# Submit Solution Menu definition
-submenusubmit_actions = {
-    'submit': submitchallenge,
-    '9': backhome,
+# Submit Hash Solution Menu definition
+submenusubmith_actions = {
+    '1': submitchallengeh,
+    '9': menuchallenges,
+    '0': exit,
+}
+
+# Submit Cypher Solution Menu definition
+submenusubmitc_actions = {
+    '1': submitchallengec,
+    '9': menuchallenges,
     '0': exit,
 }
 
