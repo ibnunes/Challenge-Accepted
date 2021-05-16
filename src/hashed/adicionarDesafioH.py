@@ -7,7 +7,7 @@ config.read('/home/btc/Documents/Challenge-Accepted/src/login/config.ini')
 
 #fim leitura do config.ini
 
-id_user = 27
+id_user = 27 #é preciso alterar para 
 
 def adicionarDesafioHash():
     print("HASH CHALLENGE\n")
