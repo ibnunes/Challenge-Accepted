@@ -13,7 +13,6 @@ from Crypto.Hash import SHA256, SHA512, MD5
 print("Mensagem a cifrar")
 val = input().encode()
 
-plaintext=val
 
 #-----------------------------------
 #TYPES OF HASHES
