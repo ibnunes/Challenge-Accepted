@@ -59,4 +59,4 @@ def registerUser():
         print(f"Error: {e}")
     conn.commit() 
     conn.close()
-    True
+    return True
