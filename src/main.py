@@ -18,6 +18,7 @@ import sys, os
 from login import login, register
 from hashed import adicionarDesafioH, listarDesafiosH, responderDesafioHash
 from cypher import adicionarDesafioC, listarDesafiosC, responderDesafio
+import banner
 
 # Main definition - constants
 menu_actions  = {}  

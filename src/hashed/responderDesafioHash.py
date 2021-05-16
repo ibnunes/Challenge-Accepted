@@ -6,7 +6,7 @@ import os
 #leitura do config.ini
 import configparser
 
-def responderDesafioHasha(id_desafio_hash):
+def responderDesafioHash(id_desafio_hash):
     id_user = 27 #é preciso alterar para 
     config = configparser.ConfigParser()
     config.read(os.getcwd() + '/login/config.ini')
