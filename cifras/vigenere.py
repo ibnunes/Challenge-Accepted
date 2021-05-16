@@ -8,3 +8,5 @@ print("Chave de cifra")
 password = input()
 
 cipher = encrypt(val, password)
+
+print ("Vigenere: "+cipher)
