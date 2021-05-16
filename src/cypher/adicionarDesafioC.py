@@ -6,11 +6,11 @@ import binascii
 import Padding
 import base64
 import mariadb
-
+import os
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
-config.read('/home/btc/Documents/Challenge-Accepted/src/login/config.ini')
+config.read(os.getcwd() + '/login/config.ini')
 
 #fim leitura do config.ini
 

@@ -16,9 +16,9 @@ import sys, os
 
 #
 from login import login, register
-from hashed import adicionarDesafioH
+from hashed import adicionarDesafioH, listarDesafios
 from cypher import adicionarDesafioC
-
+import banner
 
 # Main definition - constants
 menu_actions  = {}  
@@ -30,8 +30,7 @@ menu_actions  = {}
 # Main menu
 def main_menu():
     os.system('clear')
-    
-    print ("CHALLENGE ACCEPTED 1.0.0\n")
+    banner.printbanner()
     print ("Welcome! \n")
     print ("Please choose an option to start with:")
     print ("1. Login")
@@ -238,7 +237,7 @@ def menulogin():
     if (login.loginUser()): 
         exec_menulogin("1")
     else:
-        exec_menulogin("0")
+        exec_menulogin("")
     return
 
 # =======================
@@ -284,6 +283,7 @@ def menuhome():
 # Menu List of Challenges
 def menuchallenges():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafios.listarDesafios()
     print ("Insert number of challenge you want to answer:\n")
     print ("1. Submit solution")
     print ("9. Back")

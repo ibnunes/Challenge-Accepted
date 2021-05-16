@@ -10,7 +10,7 @@ import configparser
 
 def registerUser():
     config = configparser.ConfigParser()
-    config.read('src/login/config.ini')
+    config.read(os.getcwd() + '/login/config.ini')
     #fim leitura do config.ini
     print ("Create Account Menu\n")
     print ("Insert New Email:")

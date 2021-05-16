@@ -2,14 +2,15 @@ import mariadb
 from Crypto.Hash import SHA256, SHA512, MD5
 #leitura do config.ini
 import configparser
+import os
 config = configparser.ConfigParser()
-config.read('/home/btc/Documents/Challenge-Accepted/src/login/config.ini')
+config.read(os.getcwd() + '/login/config.ini')
 
 #fim leitura do config.ini
-
-id_user = 27 #é preciso alterar para 
-
+import main
 def adicionarDesafioHash():
+
+    id_user = 27
     print("HASH CHALLENGE\n")
     print("1. MD5 ALGORITHM")
     print("2. SHA256 ALGORITHM")
@@ -41,7 +42,6 @@ def adicionarDesafioHash():
         h = MD5.new()
         h.update(msg)
         #Grava na BD
-
         try: 
             cur.execute(
             "INSERT INTO desafios_hash (id_user, dica, resposta, algoritmo) VALUES (?, ?, ?, ?)", 
