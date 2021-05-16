@@ -16,7 +16,9 @@ import sys, os
 
 #
 from login import login, register
-
+from hashed import adicionarDesafioH, listarDesafios
+from cypher import adicionarDesafioC
+import banner
 
 # Main definition - constants
 menu_actions  = {}  
@@ -28,8 +30,7 @@ menu_actions  = {}
 # Main menu
 def main_menu():
     os.system('clear')
-    
-    print ("CHALLENGE ACCEPTED 1.0.0\n")
+    banner.printbanner()
     print ("Welcome! \n")
     print ("Please choose an option to start with:")
     print ("1. Login")
@@ -282,6 +283,7 @@ def menuhome():
 # Menu List of Challenges
 def menuchallenges():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafios.listarDesafios()
     print ("Insert number of challenge you want to answer:\n")
     print ("1. Submit solution")
     print ("9. Back")
@@ -307,14 +309,9 @@ def menunewchallenge():
 
 # Menu New Decipher Challenge
 def menunewctype1():
-    print ("DECIPHER CHALLENGE\n")
-    print ("Insert your message") # mensagem a cifrar
-    message = input(" >>  ")
-    print ("Insert the cipherkey") # cifra
-    key = input(" >>  ")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
+    choice = str(adicionarDesafioC.adicionarDesafioCypher())
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc1(choice)
     return
 
@@ -322,12 +319,9 @@ def menunewctype1():
 
 # Menu New Challenge Hash
 def menunewctype2():
-    print ("HASH CHALLENGE\n")
-    print ("Insert your message") # mensagem para calcular hash
-    message = input(" >>  ")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
+    choice = str(adicionarDesafioH.adicionarDesafioHash())
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc2(choice)
     return
 
@@ -446,6 +440,7 @@ submenunewc_actions = {
 # Message Decipher Challenge Menu definition
 submenunewc1_actions = {
     'menunewctype1': menunewctype1,
+    '1': menuchallenges,
     '9': backhome,
     '0': exit,
 }
@@ -453,6 +448,7 @@ submenunewc1_actions = {
 # Hash Challenge Menu definition
 submenunewc2_actions = {
     'menunewctype2': menunewctype2,
+    '1': menuchallenges,
     '9': backhome,
     '0': exit,
 }
