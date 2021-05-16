@@ -237,7 +237,7 @@ def menulogin():
     if (login.loginUser()): 
         exec_menulogin("1")
     else:
-        exec_menulogin("0")
+        exec_menulogin("")
     return
 
 # =======================
