@@ -40,7 +40,7 @@ if (algoritmo == "MD5"):
     try: 
         cur.execute(
         "INSERT INTO desafios_hash (id_user, dica, resposta, algoritmo) VALUES (?, ?, ?, ?)", 
-        (id_user, dica, h.hexdigest(), 1))
+        (id_user, dica, h.hexdigest(), 'MD5'))
     except mariadb.Error as e: 
         print(f"Error: {e}")
     conn.commit() 
@@ -55,7 +55,7 @@ if (algoritmo == "SHA256"):
     try: 
         cur.execute(
         "INSERT INTO desafios_hash (id_user, dica, resposta, algoritmo) VALUES (?, ?, ?, ?)", 
-        (id_user, dica, h.hexdigest(), 2))
+        (id_user, dica, h.hexdigest(), 'SHA256'))
     except mariadb.Error as e: 
         print(f"Error: {e}")
     conn.commit() 
@@ -69,7 +69,7 @@ if (algoritmo == "SHA512"):
     try: 
         cur.execute(
         "INSERT INTO desafios_hash (id_user, dica, resposta, algoritmo) VALUES (?, ?, ?, ?)", 
-        (id_user, dica, h.hexdigest(), 3))
+        (id_user, dica, h.hexdigest(), 'SHA512'))
     except mariadb.Error as e: 
         print(f"Error: {e}")
     conn.commit() 
