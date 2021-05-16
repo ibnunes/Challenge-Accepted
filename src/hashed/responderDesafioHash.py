@@ -39,12 +39,12 @@ def responderDesafioHasha(id_desafio_hash):
         "SELECT desafios_hash.resposta, desafios_hash.dica, desafios_hash.algoritmo, utilizadores.username FROM desafios_hash INNER JOIN utilizadores ON desafios_hash.id_user=utilizadores.id_user WHERE id_desafio_hash=?", 
         (id_desafio_hash,))
     for (resposta, dica, algoritmo, username) in cur:
-        print("Proposto por: " + username)
-        print("Dica: " + dica)
-        print("Algoritmo: " + algoritmo)
+        print("SUBMITTED BY: " + username)
+        print("TIP: " + dica)
+        print("ALGORITHM: " + algoritmo)
         print("HASH: " + resposta)
 
-    print("Introduza a sua resposta:")
+    print("INSERT YOUR ANSWER:")
     resp = input().encode()
     if (algoritmo == 'MD5'):
         h = MD5.new()
