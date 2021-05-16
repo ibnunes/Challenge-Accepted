@@ -1,11 +1,12 @@
 import mariadb
 from prettytable import PrettyTable
 from prettytable import from_db_cursor
+import os
 
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
-config.read('/home/btc/Documents/Challenge-Accepted/src/login/config.ini')
+config.read(os.getcwd() + '/login/config.ini')
 #Ligação a BD
 def listarDesafios():
     try:
