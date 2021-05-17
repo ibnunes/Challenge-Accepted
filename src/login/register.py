@@ -15,14 +15,23 @@ def registerUser():
     print ("Create Account Menu\n")
     print ("Insert New Email:")
     email = input(" >>  ")
+    while(('@' not in email) or ('.' not in email)):
+        print("Email is incorrect!!!")
+        print ("Insert New Email:")
+        email = input(" >>  ")
     print ("Insert New Username:")
     username = input(" >>  ")
     print ("Insert New Password:")
     password = getpass(" >>  ")
     print ("Confirm New Password:")
-    password = getpass(" >>  ")
-
-
+    passwordconf = getpass(" >>  ")
+    while((password != passwordconf)):
+        print ("Passwords don't match!!!")
+        print ("Insert New Password:")
+        password = getpass(" >>  ")
+        print ("Confirm New Password:")
+        passwordconf = getpass(" >>  ")
+        
     # procura se existe o utilizador na base de dados
     try:
         conn = mariadb.connect(
