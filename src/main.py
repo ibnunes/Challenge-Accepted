@@ -18,7 +18,7 @@ import time
 #
 from login import login, register
 from hashed import adicionarDesafioH, listarDesafiosH, responderDesafioHash
-from cypher import adicionarDesafioC, listarDesafiosC, responderDesafio
+from cypher import adicionarDesafioC, listarDesafiosC, responderDesafioC
 import banner
 
 # Main definition - constants
@@ -387,7 +387,7 @@ def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de d
 
 # Menu Submit Challenge Hash
 def submitchallengec(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
-    #responderDesafio(id_desafio_cifras)
+    responderDesafioC.responderDesafioCrypto(idc)
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")

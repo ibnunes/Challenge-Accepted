@@ -2,6 +2,7 @@ import mariadb
 from prettytable import PrettyTable
 from prettytable import from_db_cursor
 import os
+
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
@@ -28,8 +29,3 @@ def listarDesafios():
     x = from_db_cursor(cur) 
 
     print(x)
-
-#print(tabulate(table, headers='firstrow', showindex='always'))
-
-
-
