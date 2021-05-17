@@ -509,6 +509,7 @@ class MariaDBHelper(object):
     def execute(self, args=None):
         """ Executes the current query. """
         if args is not None and type(args) is tuple:
+            self.checkString(list(args))
             self.cursor.execute(self.query, args)
         else:
             self.cursor.execute(self.query)
