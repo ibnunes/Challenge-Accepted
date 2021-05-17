@@ -328,7 +328,7 @@ class MariaDBHelper(object):
         if type(string) is list:
             for s in string:
                 self.checkString(s)
-        if type(string) is str:
+        elif type(string) is str:
             if string in MariaDBHelper.KEYWORDS:
                 self.resetQuery()
                 raise PotentialSQLInjectionAttempt(f"{string} is a reserved keyword!")
@@ -384,7 +384,7 @@ class MariaDBHelper(object):
 
     def Select(self, fields):
         """
-        Query constructor: SELECT
+        Query constructor: `SELECT`
             Adds from a list of tuples (field, alias), such that
             `SELECT field AS alias`.
             If no alias is desired, put `None` or an empty string.
@@ -400,34 +400,81 @@ class MariaDBHelper(object):
         return self
 
 
-    def From(self, table, alias=None):
+    def SelectAll(self):
         """
-        Query constructor: FROM
+        Query constructor: `SELECT *`
+        """
+        self.query += "SELECT * "
+        return self
+
+
+    def From(self, table, alias=""):
+        """
+        Query constructor: `FROM`
             Adds a table and alias from the database, such that
             `FROM table alias`.
             If no alias is desired, put `None` or an empty string.
         """
         self.checkString([table, alias])
-        if alias is None:
-            alias = ""
         self.query += f"FROM {table} {alias} "
         return self
 
 
-    def InnerJoin(self, table, condition):
+    def Where(self, condition):
         """
-        Query constructor: INNER JOIN
+        Query constructor: `WHERE`
+            Adds the WHERE clause to a query, such that
+            `WHERE condition`.
+        """
+        self.checkString(condition)
+        self.query += f"WHERE {condition} "
+        return self
+
+
+    def InnerJoin(self, table, on="", using=""):
+        """
+        Query constructor: `INNER JOIN`
             Adds a table and a condition, such that
             `INNER JOIN table ON condition`.
         """
-        self.checkString([table, condition])
-        self.query += f"INNER JOIN {table} ON {condition} "
+        self.checkString([table, on, using])
+        self.query += f"INNER JOIN {table} " + (f"ON {on} " if on != "" else "") + (f"USING {using} " if using != "" else "")
+        return self
+
+
+    def InsertInto(self, table, keys):
+        """
+        Query constructor: `INSERT INTO`
+            Creates an entire query to insert values into a table, such that
+            `INSERT INTO table ([keys]) VALUES (?, ...)`
+        """
+        self.checkString([table, keys])
+        self.query += f"INSERT INTO {table} ("
+        for key in keys:
+            self.query += f"{key}, "
+        self.query = self.query[:-2] + ") VALUES (" + (", ".join(['?' for _ in range(len(keys))])) + ") "
+        return self
+
+
+    def OrderBy(self, predicate, desc=False, limit=0):
+        """
+        Query constructor: `ORDER BY`
+            Adds a predicate to order by, such that
+            `ORDER BY predicate [DESC] [LIMIT limit]`.
+            `limit` will only be considered if it is a positive, non-negative, integer number.
+        """
+        self.checkString(predicate)
+        self.query += f"ORDER BY {predicate} "
+        if desc:
+            self.query += "DESC "
+        if limit > 0:
+            self.query += f"LIMIT {limit} "
         return self
 
 
     def OpenSubQuery(self):
         """
-        Query constructor: OPEN SUBQUERY
+        Query constructor: `(` (OPEN SUBQUERY)
             Adds left parenthesis.
         """
         self.query += " ( "
@@ -436,7 +483,7 @@ class MariaDBHelper(object):
 
     def CloseSubQuery(self):
         """
-        Query constructor: CLOSE SUBQUERY
+        Query constructor: `)` (CLOSE SUBQUERY)
             Adds right parenthesis.
         """
         self.query += " ) "
@@ -461,22 +508,22 @@ class MariaDBHelper(object):
 
     def execute(self, args=None):
         """ Executes the current query. """
-        if args is not None:
+        if args is not None and type(args) is tuple:
             self.cursor.execute(self.query, args)
         else:
             self.cursor.execute(self.query)
 
 
-    def do(self):
+    def do(self, args=None):
         """
-        Does the following methods in order: `execute()`, `commit()`, `resetQuery()`.
+        Does the following methods in order: `execute(args)`, `commit()`, `resetQuery()`.
         `commit()` is executed only if `execute()` does not return any exception.
         Despite any exception that might occur, the query will be emptied.
         The exception will be thrown.
         """
         exc = None
         try:
-            self.execute()
+            self.execute(args)
             self.commit()
         except Exception as e:
             exc = e
@@ -508,7 +555,7 @@ if __name__ == "__main__":
             ('desafios_hash.algoritmo', None),
             ('utilizadores.username', 'Proposto por')]) \
         .From('desafios_hash') \
-        .InnerJoin('utilizadores', 'desafios_hash.id_user=utilizadores.id_user')
+        .InnerJoin('utilizadores', on='desafios_hash.id_user=utilizadores.id_user')
 
     # Obtém a query para verificar o que o construtor fez
     print(helper.getQuery())
