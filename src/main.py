@@ -18,7 +18,8 @@ import sys, os
 from login import login, register
 from hashed import adicionarDesafioH, listarDesafiosH, responderDesafioHash
 from cypher import adicionarDesafioC, listarDesafiosC, responderDesafioC
-import banner
+from banner import BANNER
+from TUI import Menu, Item
 
 # Main definition - constants
 menu_actions  = {}  
@@ -27,36 +28,22 @@ menu_actions  = {}
 #     MENUS FUNCTIONS
 # =======================
 
-# Main menu
-def main_menu():
-    os.system('clear')
-    banner.printbanner()
-    print ("Welcome! \n")
-    print ("Please choose an option to start with:")
-    print ("1. Login")
-    print ("2. Create Account")
-    print ("3. Help")
-    print ("\n0. Quit")
-    choice = input(" >>  ")
-    exec_menu(choice)
-
-    return
 
 # =======================
 
-# Execute main menu
-def exec_menu(choice):
-    os.system('clear')
-    ch = choice.lower()
-    if ch == '':
-        menu_actions['main_menu']()
-    else:
-        try:
-            menu_actions[ch]()
-        except KeyError:
-            print ("Invalid selection, please try again.\n")
-            menu_actions['main_menu']()
-    return
+# # Execute main menu
+# def exec_menu(choice):
+#     os.system('clear')
+#     ch = choice.lower()
+#     if ch == '':
+#         menu_actions['main_menu']()
+#     else:
+#         try:
+#             menu_actions[ch]()
+#         except KeyError:
+#             print ("Invalid selection, please try again.\n")
+#             menu_actions['main_menu']()
+#     return
 
 # =======================
 
@@ -243,74 +230,85 @@ def exec_menusettings(choice):
         except KeyError:
             print ("Invalid selection, please try again.\n")
             submenusettings_actions['settings']()
-    return
+
+# =======================
+
+# Main menu
+def mainMenu() -> None:
+    Title = BANNER + "Welcome! \n"
+    Menu(
+        Title,
+        "Please choose an option to start with:",
+        [Item("Login", menuLogin),
+         Item("Create Account", menuRegister),
+         Item("Help", menuHelp),
+         Item("Back", back),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
 # Login Menu
-def menulogin():
+def menuLogin():
     if (login.loginUser()): 
         exec_menulogin("1")
     else:
         exec_menulogin("")
-    return
 
 # =======================
 
 # Register Menu
-def menuregister():
+def menuRegister():
     if (register.registerUser()): 
         exec_menureg("1")
     else:
         exec_menureg("0")
-    return
 
 # =======================
 
 # Help Menu
-def menuhelp():
-    print ("Help me!\n")
-    print ("Por informacoes todas bonitinhas")
-    print ("9. Back")
-    print ("0. Quit")
-    choice = input(" >>  ")
-    exec_menuhelp(choice)
-    return
+def menuHelp():
+    Menu(
+        "About",
+        "Informações",
+        [Item("Back", None),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
 # Homepage
-def menuhome():
-    print ("Welcome User:\n") #colocar username da pessoa para mais personalização
-    print ("HOMEPAGE\n")
-    print ("1. List of challenges available")
-    print ("2. Submit new challenge") 
-    print ("3. Scoreboard")
-    print ("4. Settings")
-    print ("5. Help")
-    print ("0. Logout") 
-    choice = input(" >>  ")
-    exec_menuhome(choice)
-    return
+def menuHome():
+    Menu(
+        "Welcome User:",
+        "HOMEPAGE",
+        [Item("List challenges available", ),
+         Item("Submit new challenge", ),
+         Item("Scoreboard", ),
+         Item("Settings", ),
+         Item("Help", menuHelp),
+         Item("Logout", )]
+    )
 
 # =======================
 
 # Menu List of Challenges
-def menuchallenges():
-    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
-    print ("1. AES CYPHER CHALLENGES")
-    print ("2. HASH CHALLENGES")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
-    exec_menuc(choice)
-    return
+def menuChallenges():
+    Menu(
+        "CHALLENGES AVAILABLE",
+        "",
+        [Item("AES CYPHER CHALLENGES", ),
+         Item("HASH CHALLENGES", ),
+         Item("Back", None),
+         Item("Quit", exit)]
+    )
+
 
 # =======================
 
-# Menu List of Challenges Cypher
-def menuchallengesc():
-    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+def menuChallengesC():
+    """Menu List of Challenges Cypher"""
+    print ("CHALLENGES AVAILABLE\n") # colocar lista de challenges available por numero
     listarDesafiosC.listarDesafios()
     print ("Insert number of challenge you want to answer:\n")
     global idc
@@ -320,13 +318,12 @@ def menuchallengesc():
     print ("0. Quit") 
     choice = input(" >>  ")
     exec_menusubmitc(choice)
-    return
 
 # =======================
 
 # Menu List of Challenges Hash
-def menuchallengesh():
-    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+def menuChallengesH():
+    print ("CHALLENGES AVAILABLE\n") # colocar lista de challenges available por numero
     listarDesafiosH.listarDesafios()
     print ("Insert number of challenge you want to answer:\n")
     global idc
@@ -336,84 +333,83 @@ def menuchallengesh():
     print ("0. Quit") 
     choice = input(" >>  ")
     exec_menusubmith(choice)
-    return
 
 # =======================
 
 # Menu New Challenge
-def menunewchallenge():
-    print ("NEW CHALLENGE\n")
-    print ("1. Decipher Challenge Type") # decifra de mensagens
-    print ("2. Hash Challenge Type") # calcular hash de mensagem
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
-    exec_menunc(choice)
-    return
+def menuNewChallenge():
+    Menu(
+        "NEW CHALLENGE",
+        "",
+        [Item("Decipher Challenge Type", ), 
+         Item("Hash Challenge Type", ), 
+         Item("Back", None),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
 # Menu New Decipher Challenge
-def menunewctype1():
+def menuNewCType1():
     choice = str(adicionarDesafioC.adicionarDesafioCypher())
     if (choice == "1"):
         print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc1(choice)
-    return
 
 # =======================
 
 # Menu New Challenge Hash
-def menunewctype2():
+def menuNewCType2():
     choice = str(adicionarDesafioH.adicionarDesafioHash())
     if (choice == "1"):
         print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc2(choice)
-    return
 
 # =======================
 
 # Menu Submit Challenge Hash
-def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
+def submitChallengeH(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
     responderDesafioHash.responderDesafioHash(idc)
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
-    exec_menusubmith(choice)
-    return
+    Menu(
+        "",
+        "",
+        [Item("Back", None),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
 # Menu Submit Challenge Hash
-def submitchallengec(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
+def submitChallengeC(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
     responderDesafioC.responderDesafioCrypto(idc)
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
-    exec_menusubmitc(choice)
-    return
+    Menu(
+        "",
+        "",
+        [Item("Back", None),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
 # Menu Scoreboard
 def scoreboard(): #scoreboard dos users
-    print ("SCOREBOARD\n")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
-    exec_menuscore(choice)
-    return
+    Menu(
+        "SCOREBOARD",
+        "",
+        [Item("Back", None),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
 # Menu Definições
 def settings(): #definicoes do sistema
-    print ("SETTINGS\n")
-    print ("9. Back")
-    print ("0. Quit") 
-    choice = input(" >>  ")
-    exec_menusettings(choice)
-    return
+    Menu(
+        "SETTINGS",
+        "",
+        [Item("Back", None),
+         Item("Quit", exit)]
+    )
 
 # =======================
 
@@ -434,93 +430,93 @@ def exit():
 # =======================
 
 # Main Menu definition
-menu_actions = {
-    'main_menu': main_menu,
-    '1': menulogin,
-    '2': menuregister,
-    '3': menuhelp,
-    '9': back,
-    '0': exit,
-}
+# menu_actions = {
+#     'main_menu': main_menu,
+#     '1': menulogin,
+#     '2': menuregister,
+#     '3': menuhelp,
+#     '9': back,
+#     '0': exit,
+# }
 
 # Login Menu definition
 submenulogin_actions = {
-    'menulogin': menulogin,
+    'menulogin': menuLogin,
     '9': back,
-    '1': menuhome,
+    '1': menuHome,
     '0': exit,
 }
 
 # Register Menu definition
 submenuregister_actions = {
-    'menuregister': menuregister,
+    'menuregister': menuRegister,
     '0': back,
-    '1': menulogin,
+    '1': menuLogin,
 }
 
 # Help Menu definition
 submenuhelp_actions = {
-    'menuhelp': menuhelp,
+    'menuhelp': menuHelp,
     '9': back,
     '0': exit,
 }
 
 # Homepage Menu definition
 submenuhome_actions = {
-    'menuhome': menuhome,
-    '1': menuchallenges,
-    '2': menunewchallenge,
+    'menuhome': menuHome,
+    '1': menuChallenges,
+    '2': menuNewChallenge,
     '3': scoreboard,
     '4': settings,
-    '5': menuhelp,
+    '5': menuHelp,
     '0': exit,
 }
 
 # Challenges Menu definition
 submenuc_actions = {
-    'menuchallenges': menuchallenges,
-    '1': menuchallengesc,
-    '2': menuchallengesh,
+    'menuchallenges': menuChallenges,
+    '1': menuChallengesC,
+    '2': menuChallengesH,
     '9': backhome,
     '0': exit,
 }
 
 # New Challenge Menu definition
 submenunewc_actions = {
-    'menunewchallenge': menunewchallenge,
-    '1': menunewctype1,
-    '2': menunewctype2,
+    'menunewchallenge': menuNewChallenge,
+    '1': menuNewCType1,
+    '2': menuNewCType2,
     '9': backhome,
     '0': exit,
 }
 
 # Message Decipher Challenge Menu definition
 submenunewc1_actions = {
-    'menunewctype1': menunewctype1,
-    '1': menuchallenges,
+    'menunewctype1': menuNewCType1,
+    '1': menuChallenges,
     '9': backhome,
     '0': exit,
 }
 
 # Hash Challenge Menu definition
 submenunewc2_actions = {
-    'menunewctype2': menunewctype2,
-    '1': menuchallenges,
+    'menunewctype2': menuNewCType2,
+    '1': menuChallenges,
     '9': backhome,
     '0': exit,
 }
 
 # Submit Hash Solution Menu definition
 submenusubmith_actions = {
-    '1': submitchallengeh,
-    '9': menuchallenges,
+    '1': submitChallengeH,
+    '9': menuChallenges,
     '0': exit,
 }
 
 # Submit Cypher Solution Menu definition
 submenusubmitc_actions = {
-    '1': submitchallengec,
-    '9': menuchallenges,
+    '1': submitChallengeC,
+    '9': menuChallenges,
     '0': exit,
 }
 
@@ -545,4 +541,4 @@ submenusettings_actions = {
 # Main Program
 if __name__ == "__main__":
     # Launch main menu
-    main_menu()
+    mainMenu()
