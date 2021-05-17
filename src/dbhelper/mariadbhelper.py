@@ -4,12 +4,22 @@ import mariadb
 
 
 class PotentialSQLInjectionAttempt(Exception):
+    """
+    Exception that indicates a POTENTIAL attempt of SQL injection.
+    It does NOT, however, confirm for certain that it is one!
+    """
+
     def __init__(self, message="Potential SQL Injection Attempt"):
         self.message = message
         super().__init__(self.message)
 
 
 class MariaDBHelper(object):
+    """
+    MariaDB Class Helper: manages a connection to a local or remote MariaDB database.
+    """
+
+    # MariaDB Reserved keywords
     KEYWORDS = [
         "ACCESSIBLE",
         "ADD",
@@ -290,20 +300,31 @@ class MariaDBHelper(object):
     ]
 
     def __init__(self, inipath = None):
+        """ Initializes with a decrypted config.ini file """
         self.config = configparser.ConfigParser()
         self.config.read(os.getcwd() + '/login/config.ini' if inipath is None else inipath)
         self.query = ""
+        self.isconn = False
 
 
     def bindErrorCallback(self, errcall):
+        """
+        !!! YET TO BE TESTED !!!
+        Binds a remote callback function to print out error messages.
+        """
         self.err = errcall
 
 
     def resetQuery(self):
+        """ Clears the current query. """
         self.query = ""
 
 
     def checkString(self, string):
+        """
+        Checks if a string or a list of strings are potentially harmful to the integrity of the database.
+            Throws: `PotentialSQLInjectionAttempt`
+        """
         if type(string) is list:
             for s in string:
                 self.checkString(s)
@@ -320,6 +341,9 @@ class MariaDBHelper(object):
 
 
     def connect(self):
+        """
+        Tries to connect to the MariaDB database, and returns the respective cursor if available.
+        """
         try:
             self.connection = mariadb.connect(
                 user     = self.config['DATABASE']['user'],
@@ -328,26 +352,43 @@ class MariaDBHelper(object):
                 port     = int(self.config['DATABASE']['port']),
                 database = self.config['DATABASE']['database']
             )
+            self.isconn = True
         except mariadb.Error as e:
             print(f"Error connecting to MariaDB Platform: {e}")
+            return None
         
         self.cursor = self.connection.cursor()
         return self.getCursor()
 
 
+    def isConnected(self):
+        """ Indicates if the helper has a connection running. """
+        return self.isconn
+
+
     def disconnect(self):
+        """ Disconnects from the database. """
         self.connection.close()
+        self.isconn = False
 
 
     def commit(self):
+        """ Commits the last queries to the database. """
         self.connection.commit()
 
 
     def getCursor(self):
+        """ Returns the cursor of the connection to the database. """
         return self.cursor
 
 
     def Select(self, fields):
+        """
+        Query constructor: SELECT
+            Adds from a list of tuples (field, alias), such that
+            `SELECT field AS alias`.
+            If no alias is desired, put `None` or an empty string.
+        """
         self.query += "SELECT "
         for field, alias in fields:
             self.checkString([field, alias])
@@ -359,39 +400,67 @@ class MariaDBHelper(object):
         return self
 
 
-    def From(self, table):
-        self.checkString(table)
-        self.query += f"FROM {table} "
+    def From(self, table, alias=None):
+        """
+        Query constructor: FROM
+            Adds a table and alias from the database, such that
+            `FROM table alias`.
+            If no alias is desired, put `None` or an empty string.
+        """
+        self.checkString([table, alias])
+        if alias is None:
+            alias = ""
+        self.query += f"FROM {table} {alias} "
         return self
 
 
     def InnerJoin(self, table, condition):
+        """
+        Query constructor: INNER JOIN
+            Adds a table and a condition, such that
+            `INNER JOIN table ON condition`.
+        """
         self.checkString([table, condition])
         self.query += f"INNER JOIN {table} ON {condition} "
         return self
 
 
     def OpenSubQuery(self):
+        """
+        Query constructor: OPEN SUBQUERY
+            Adds left parenthesis.
+        """
         self.query += " ( "
         return self
 
 
     def CloseSubQuery(self):
+        """
+        Query constructor: CLOSE SUBQUERY
+            Adds right parenthesis.
+        """
         self.query += " ) "
         return self
 
 
     @PendingDeprecationWarning
     def AddCustomQuery(self, query):
+        """
+        Query constructor: CUSTOM QUERY
+            Temporary fix while the helper is not exhaustive enough.
+            THIS METHOD IS NOT SAFE AND DOES NOT CHECK FOR SQL INJECTION!
+        """
         self.query += f"{query} "
         return self
 
 
     def getQuery(self):
+        """ Returns the current query. """
         return self.query
 
 
     def execute(self, args=None):
+        """ Executes the current query. """
         if args is not None:
             self.cursor.execute(self.query, args)
         else:
@@ -399,6 +468,12 @@ class MariaDBHelper(object):
 
 
     def do(self):
+        """
+        Does the following methods in order: `execute()`, `commit()`, `resetQuery()`.
+        `commit()` is executed only if `execute()` does not return any exception.
+        Despite any exception that might occur, the query will be emptied.
+        The exception will be thrown.
+        """
         exc = None
         try:
             self.execute()
@@ -411,11 +486,22 @@ class MariaDBHelper(object):
 
 
 
-# TEST
+# TESTE
 if __name__ == "__main__":
     from prettytable import from_db_cursor
+
+    # Instancia um objecto com o Helper
     helper = MariaDBHelper()
+
+    # Faz a conexão, o qual recorre ao config.ini na localização predefinida
     helper.connect()
+
+    # Verifica se a ligação foi efetuada. Se não foi, manda abaixo o programa.
+    if not helper.isConnected():
+        print("A coisa não ligou!")
+        exit(-1)
+
+    # Constrói uma query usando o construtor de queries próprio do helper
     helper \
         .Select([
             ('desafios_hash.id_desafio_hash', 'ID'),
@@ -423,7 +509,15 @@ if __name__ == "__main__":
             ('utilizadores.username', 'Proposto por')]) \
         .From('desafios_hash') \
         .InnerJoin('utilizadores', 'desafios_hash.id_user=utilizadores.id_user')
+
+    # Obtém a query para verificar o que o construtor fez
     print(helper.getQuery())
+
+    # Executa a query na base de dados
     helper.execute()
+
+    # Obtém o cursor do helper e constrói uma fancy table a partir dele
     print(from_db_cursor(helper.getCursor()))
+
+    # Disconecta da base de dados
     helper.disconnect()
