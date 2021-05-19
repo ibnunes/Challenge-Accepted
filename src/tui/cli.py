@@ -55,3 +55,11 @@ class crt(object):
             os.system('clear')
         else:
             os.system('cls')
+
+    @staticmethod
+    def pause(msg="Press any key to continue... "):
+        if os.name == 'nt':
+            print(msg, end='')
+            os.system("pause")
+        else:
+            os.system(f'read -s -n 1 -p "{msg}"')

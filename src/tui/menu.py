@@ -1,5 +1,6 @@
 from tui.cli import sc, crt
-from ..utils.read import Read
+from utils.read import Read
+from copy import deepcopy as clone
 
 
 class MenuItem(object):
@@ -32,7 +33,17 @@ class Menu(object):
         self._count    = len(itemlist)
         self._error    = ""
         self._warning  = ""
-        self._success
+        self._success  = ""
+
+
+    def setTitle(self, title):
+        self._title = title
+
+
+    def withTitle(self, title):
+        newme = clone(self)
+        newme.setTitle(title)
+        return newme
 
 
     def clearStdErr(self):
@@ -57,11 +68,12 @@ class Menu(object):
 
 
     def show(self):
+        crt.clearScreen()
         print(f"{sc.HEADER}{self._title}{sc.ENDC}")
         if self._subtitle != "":
             print(self._subtitle)
         for i in range(1, self._count + 1):
-            print(f"{i:3} > {self._items[i].getDescription()}")
+            print(f"{i:3} > {self._items[i-1].getDescription()}")
 
 
     def exec(self, prompt="Option: "):
@@ -71,33 +83,48 @@ class Menu(object):
             crt.newLine()
             if self._warning != "":
                 crt.writeWarning(self._warning)
+            if self._error != "":
+                crt.writeWarning(self._error)
             
             try:
-                opt = Read.asInt(prompt)
+                opt = Read.asInt(prompt) - 1
             except ValueError:
                 self.setWarning("Option is not a number.")
                 continue
             
             try:
+                if self._items[opt].getFunction() is not None:
+                    self._items[opt].getFunction()()
                 if self._items[opt].isExit():
                     break
-                else:
-                    self._items[opt].getFunction()()
                 self.clearStdErr()
             except IndexError:
                 self.setWarning("Option not in menu.")
                 continue
             except Exception as ex:
-                self.setError(f"FATAL: {ex.message}")
+                self.setError(f"ERROR: {ex}")
                 continue
+        return opt + 1
 
-    # TODO: addMenuItem
-    # TODO: removeMenuItem
 
-    # TODO peregrino: renderer
+    def addItem(self, item, at=None):
+        if at is None:
+            self._items.append(item)
+        else:
+            self._items.insert(at, item)
+
+
+    def removeItem(self, arg):
+        try:
+            if type(arg) is MenuItem:
+                self._items.remove(arg)
+            else:
+                del self._items[arg]
+        finally:
+            pass
 
 
     @staticmethod
     def exec_menu(menu):
-        menu.exec()
+        return menu.exec
 
