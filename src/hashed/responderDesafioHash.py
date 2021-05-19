@@ -78,8 +78,8 @@ def responderDesafioHash(id_desafio_hash):
                 try: 
                     cur3 = conn2.cursor()
                     cur3.execute(
-                    "INSERT INTO utilizadores_hash (id_user, id_desafio_hash, data_ultima_tentativa) VALUES (?, ?, ?)", 
-                    (id_user, id_desafio_hash, int(time.time())))
+                    "INSERT INTO utilizadores_hash (id_user, id_desafio_hash, data_ultima_tentativa, sucesso) VALUES (?, ?, ?, ?)", 
+                    (id_user, id_desafio_hash, int(time.time()), True))
                     conn2.commit() 
                 except mariadb.Error as e: 
                     print(f"Error: {e}")
@@ -95,8 +95,8 @@ def responderDesafioHash(id_desafio_hash):
         try: 
             cur3 = conn2.cursor()
             cur3.execute(
-            "INSERT INTO utilizadores_hash (id_user, id_desafio_hash, data_ultima_tentativa) VALUES (?, ?, ?)", 
-            (id_user, id_desafio_hash, int(time.time())))
+            "INSERT INTO utilizadores_hash (id_user, id_desafio_hash, data_ultima_tentativa, sucesso) VALUES (?, ?, ?, ?)", 
+            (id_user, id_desafio_hash, int(time.time())), True)
             conn2.commit() 
         except mariadb.Error as e: 
             print(f"Error: {e}")
