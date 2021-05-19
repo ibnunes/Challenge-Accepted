@@ -11,8 +11,6 @@ import time
 #leitura do config.ini
 import configparser
 
-from cypher.adicionarDesafioC import encryptECB
-
 def decryptECB(ciphertext,key, mode):
 	encobj = AES.new(key,mode)
 	return(encobj.decrypt(ciphertext))
@@ -30,8 +28,8 @@ def decryptCTR(ciphertext,key, mode, iv):
     return(encobj.decrypt(ciphertext))
 
 
-def responderDesafioCrypto(id_desafio_crypto):
-    id_user = 27 #é preciso alterar para 
+def responderDesafioCrypto(id_desafio_crypto, user):
+    id_user = user #é preciso alterar para 
     config = configparser.ConfigParser()
     config.read(os.getcwd() + '/login/config.ini')
     #Ligação a BD
@@ -78,19 +76,31 @@ def responderDesafioCrypto(id_desafio_crypto):
         plaintext = decryptECB(base64.b64decode(resposta),key,AES.MODE_ECB)
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         if (plaintext.strip() == texto_limpo.strip()):
-            print("Desafio superado")
+            print("CONGRATULATIONS! YOU DID IT YOU LITTLE GENIUS!")
+            return True
+        else:
+            print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
+            return False
     if (algoritmo == 'CBC'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCBC(base64.b64decode(resposta),key,AES.MODE_CBC,iv.encode())
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         if (plaintext.strip() == texto_limpo.strip()):
-            print("Desafio superado")
+            print("CONGRATULATIONS! YOU DID IT YOU LITTLE GENIUS!")
+            return True
+        else:
+            print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
+            return False
     if(algoritmo == 'CTR'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCTR(base64.b64decode(resposta),key,AES.MODE_CTR,iv.encode())
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         if (plaintext.strip() == texto_limpo.strip()):
-            print("Desafio superado")
+            print("CONGRATULATIONS! YOU DID IT YOU LITTLE GENIUS!")
+            return True
+        else:
+            print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
+            return False
     

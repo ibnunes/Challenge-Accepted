@@ -8,9 +8,9 @@ config.read(os.getcwd() + '/login/config.ini')
 
 #fim leitura do config.ini
 import main
-def adicionarDesafioHash():
+def adicionarDesafioHash(user):
 
-    id_user = 27
+    id_user = user
     print("HASH CHALLENGE\n")
     print("1. MD5 ALGORITHM")
     print("2. SHA256 ALGORITHM")

@@ -13,7 +13,6 @@ config.read(os.getcwd() + '/login/config.ini')
 
 #fim leitura do config.ini
 
-id_user = 27
 
 def encryptECB(plaintext,key, mode):
 	encobj = AES.new(key,mode)
@@ -44,7 +43,8 @@ def decryptCTR(ciphertext,key, mode, iv):
     encobj = AES.new(key,mode,counter=ctr)
     return(encobj.decrypt(ciphertext))
 
-def adicionarDesafioCypher():
+def adicionarDesafioCypher(user):
+    id_user = user
     print("AES CYPHER CHALLENGE\n")
     print("1. AES-128-ECB ALGORITHM")
     print("2. AES-128-CBC ALGORITHM")

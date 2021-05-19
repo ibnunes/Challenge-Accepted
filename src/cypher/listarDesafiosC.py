@@ -8,7 +8,7 @@ import configparser
 config = configparser.ConfigParser()
 config.read(os.getcwd() + '/login/config.ini')
 #Ligação a BD
-def listarDesafios():
+def listarDesafios(user):
     try:
         conn = mariadb.connect(
             user=config['DATABASE']['user'],
@@ -24,7 +24,7 @@ def listarDesafios():
 
     cur = conn.cursor()
     cur.execute(
-        "SELECT desafios_cifras.id_desafio_cifras as ID, desafios_cifras.algoritmo , utilizadores.username as 'Proposto por' FROM desafios_cifras INNER JOIN utilizadores ON desafios_cifras.id_user=utilizadores.id_user")
+        "SELECT desafios_cifras.id_desafio_cifras as ID, desafios_cifras.algoritmo , utilizadores.username as 'Proposto por' FROM desafios_cifras INNER JOIN utilizadores ON desafios_cifras.id_user=utilizadores.id_user WHERE desafios_cifras.id_user <> ?", (user,))
     x = from_db_cursor(cur) 
 
 
