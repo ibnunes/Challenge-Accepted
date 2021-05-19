@@ -124,3 +124,5 @@ dmypy.json
 .pyre/
 
 TW-proposals.pdf
+src/.idea
+.vscode/
