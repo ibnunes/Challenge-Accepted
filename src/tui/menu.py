@@ -219,6 +219,7 @@ class Menu(object):
             self._items.append(item)
         else:
             self._items.insert(at, item)
+        self._count = len(self._items)
 
 
     def removeItem(self, arg):
@@ -234,7 +235,7 @@ class Menu(object):
             else:
                 del self._items[arg]
         finally:
-            pass
+            self._count = len(self._items)
 
 
     @staticmethod
