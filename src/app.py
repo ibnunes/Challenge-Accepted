@@ -1,8 +1,11 @@
 import sys
+
+from challenge.cypher import ChallengeCypher
 from tui.menu import *
 from tui.banner import BANNER
 from dbhelper.dbcontrol import *
 from login.user import *
+from utils.cypher import Cypher
 
 class App(object):
     class flags:
@@ -16,6 +19,10 @@ class App(object):
         self._user = User(self._db)
 
 
+    def getDBController(self):
+        return self._db
+
+
     def debug(self, msg, end='\n'):
         if self.flags.debug:
             crt.writeDebug(f"Debug: {msg}", end=end)
@@ -25,12 +32,13 @@ class App(object):
         if "--debug" in args or "-d" in args:
             self.flags.debug = True
         self._db.start()
+        ChallengeCypher.bindApp(self)
         while not self.flags.halt:
             self._menuMain.exec()
 
 
     def finalize(self):
-        crt.writeDebug("Stopping the app")
+        self.debug("Stopping the app")
         exit(0)
 
 
@@ -55,9 +63,9 @@ class App(object):
             "Cypher Challenge",
             "Featuring AES",
             [
-                MenuItem("AES-128-ECB", None),
-                MenuItem("AES-128-CBC", None),
-                MenuItem("AES-128-CTR", None),
+                MenuItem("AES-128-ECB", ChallengeCypher.add(self._user, Cypher.ECB.TYPE)),
+                MenuItem("AES-128-CBC", ChallengeCypher.add(self._user, Cypher.CBC.TYPE)),
+                MenuItem("AES-128-CTR", ChallengeCypher.add(self._user, Cypher.CTR.TYPE)),
                 MenuItem("Back",        None, isexit=True),
                 MenuItem("QUIT",        self.finalize)
             ]
@@ -79,8 +87,10 @@ class App(object):
             "CHALLENGES AVAILABLE",
             "",
             [
-                MenuItem("AES Cypher", None),
-                MenuItem("Hash",       None),
+                MenuItem("AES Cypher: List all",         ChallengeCypher.show()),
+                MenuItem("AES Cypher: Try to solve one", ChallengeCypher.choose(self._user, showall=False)),
+                MenuItem("Hash: List all",               None),
+                MenuItem("Hash: Try to solve one",       None),
                 MenuItem("Back",       None, isexit=True),
                 MenuItem("QUIT",       self.finalize)
             ]
@@ -101,13 +111,13 @@ class App(object):
             "HOMEPAGE",
             "Welcome:",
             [
-                MenuItem("List challenges",      Menu.exec_menu(self._menuListChallenges)),
-                MenuItem("Submit new challenge", Menu.exec_menu(self._menuSubmitChallenge)),
-                # MenuItem("Scoreboard",           None),
-                # MenuItem("Settings",             None),
-                MenuItem("Help",                 App.about),
-                MenuItem("Logout",               None, isexit=True),
-                MenuItem("QUIT",                 self.finalize)
+                MenuItem("List / solve challenges", Menu.exec_menu(self._menuListChallenges)),
+                MenuItem("Submit new challenge",    Menu.exec_menu(self._menuSubmitChallenge)),
+                # MenuItem("Scoreboard",              None),
+                # MenuItem("Settings",                None),
+                MenuItem("Help",                    App.about),
+                MenuItem("Logout",                  None, isexit=True),
+                MenuItem("QUIT",                    self.finalize)
             ]
         )
 

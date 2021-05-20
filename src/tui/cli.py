@@ -21,6 +21,7 @@ class crt(object):
             OKGREEN   = ''
             WARNING   = ''
             FAIL      = ''
+            DEBUG     = ''
             ENDC      = ''
             BOLD      = ''
             UNDERLINE = ''
