@@ -30,7 +30,7 @@ class App(object):
 
 
     def finalize(self):
-        crt.writeDebug("Stopping the app")
+        self.debug("Stopping the app")
         exit(0)
 
 
