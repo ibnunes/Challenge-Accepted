@@ -5,8 +5,11 @@ import os
 #Para esconder o input da password
 from getpass import getpass
 
+from dbhelper.dbcontrol import DBControl, UsernameNotFound, WrongPassword
+
 #leitura do config.ini
 import configparser
+
 
 def loginUser():
     config = configparser.ConfigParser()
@@ -23,11 +26,11 @@ def loginUser():
     # procura se existe o utilizador na base de dados
     try:
         conn = mariadb.connect(
-            user=config['DATABASE']['user'],
-            password=config['DATABASE']['password'],
-            host=config['DATABASE']['host'],
-            port=int(config['DATABASE']['port']),
-            database=config['DATABASE']['database']
+            user = config['DATABASE']['user'],
+            password = config['DATABASE']['password'],
+            host = config['DATABASE']['host'],
+            port = int(config['DATABASE']['port']),
+            database = config['DATABASE']['database']
 
         )
     except mariadb.Error as e:
@@ -46,10 +49,7 @@ def loginUser():
         if new_key == binascii.unhexlify(key):
             return True
         else:
-            print ("Senha errada")
-            print("Tentar novamente?")
-            a = input()
-            return False
+            raise Exception
     else:
         print("Utilizador não encontrado")
         print("Tentar novamente?")
