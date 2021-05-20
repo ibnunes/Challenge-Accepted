@@ -14,6 +14,12 @@ class PotentialSQLInjectionAttempt(Exception):
         super().__init__(self.message)
 
 
+class ConnectionNotEstablished(Exception):
+    def __init__(self, message="Connection not established"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class MariaDBHelper(object):
     """
     MariaDB Class Helper: manages a connection to a local or remote MariaDB database.
@@ -302,7 +308,7 @@ class MariaDBHelper(object):
     def __init__(self, inipath = None):
         """ Initializes with a decrypted config.ini file """
         self.config = configparser.ConfigParser()
-        self.config.read(os.getcwd() + '/login/config.ini' if inipath is None else inipath)
+        self.config.read(os.getcwd() + '/dbhelper/config.ini' if inipath is None else inipath)
         self.query = ""
         self.isconn = False
 

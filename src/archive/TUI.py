@@ -16,7 +16,12 @@ class bcolors:
     UNDERLINE = '\033[4m'
     
 
+<<<<<<< HEAD:src/TUI.py
 class Item(object):
+=======
+
+class Item():
+>>>>>>> dev-ds:src/archive/TUI.py
     def __init__(self, descr, func) -> None:
         self._description = descr
         self._function = func
