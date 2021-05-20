@@ -176,3 +176,72 @@ class DBControl(object):
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
         return None
+
+
+    def addHashChallenge(self, id_user, tip, msg, algorithm):
+        try:
+            self._helper                                                            \
+                .InsertInto(
+                    "desafios_hash",
+                    ["id_user", "dica", "resposta", "algoritmo"] )   \
+                .execute((id_user, tip, msg, algorithm))
+            self._helper.commit()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+            return False
+        self._helper.resetQuery()
+        return True
+
+
+    def getAllHashChallenges(self):
+        pt = PrettyTable()
+        try:
+            self._helper                                                                        \
+                .Select([
+                    ("desafios_hash.id_desafio_hash", "ID"),
+                    ("desafios_hash.algoritmo", None),
+                    ("utilizadores.username", "Proposto por")])                                 \
+                .From("desafios_hash")                                                        \
+                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user")   \
+                .execute()
+            pt = from_db_cursor(self._helper.getCursor())
+            self._helper.resetQuery()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+        return pt
+
+
+    def getHashChallenge(self, id_challenge):
+        return None
+        try:
+            self._helper                                                                        \
+                .Select([
+                    ("desafios_cifras.resposta", None),
+                    ("desafios_cifras.dica", None),
+                    ("desafios_cifras.algoritmo", None),
+                    ("desafios_cifras.texto_limp", None),
+                    ("utilizadores.username", None)     ])                                      \
+                .From("desafios_cifras")                                                        \
+                .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
+                .Where("id_desafio_cifras=?")                                                   \
+                .execute((id_challenge,))
+            self._helper.resetQuery()
+            for (a, t, x, p, u) in self._helper.getCursor():
+                answer    = a
+                tip       = t
+                algorithm = x
+                plaintext = p
+                username  = u
+            return {
+                'answer'    : answer,
+                'tip'       : tip,
+                'algorithm' : algorithm,
+                'plaintext' : plaintext,
+                'username'  : username
+            }
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+        return None

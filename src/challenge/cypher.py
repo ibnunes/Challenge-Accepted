@@ -4,8 +4,9 @@ import Padding
 import base64
 # from prettytable import PrettyTable
 
-from app import App
+# from app import App
 from login.user import User
+
 """
 TODO: - Documentation
 """
@@ -15,10 +16,10 @@ from utils.read import Read
 from tui.cli import crt
 
 class ChallengeCypher(object):
-    APP : App = None
+    APP = None
 
     @staticmethod
-    def bindApp(app : App):
+    def bindApp(app):
         ChallengeCypher.APP = app
 
 
@@ -104,7 +105,7 @@ class ChallengeCypher(object):
         elif challenge['algorithm'] == Cypher.CTR.TYPE:
             ival=10
             iv= hex(ival)[2:8].zfill(16)
-            plaintext = Cypher.CTR.decode(base64.b64decode(challenge['answer']),key,AES.MODE_CTR,iv.encode())
+            plaintext = Cypher.CTR.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_CTR, iv.encode())
 
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         if (plaintext.strip() == challenge['plaintext'].strip()):
