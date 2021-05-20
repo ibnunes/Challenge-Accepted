@@ -15,7 +15,7 @@ class App(object):
 
     def __init__(self):
         self.loadUI()
-        self._db = DBControl()
+        self._db = DBControl()          # TODO: separar DBControl do cliente
         self._user = User(self._db)
 
 
