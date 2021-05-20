@@ -6,6 +6,9 @@ from prettytable import from_db_cursor
 from .mariadbhelper import *
 from tui.cli import crt
 
+"""
+TODO: - Documentation
+"""
 
 class UsernameNotFound(Exception):
     def __init__(self, message="Username not found"):
