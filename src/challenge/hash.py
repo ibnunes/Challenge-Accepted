@@ -1,9 +1,9 @@
 # from app import App
 from login.user import User
-
 from utils.crypto import Hash
 from utils.read import Read
 from tui.cli import crt
+from utils.clock import Clock
 
 class ChallengeHash(object):
     APP = None
@@ -67,6 +67,13 @@ class ChallengeHash(object):
 
         id_user = user.getUserID()
 
+        last_try  = ChallengeHash.APP.getDBController().getHashLastTry(id_user, id_challenge)
+        curr_time = Clock.now()
+        if not (last_try is None or Clock.isAfter(curr_time, Clock.addSeconds(last_try, 15))):
+            crt.writeWarning("Too soon to try again.")
+            crt.pause()
+            return None
+
         proposal = Read.asString("Insert your answer: ").encode()
         if challenge['algorithm'] == Hash.MD5.TYPE:
             proposal = Hash.MD5.encrypt(proposal)
@@ -76,8 +83,10 @@ class ChallengeHash(object):
             proposal = Hash.SHA512.encrypt(proposal)
         
         if proposal == challenge['answer']:
-            # TODO: colocar na base de dados que teve sucesso
-            crt.writeSuccess("YOU DID IT!")
+            if ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now()):
+                crt.writeSuccess("YOU DID IT!")
+            else:
+                crt.writeError("You got it, but I could not save the answer.")
         else:
             crt.writeMessage("Better luck next time :(")
         crt.pause()

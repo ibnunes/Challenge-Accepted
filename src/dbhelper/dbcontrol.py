@@ -1,6 +1,5 @@
 import hashlib
 import binascii
-from os import times
 from prettytable import PrettyTable
 from prettytable import from_db_cursor
 
@@ -179,12 +178,53 @@ class DBControl(object):
         return None
 
 
+    def getCypherLastTry(self, id_user, id_challenge):
+        last_date = None
+        try:
+            self._helper                                    \
+                .Select([("data_ultima_tentativa", None)])  \
+                .From("utilizadores_cifras")                  \
+                .Where("id_user=? AND id_desafio_cifras=?")   \
+                .OrderBy(
+                    predicate="data_ultima_tentativa",
+                    desc=True,
+                    limit=1
+                ).execute((id_user, id_challenge))
+            for (ld,) in self._helper.getCursor():
+                last_date = ld
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return last_date
+
+
+    def updateCypherChallengeTry(self, id_user, id_challenge, date):
+        try:
+            self._helper \
+                .InsertInto(
+                    table="utilizadores_cifras",
+                    keys=[
+                        "id_user",
+                        "id_desafio_cifras",
+                        "data_ultima_tentativa",
+                        "sucesso"
+                    ]
+                ).execute((id_user, id_challenge, date, True))
+            self._helper.commit()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+            return False
+        self._helper.resetQuery()
+        return True
+
+
     def addHashChallenge(self, id_user, tip, msg, algorithm):
         try:
-            self._helper                                                            \
+            self._helper                                            \
                 .InsertInto(
                     "desafios_hash",
-                    ["id_user", "dica", "resposta", "algoritmo"] )   \
+                    ["id_user", "dica", "resposta", "algoritmo"] )  \
                 .execute((id_user, tip, msg, algorithm))
             self._helper.commit()
         except mariadb.Error as ex:
@@ -198,33 +238,32 @@ class DBControl(object):
     def getAllHashChallenges(self):
         pt = PrettyTable()
         try:
-            self._helper                                                                        \
+            self._helper                                                                    \
                 .Select([
                     ("desafios_hash.id_desafio_hash", "ID"),
                     ("desafios_hash.algoritmo", None),
-                    ("utilizadores.username", "Proposto por")])                                 \
-                .From("desafios_hash")                                                        \
-                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user")   \
+                    ("utilizadores.username", "Proposto por")])                             \
+                .From("desafios_hash")                                                      \
+                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
                 .execute()
             pt = from_db_cursor(self._helper.getCursor())
-            self._helper.resetQuery()
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        self._helper.resetQuery()
         return pt
 
 
     def getHashChallenge(self, id_challenge):
         try:
-            self._helper                                                                        \
+            self._helper                                                                    \
                 .Select([
                     ("desafios_hash.resposta", None),
                     ("desafios_hash.dica", None),
                     ("desafios_hash.algoritmo", None),
-                    ("utilizadores.username", None),    ])                                      \
-                .From("desafios_hash")                                                        \
-                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user")   \
-                .Where("id_desafio_hash=?")                                                   \
+                    ("utilizadores.username", None),    ])                                  \
+                .From("desafios_hash")                                                      \
+                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
+                .Where("id_desafio_hash=?")                                                 \
                 .execute((id_challenge,))
             for (a, t, x, u) in self._helper.getCursor():
                 answer    = a
@@ -239,5 +278,47 @@ class DBControl(object):
             }
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        self._helper.resetQuery()
         return None
+
+
+    def getHashLastTry(self, id_user, id_challenge):
+        last_date = None
+        try:
+            self._helper                                    \
+                .Select([("data_ultima_tentativa", None)])  \
+                .From("utilizadores_hash")                  \
+                .Where("id_user=? AND id_desafio_hash=?")   \
+                .OrderBy(
+                    predicate="data_ultima_tentativa",
+                    desc=True,
+                    limit=1
+                ).execute((id_user, id_challenge))
+            for (ld,) in self._helper.getCursor():
+                last_date = ld
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return last_date
+
+
+    def updateHashChallengeTry(self, id_user, id_challenge, date):
+        try:
+            self._helper \
+                .InsertInto(
+                    table="utilizadores_hash",
+                    keys=[
+                        "id_user",
+                        "id_desafio_hash",
+                        "data_ultima_tentativa",
+                        "sucesso"
+                    ]
+                ).execute((id_user, id_challenge, date, True))
+            self._helper.commit()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+            return False
+        self._helper.resetQuery()
+        return True
+

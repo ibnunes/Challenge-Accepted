@@ -6,6 +6,7 @@ import base64
 
 # from app import App
 from login.user import User
+from utils.clock import Clock
 
 """
 TODO: - Documentation
@@ -91,6 +92,13 @@ class ChallengeCypher(object):
 
         id_user = user.getUserID()
 
+        last_try  = ChallengeCypher.APP.getDBController().getCypherLastTry(id_user, id_challenge)
+        curr_time = Clock.now()
+        if not (last_try is None or Clock.isAfter(curr_time, Clock.addSeconds(last_try, 15))):
+            crt.writeWarning("Too soon to try again.")
+            crt.pause()
+            return None
+
         challenge['plaintext'] = Padding.appendPadding(challenge['plaintext'], blocksize=Padding.AES_blocksize, mode=0)
 
         proposal = Read.asString("Insert your answer: ")
@@ -109,9 +117,10 @@ class ChallengeCypher(object):
 
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         if (plaintext.strip() == challenge['plaintext'].strip()):
-            crt.writeSuccess("YOU DID IT!")
+            if ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now()):
+                crt.writeSuccess("YOU DID IT!")
+            else:
+                crt.writeError("You got it, but I could not save the answer.")
         else:
             crt.writeMessage("Better luck next time :(")
         crt.pause()
-
-        # TODO: colocar na base de dados que teve sucesso
