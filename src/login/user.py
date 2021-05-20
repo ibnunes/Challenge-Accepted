@@ -6,6 +6,8 @@ from validate_email import validate_email
 
 
 class User(object):
+    NO_USER = -1
+
     def __init__(self, dbcontroller : DBControl):
         """
         Initializes User.
@@ -17,13 +19,13 @@ class User(object):
         self._password  = ""
         self._dbcontrol = dbcontroller
         self._logged    = False
+        self._userid    = User.NO_USER
 
 
     def wipe(self):
         """Resets User stats."""        
         self._username = ""
         self._password = ""
-        self._logged   = False
 
 
     def getUsername(self):
@@ -32,6 +34,10 @@ class User(object):
             str: Username of the User.
         """        
         return self._username
+
+
+    def getUserID(self):
+        return self._userid
 
 
     def isLoggedIn(self):
@@ -45,6 +51,8 @@ class User(object):
     def logout(self):
         """Logs User out."""        
         self.wipe()
+        self._logged = False
+        self._userid = User.NO_USER
 
 
     def login(self):
@@ -57,8 +65,10 @@ class User(object):
         self._username = Read.asString("Username: ")
         self._password = Read.asPassword("Password: ")
         try:
-            if self._dbcontrol.loginUser(self._username, self._password):
+            (ok, id_user) = self._dbcontrol.loginUser(self._username, self._password)
+            if ok:
                 self._logged = True
+                self._userid = id_user
         except (UsernameNotFound, WrongPassword) as ex:
             crt.writeWarning(ex.message)
             self._logged = False
@@ -74,12 +84,19 @@ class User(object):
             bool: True if successfully registered False otherwise.
         """        
         while True:
+            email = Read.asString("Email: ")
+            # TODO: validar Email
+            if self._dbcontrol.emailExists(email):
+                crt.writeWarning(f"User with email '{email}' already exists.")
+            else:
+                break
+        while True:
             username = Read.asString("New username: ")
             isValid, tip = User.validateUsername(username)
             if not isValid:
                 crt.writeWarning(tip)
             elif self._dbcontrol.userExists(username):
-                crt.writeWarning(f"User '{username} already exists.")
+                crt.writeWarning(f"User '{username}' already exists.")
             else:
                 break
 

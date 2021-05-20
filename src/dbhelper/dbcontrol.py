@@ -34,12 +34,12 @@ class DBControl(object):
             self._helper.disconnect()
 
 
-    def userExists(self, username):
-        self._helper \
-            .Select([("username", None)]) \
-            .From("utilizadores") \
-            .Where("username=?") \
-            .execute((username,))
+    def valueExists(self, table, field, value):
+        self._helper                    \
+            .Select([(field, None)])    \
+            .From(table)                \
+            .Where(f"{field}=?")        \
+            .execute((value,))
         self._helper.resetQuery()
         ok = False
         for (c,) in self._helper.getCursor():
@@ -47,8 +47,24 @@ class DBControl(object):
         return ok
 
 
+    def userExists(self, username):
+        return self.valueExists(
+            table = "utilizadores",
+            field = "username",
+            value = username
+        )
+
+
+    def emailExists(self, email):
+        return self.valueExists(
+            table = "utilizadores",
+            field = "email",
+            value = email
+        )
+
+
     def loginUser(self, username, password):
-        uname, key, salt = "", "", ""
+        key, salt = "", ""
         self._helper \
             .Select([("id_user", None), ("password", None), ("salt", None)]) \
             .From("utilizadores") \
@@ -67,7 +83,7 @@ class DBControl(object):
         
         new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), binascii.unhexlify(salt), 100000)
         if new_key == binascii.unhexlify(key):
-            return True
+            return (True, id_user)
         else:
             raise WrongPassword(f"Wrong password for user '{username}'.")
 

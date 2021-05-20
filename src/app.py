@@ -115,8 +115,8 @@ class App(object):
             BANNER + "WELCOME",
             "Please choose an option to start with:",
             [
-                MenuItem("Login",   self.userLogin),  # Menu.exec_menu(self._menuListChallenges)),
-                MenuItem("Sign up", self.userSignup),  # Menu.exec_menu(self._menuSubmitChallenge)),
+                MenuItem("Login",   self.userLogin),
+                MenuItem("Sign up", self.userSignup),
                 MenuItem("Help",    App.about),
                 MenuItem("QUIT",    self.finalize, isexit=True)
             ]
