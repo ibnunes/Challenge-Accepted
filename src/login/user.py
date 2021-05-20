@@ -19,6 +19,14 @@ class User(object):
         self._logged   = False
 
 
+    def getUsername(self):
+        return self._username
+
+
+    def isLoggedIn(self):
+        return self._logged
+
+
     def logout(self):
         self.wipe()
 

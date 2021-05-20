@@ -46,6 +46,10 @@ class Menu(object):
         return newme
 
 
+    def setSubtitle(self, subtitle):
+        self._subtitle = subtitle
+
+
     def clearStdErr(self):
         self._warning = ""
         self._error   = ""
@@ -84,7 +88,7 @@ class Menu(object):
             if self._warning != "":
                 crt.writeWarning(self._warning)
             if self._error != "":
-                crt.writeWarning(self._error)
+                crt.writeError(self._error)
             
             try:
                 opt = Read.asInt(prompt) - 1

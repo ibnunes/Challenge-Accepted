@@ -36,6 +36,7 @@ class App(object):
 
     def userLogin(self):
         if self._user.login():
+            self._menuHome.setSubtitle(f"Welcome {self._user.getUsername()}")
             self._menuHome.exec()
         else:
             crt.pause()
@@ -97,8 +98,8 @@ class App(object):
         )
 
         self._menuHome = Menu(
-            "Welcome User:",
             "HOMEPAGE",
+            "Welcome:",
             [
                 MenuItem("List challenges",      Menu.exec_menu(self._menuListChallenges)),
                 MenuItem("Submit new challenge", Menu.exec_menu(self._menuSubmitChallenge)),
