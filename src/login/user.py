@@ -37,6 +37,10 @@ class User(object):
 
 
     def getUserID(self):
+        """
+        Returns:
+            int: UserID of User.
+        """
         return self._userid
 
 
@@ -82,14 +86,7 @@ class User(object):
 
         Returns:
             bool: True if successfully registered False otherwise.
-        """        
-        while True:
-            email = Read.asString("Email: ")
-            # TODO: validar Email
-            if self._dbcontrol.emailExists(email):
-                crt.writeWarning(f"User with email '{email}' already exists.")
-            else:
-                break
+        """
         while True:
             username = Read.asString("New username: ")
             isValid, tip = User.validateUsername(username)
