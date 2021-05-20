@@ -2,6 +2,10 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 import binascii
 
+"""
+TODO: - Documentation
+"""
+
 class Cypher:
     def int_of_string(s):
         return int(binascii.hexlify(s), 16)

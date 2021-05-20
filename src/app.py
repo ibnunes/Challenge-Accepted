@@ -6,22 +6,48 @@ from login.user import *
 
 class App(object):
     class flags:
+        """
+        App flags
+        
+        Contains 2 states.
+        - Debug (bool): Debug mode.
+        - Halt (bool): When True App will be terminated.
+        """
         debug = False
         halt  = False
 
 
     def __init__(self):
+        """
+        Initializes App by:
+        - Loading the UI;
+        - Initializing the Data Base Controller;
+        - And the User class;
+        """        
         self.loadUI()
         self._db = DBControl()
         self._user = User(self._db)
 
 
     def debug(self, msg, end='\n'):
+        """
+        While in debug mode it prints to stdout.
+
+        Args:
+            msg (str): Message.
+            end (str, optional): On what ends the message. Defaults to '\n'.
+        """
         if self.flags.debug:
             crt.writeDebug(f"Debug: {msg}", end=end)
 
 
     def launch(self, args=[]):
+        """
+        Launches the App.
+
+        Args:
+            args (list, optional): System arguments passed on terminal. Defaults to [].
+        """
         if "--debug" in args or "-d" in args:
             self.flags.debug = True
         self._db.start()
@@ -30,11 +56,13 @@ class App(object):
 
 
     def finalize(self):
+        """Finalizes the app, printing a debug message."""        
         self.debug("Stopping the app")
         exit(0)
 
 
     def userLogin(self):
+        """On user login updates menuHome Subtitle to user's name."""        
         if self._user.login():
             self._menuHome.setSubtitle(f"Welcome {self._user.getUsername()}")
             self._menuHome.exec()
@@ -43,12 +71,14 @@ class App(object):
 
 
     def userSignup(self):
+        """On a successful sign up presents user with a Success message."""        
         if self._user.signup():
             crt.writeSuccess("New user registered.")
         crt.pause()
 
 
     def loadUI(self):
+        """Load each and every Menu. (Aka UI)"""        
         self.debug("Loading UI...", end='')
 
         self._menuAddChallengeCypher = Menu(
@@ -142,12 +172,22 @@ class App(object):
 
 
     def confirm(self, prompt=""):
+        """
+        Standard Menu for Yes or No decision.
+
+        Args:
+            prompt (str, optional): Stdout prompt. Defaults to "".
+
+        Returns:
+            bool: True when the option selected is Yes and False otherwise. 
+        """        
         opt = self._menuYesNo.withTitle(prompt).exec()
-        return True if opt == 0 else False
+        return opt == 0
 
 
     @staticmethod
     def about():
+        """Content of About interface."""        
         crt.writeMessage("ABOUT\n")
         crt.pause()
 
