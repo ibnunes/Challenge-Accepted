@@ -1,49 +1,57 @@
 import os
 
-class sc:
-    """ Shell colors """
-    if os.name == 'posix':
-        HEADER    = '\033[95m'
-        OKBLUE    = '\033[94m'
-        OKCYAN    = '\033[96m'
-        OKGREEN   = '\033[92m'
-        WARNING   = '\033[93m'
-        FAIL      = '\033[91m'
-        ENDC      = '\033[0m'
-        BOLD      = '\033[1m'
-        UNDERLINE = '\033[4m'
-    else:
-        HEADER    = ''
-        OKBLUE    = ''
-        OKCYAN    = ''
-        OKGREEN   = ''
-        WARNING   = ''
-        FAIL      = ''
-        ENDC      = ''
-        BOLD      = ''
-        UNDERLINE = ''
-
-
 class crt(object):
-    @staticmethod
-    def writeWarning(msg):
-        print(f"{sc.WARNING}{msg}{sc.ENDC}")
+    class color:
+        """ Shell colors """
+        if os.name == 'posix':
+            HEADER    = '\033[95m'
+            OKBLUE    = '\033[94m'
+            OKCYAN    = '\033[96m'
+            OKGREEN   = '\033[92m'
+            WARNING   = '\033[93m'
+            FAIL      = '\033[91m'
+            DEBUG     = '\033[90m'
+            ENDC      = '\033[0m'
+            BOLD      = '\033[1m'
+            UNDERLINE = '\033[4m'
+        else:
+            HEADER    = ''
+            OKBLUE    = ''
+            OKCYAN    = ''
+            OKGREEN   = ''
+            WARNING   = ''
+            FAIL      = ''
+            ENDC      = ''
+            BOLD      = ''
+            UNDERLINE = ''
 
     @staticmethod
-    def writeError(msg):
-        print(f"{sc.FAIL+sc.BOLD}{msg}{sc.ENDC}")
+    def writeWarning(msg, end='\n'):
+        print(f"{crt.color.WARNING}{msg}{crt.color.ENDC}", end=end)
 
     @staticmethod
-    def writeInfo(msg):
-        print(f"{sc.OKCYAN}{msg}{sc.ENDC}")
+    def writeError(msg, end='\n'):
+        print(f"{crt.color.FAIL+crt.color.BOLD}{msg}{crt.color.ENDC}", end=end)
 
     @staticmethod
-    def writeSuccess(msg):
-        print(f"{sc.OKGREEN}{msg}{sc.ENDC}")
+    def writeFatal(msg, end='\n'):
+        print(f"{crt.color.FAIL+crt.color.BOLD}{msg}{crt.color.ENDC}", end=end)
 
     @staticmethod
-    def writeMessage(msg):
-        print(msg)
+    def writeInfo(msg, end='\n'):
+        print(f"{crt.color.OKCYAN}{msg}{crt.color.ENDC}", end=end)
+
+    @staticmethod
+    def writeSuccess(msg, end='\n'):
+        print(f"{crt.color.OKGREEN}{msg}{crt.color.ENDC}", end=end)
+
+    @staticmethod
+    def writeDebug(msg, end='\n'):
+        print(f"{crt.color.DEBUG}{msg}{crt.color.ENDC}", end=end)
+
+    @staticmethod
+    def writeMessage(msg, end='\n'):
+        print(msg, end=end)
 
     @staticmethod
     def newLine():

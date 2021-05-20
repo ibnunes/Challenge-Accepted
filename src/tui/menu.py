@@ -1,4 +1,4 @@
-from tui.cli import sc, crt
+from tui.cli import crt
 from utils.read import Read
 from copy import deepcopy as clone
 
@@ -69,7 +69,7 @@ class Menu(object):
 
     def show(self):
         crt.clearScreen()
-        print(f"{sc.HEADER}{self._title}{sc.ENDC}")
+        print(f"{crt.color.HEADER}{self._title}{crt.color.ENDC}")
         if self._subtitle != "":
             print(self._subtitle)
         for i in range(1, self._count + 1):
