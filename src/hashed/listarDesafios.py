@@ -1,10 +1,10 @@
 import mariadb
 from prettytable import PrettyTable
 from prettytable import from_db_cursor
-import hashed.responderDesafioHash as responderDesafioHash
+#import hashed.responderDesafioHash as responderDesafioHash
 import os
 
-def listarDesafios():
+def listarDesafios(user):
     #leitura do config.ini
     import configparser
     config = configparser.ConfigParser()
@@ -33,7 +33,7 @@ def listarDesafios():
     print(x)
 
     print("Escolha o desafio a resolver: ")
-    responderDesafioHash.responderDesafioHasha(input())
+    #responderDesafioHash.responderDesafioHasha(input())
 
 
 

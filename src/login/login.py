@@ -44,14 +44,14 @@ def loginUser():
     if (password != "" and salt != ""):
         new_key = hashlib.pbkdf2_hmac('sha256', input_password.encode('utf-8'), binascii.unhexlify(salt), 100000)
         if new_key == binascii.unhexlify(key):
-            return True
+            return id_user
         else:
-            print ("Senha errada")
-            print("Tentar novamente?")
+            print ("Wrong password")
+            print("Try again?")
             a = input()
-            return False
+            return -1
     else:
-        print("Utilizador não encontrado")
-        print("Tentar novamente?")
+        print("User not found")
+        print("Try again?")
         a = input()
-        return False
+        return -1

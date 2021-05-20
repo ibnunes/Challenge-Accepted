@@ -5,6 +5,8 @@ from caesarcipher import CaesarCipher
 print("Mensagem a cifrar")
 val = input()
 
-cipher = val.encoded
+
+cipher = CaesarCipher(val).encoded
+
 
 print ("Ceaser: "+cipher)

@@ -36,7 +36,7 @@ def main_menu():
     print ("Please choose an option to start with:")
     print ("1. Login")
     print ("2. Create Account")
-    print ("3. Help")
+    print ("3. About")
     print ("\n0. Quit")
     choice = input(" >>  ")
     exec_menu(choice)
@@ -189,6 +189,22 @@ def exec_menunc2(choice):
 
 # =======================
 
+# Execute other challenges menu
+def exec_menunc3(choice):
+    os.system('clear')
+    ch = choice.lower()
+    if ch == '':
+        submenunewc3_actions['']()
+    else:
+        try:
+            submenunewc3_actions[ch]()
+        except KeyError:
+            print ("Invalid selection, please try again.\n")
+            submenunewc3_actions['menunewctype3']()
+    return
+
+# =======================
+
 def exec_menusubmitc(choice):
     os.system('clear')
     ch = choice.lower()
@@ -250,10 +266,12 @@ def exec_menusettings(choice):
 
 # Login Menu
 def menulogin():
-    if (login.loginUser()): 
-        exec_menulogin("1")
-    else:
+    global user
+    user = login.loginUser()
+    if(user == -1):
         exec_menulogin("")
+    else: 
+        exec_menulogin("1")
     return
 
 # =======================
@@ -270,8 +288,11 @@ def menuregister():
 
 # Help Menu
 def menuhelp():
-    print ("Help me!\n")
-    print ("Por informacoes todas bonitinhas")
+    banner.printbanner()
+    print ("ABOUT THE PLATFORM\n")
+    print("We want to bring the magic of encryption to more people.\nIn this way, we have created a platform that allows you to respond and create cryptographic challenges, so that you and your friends can challenge themselves in this area!\nLet the challenges begin!\n ")
+    print ("ABOUT CTEAM\n")
+    print("We are a group of Computer Science and Engineering students who like Cybersecurity and want to pass the subject of SI :)")
     print ("9. Back")
     print ("0. Quit")
     choice = input(" >>  ")
@@ -282,13 +303,13 @@ def menuhelp():
 
 # Homepage
 def menuhome():
-    print ("Welcome User:\n") #colocar username da pessoa para mais personalização
+    print ("Welcome User:\n", user) #colocar username da pessoa para mais personalização
     print ("HOMEPAGE\n")
     print ("1. List of challenges available")
     print ("2. Submit new challenge") 
     print ("3. Scoreboard")
     print ("4. Settings")
-    print ("5. Help")
+    print ("5. About")
     print ("0. Logout") 
     choice = input(" >>  ")
     exec_menuhome(choice)
@@ -301,6 +322,7 @@ def menuchallenges():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
     print ("1. AES CYPHER CHALLENGES")
     print ("2. HASH CHALLENGES")
+    print ("3. OTHER CHALLENGES")
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
@@ -312,7 +334,7 @@ def menuchallenges():
 # Menu List of Challenges Cypher
 def menuchallengesc():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
-    listarDesafiosC.listarDesafios()
+    listarDesafiosC.listarDesafios(user)
     print ("Insert number of challenge you want to answer:\n")
     global idc
     idc = input(" >>  ")
@@ -328,7 +350,7 @@ def menuchallengesc():
 # Menu List of Challenges Hash
 def menuchallengesh():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
-    listarDesafiosH.listarDesafios()
+    listarDesafiosH.listarDesafios(user)
     print ("Insert number of challenge you want to answer:\n")
     global idc
     idc = input(" >>  ")
@@ -341,11 +363,28 @@ def menuchallengesh():
 
 # =======================
 
+# Menu List of Challenges Other
+def menuchallengeso():
+    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafiosC.listarDesafios(user)
+    print ("Insert number of challenge you want to answer:\n")
+    global idc
+    idc = input(" >>  ")
+    print ("1. Submit solution")
+    print ("9. Back")
+    print ("0. Quit") 
+    choice = input(" >>  ")
+    exec_menusubmitc(choice)
+    return
+
+# =======================
+
 # Menu New Challenge
 def menunewchallenge():
     print ("NEW CHALLENGE\n")
     print ("1. Decipher Challenge Type") # decifra de mensagens
     print ("2. Hash Challenge Type") # calcular hash de mensagem
+    print ("3. Other Cryptographic Challenges")
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
@@ -356,7 +395,7 @@ def menunewchallenge():
 
 # Menu New Decipher Challenge
 def menunewctype1():
-    choice = str(adicionarDesafioC.adicionarDesafioCypher())
+    choice = str(adicionarDesafioC.adicionarDesafioCypher(user))
     if (choice == "1"):
         print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc1(choice)
@@ -366,7 +405,7 @@ def menunewctype1():
 
 # Menu New Challenge Hash
 def menunewctype2():
-    choice = str(adicionarDesafioH.adicionarDesafioHash())
+    choice = str(adicionarDesafioH.adicionarDesafioHash(user))
     if (choice == "1"):
         print("Your challenge was submitted - Let the challenges begin!")
     exec_menunc2(choice)
@@ -374,9 +413,19 @@ def menunewctype2():
 
 # =======================
 
+# Menu New Challenge Other Cypher
+def menunewctype3():
+    choice = str(adicionarDesafioC.adicionarDesafioCypher2(user))
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
+    exec_menunc3(choice)
+    return
+
+# =======================
+
 # Menu Submit Challenge Hash
 def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
-    responderDesafioHash.responderDesafioHash(idc)
+    responderDesafioHash.responderDesafioHash(idc, user)
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
@@ -385,9 +434,9 @@ def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de d
 
 # =======================
 
-# Menu Submit Challenge Hash
+# Menu Submit Challenge Cipher
 def submitchallengec(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
-    responderDesafioC.responderDesafioCrypto(idc)
+    responderDesafioC.responderDesafioCrypto(idc, user)
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
@@ -482,6 +531,7 @@ submenuc_actions = {
     'menuchallenges': menuchallenges,
     '1': menuchallengesc,
     '2': menuchallengesh,
+    '3': menuchallengeso,
     '9': backhome,
     '0': exit,
 }
@@ -491,6 +541,7 @@ submenunewc_actions = {
     'menunewchallenge': menunewchallenge,
     '1': menunewctype1,
     '2': menunewctype2,
+    '3': menunewctype3,
     '9': backhome,
     '0': exit,
 }
@@ -506,6 +557,14 @@ submenunewc1_actions = {
 # Hash Challenge Menu definition
 submenunewc2_actions = {
     'menunewctype2': menunewctype2,
+    '1': menuchallenges,
+    '9': backhome,
+    '0': exit,
+}
+
+# Other Challenges Menu definition
+submenunewc3_actions = {
+    'menunewctype3': menunewctype3,
     '1': menuchallenges,
     '9': backhome,
     '0': exit,

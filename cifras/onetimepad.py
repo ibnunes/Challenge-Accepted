@@ -4,7 +4,7 @@
 
 #IMPORTS
 
-import onetimepad
+from  PyPi import onetimepad
 
 #-----------------------------------
 
@@ -14,7 +14,7 @@ val = input()
 print("Chave de cifra")
 password = input()
 
-while(val.__len__ != password.__len__):
+while(len(val) != len(password)):
     print("Chave de Cifra tem que ter o mesmo tamanho que a mensagem a cifrar!")
     print("Chave de cifra")
     password = input()

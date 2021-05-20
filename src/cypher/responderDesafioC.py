@@ -8,10 +8,9 @@ import mariadb
 import os
 from datetime import datetime, timedelta 
 import time
+import codecs
 #leitura do config.ini
 import configparser
-
-from cypher.adicionarDesafioC import encryptECB
 
 def decryptECB(ciphertext,key, mode):
 	encobj = AES.new(key,mode)
@@ -30,8 +29,8 @@ def decryptCTR(ciphertext,key, mode, iv):
     return(encobj.decrypt(ciphertext))
 
 
-def responderDesafioCrypto(id_desafio_crypto):
-    id_user = 27 #é preciso alterar para 
+def responderDesafioCrypto(id_desafio_crypto, user):
+    id_user = user #é preciso alterar para 
     config = configparser.ConfigParser()
     config.read(os.getcwd() + '/login/config.ini')
     #Ligação a BD
@@ -69,28 +68,33 @@ def responderDesafioCrypto(id_desafio_crypto):
         print("PLAIN TEXT: " + texto_limpo)
         print("CRYPTO: " + resposta)
     
-    texto_limpo = Padding.appendPadding(texto_limpo,blocksize=Padding.AES_blocksize,mode=0)
     print("INSERT YOUR ANSWER:")
     resp = input()
     key = hashlib.md5(resp.encode()).digest()
 
     if (algoritmo == 'ECB'):
         plaintext = decryptECB(base64.b64decode(resposta),key,AES.MODE_ECB)
-        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == texto_limpo.strip()):
-            print("Desafio superado")
+        print(plaintext)
+        plaintext2 = codecs.decode(plaintext, encoding='utf-8', errors='ignore')
+        #plaintext = Padding.removePadding(plaintext,mode=0)
+        print("O QUE È DA BD CRL:'",texto_limpo, "' ")
+        print("TIPO DA BD:", type(texto_limpo))
+        print("O QUE ESCREVESTE CRL:'", plaintext2, "' ")
+        print("TIPO DO OUTRO:", type(plaintext2))
+
     if (algoritmo == 'CBC'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCBC(base64.b64decode(resposta),key,AES.MODE_CBC,iv.encode())
-        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == texto_limpo.strip()):
-            print("Desafio superado")
+        plaintext = Padding.removePadding(plaintext.decode(), mode=0)
     if(algoritmo == 'CTR'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCTR(base64.b64decode(resposta),key,AES.MODE_CTR,iv.encode())
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == texto_limpo.strip()):
-            print("Desafio superado")
-    
+        
+    if (plaintext2.strip() == texto_limpo.strip()):
+        # Verifica a hora da ultima submissão desde utilizador a este desafio
+        print("CONSEGUISTE CRL")
+    else:
+        print("TENTA OUTRA VEZ")
