@@ -5,6 +5,7 @@ import binascii
 import Padding
 import base64
 import mariadb
+import time
 import os
 #leitura do config.ini
 import configparser
@@ -148,6 +149,146 @@ def adicionarDesafioCypher(user):
         conn.close()
         return 1
     
+    if (algoritmo == "9"):
+        return 9
+    if (algoritmo == "0"):
+        return 0
+    
+def adicionarDesafioCypher2(user):
+    id_user = user
+    print("OTHER CHALLENGES\n")
+    print("1. CAESAR CYPHER")
+    print("2. ELGAMAL")
+    print("3. ONE-TIME-PAD")
+    print("4. VIGINERE CYPHER")
+    print("9. Back")
+    print("0. Quit")
+    algoritmo = input()
+    if (algoritmo != "0" and algoritmo != "9" and algoritmo != "1" and algoritmo != "2"):
+        print("Message:")
+        val = input()
+        print("Cypher Key:")
+        password = input()
+        print ("If you want, leave a tip for the users who will try to answer this challenge:")
+        dica = input()
+        ival=10
+        
+        plaintext=val
+        #Gerar um hash de 128bits pra uso como key no AES
+        #Derivação da password
+        key = hashlib.md5(password.encode()).digest()
+
+        iv= hex(ival)[2:8].zfill(16)
+    #para caesar e elgamal
+    if (algoritmo == "1" or algoritmo == "2"):
+        print("Message:")
+        val = input()
+        print ("If you want, leave a tip for the users who will try to answer this challenge:")
+        dica = input()
+    #Ligação a BD
+    try:
+        conn = mariadb.connect(
+            user=config['DATABASE']['user'],
+            password=config['DATABASE']['password'],
+            host=config['DATABASE']['host'],
+            port=int(config['DATABASE']['port']),
+            database=config['DATABASE']['database']
+    )
+    except mariadb.Error as e:
+        print(f"Error connecting to MariaDB Platform: {e}")
+
+    cur = conn.cursor()
+
+    #CAESAR
+    if (algoritmo == "1"):
+        
+        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
+
+        ciphertext = encryptECB(plaintext.encode(),key,AES.MODE_ECB)
+        #String a guardar na BD
+        msg = base64.b64encode(bytearray(ciphertext)).decode()
+
+        try: 
+            cur.execute(
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, 'CAESAR'))
+        except mariadb.Error as e: 
+            print(f"Error: {e}")
+        conn.commit()
+        print("Your challenge was submitted - Let the challenges begin!")
+        conn.close()
+        time.sleep(200) 
+        return 1
+
+    #ELGAMAL
+    if (algoritmo == "2"):
+        
+        plaintext=val
+        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
+
+        ciphertext = encryptCBC(plaintext.encode(),key,AES.MODE_CBC,iv.encode())
+        
+        #String a guardar na BD
+        msg = base64.b64encode(bytearray(ciphertext)).decode()
+    
+        #Grava na BD
+
+        try: 
+            cur.execute(
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, 'ELGAMAL'))
+        except mariadb.Error as e: 
+            print(f"Error: {e}")
+        conn.commit() 
+        print("Your challenge was submitted - Let the challenges begin!")
+        conn.close()
+        return 1
+
+    #ONETIMEPAD
+    if (algoritmo == "3"):
+        
+        plaintext=val
+        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
+
+        ciphertext = encryptCTR(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+        
+        #String a guardar na BD
+        msg = base64.b64encode(bytearray(ciphertext)).decode()
+        
+        #Grava na BD
+        try: 
+            cur.execute(
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, 'ONETIMEPAD'))
+        except mariadb.Error as e: 
+            print(f"Error: {e}")
+        conn.commit() 
+        print("Your challenge was submitted - Let the challenges begin!")
+        conn.close()
+        return 1
+    #VIGENERE
+    if (algoritmo == "4"):
+        
+        plaintext=val
+        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
+
+        ciphertext = encryptCTR(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+        
+        #String a guardar na BD
+        msg = base64.b64encode(bytearray(ciphertext)).decode()
+        
+        #Grava na BD
+        try: 
+            cur.execute(
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, 'VIGENERE'))
+        except mariadb.Error as e: 
+            print(f"Error: {e}")
+        conn.commit() 
+        print("Your challenge was submitted - Let the challenges begin!")
+        conn.close()
+        return 1
+
     if (algoritmo == "9"):
         return 9
     if (algoritmo == "0"):

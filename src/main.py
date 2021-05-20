@@ -189,6 +189,22 @@ def exec_menunc2(choice):
 
 # =======================
 
+# Execute other challenges menu
+def exec_menunc3(choice):
+    os.system('clear')
+    ch = choice.lower()
+    if ch == '':
+        submenunewc3_actions['']()
+    else:
+        try:
+            submenunewc3_actions[ch]()
+        except KeyError:
+            print ("Invalid selection, please try again.\n")
+            submenunewc3_actions['menunewctype3']()
+    return
+
+# =======================
+
 def exec_menusubmitc(choice):
     os.system('clear')
     ch = choice.lower()
@@ -306,6 +322,7 @@ def menuchallenges():
     print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
     print ("1. AES CYPHER CHALLENGES")
     print ("2. HASH CHALLENGES")
+    print ("3. OTHER CHALLENGES")
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
@@ -346,11 +363,28 @@ def menuchallengesh():
 
 # =======================
 
+# Menu List of Challenges Other
+def menuchallengeso():
+    print ("CHALLENGES AVAILABLE\n") #colocar lista de challenges available por numero
+    listarDesafiosC.listarDesafios(user)
+    print ("Insert number of challenge you want to answer:\n")
+    global idc
+    idc = input(" >>  ")
+    print ("1. Submit solution")
+    print ("9. Back")
+    print ("0. Quit") 
+    choice = input(" >>  ")
+    exec_menusubmitc(choice)
+    return
+
+# =======================
+
 # Menu New Challenge
 def menunewchallenge():
     print ("NEW CHALLENGE\n")
     print ("1. Decipher Challenge Type") # decifra de mensagens
     print ("2. Hash Challenge Type") # calcular hash de mensagem
+    print ("3. Other Cryptographic Challenges")
     print ("9. Back")
     print ("0. Quit") 
     choice = input(" >>  ")
@@ -379,6 +413,16 @@ def menunewctype2():
 
 # =======================
 
+# Menu New Challenge Other Cypher
+def menunewctype3():
+    choice = str(adicionarDesafioC.adicionarDesafioCypher2(user))
+    if (choice == "1"):
+        print("Your challenge was submitted - Let the challenges begin!")
+    exec_menunc3(choice)
+    return
+
+# =======================
+
 # Menu Submit Challenge Hash
 def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
     responderDesafioHash.responderDesafioHash(idc, user)
@@ -390,7 +434,7 @@ def submitchallengeh(): #colocar mensagem de sucesso ou insucesso e no tipo de d
 
 # =======================
 
-# Menu Submit Challenge Hash
+# Menu Submit Challenge Cipher
 def submitchallengec(): #colocar mensagem de sucesso ou insucesso e no tipo de desafios de mensagem, colocar a mensagem decifrada
     responderDesafioC.responderDesafioCrypto(idc, user)
     print ("9. Back")
@@ -487,6 +531,7 @@ submenuc_actions = {
     'menuchallenges': menuchallenges,
     '1': menuchallengesc,
     '2': menuchallengesh,
+    '3': menuchallengeso,
     '9': backhome,
     '0': exit,
 }
@@ -496,6 +541,7 @@ submenunewc_actions = {
     'menunewchallenge': menunewchallenge,
     '1': menunewctype1,
     '2': menunewctype2,
+    '3': menunewctype3,
     '9': backhome,
     '0': exit,
 }
@@ -511,6 +557,14 @@ submenunewc1_actions = {
 # Hash Challenge Menu definition
 submenunewc2_actions = {
     'menunewctype2': menunewctype2,
+    '1': menuchallenges,
+    '9': backhome,
+    '0': exit,
+}
+
+# Other Challenges Menu definition
+submenunewc3_actions = {
+    'menunewctype3': menunewctype3,
     '1': menuchallenges,
     '9': backhome,
     '0': exit,

@@ -8,6 +8,7 @@ import mariadb
 import os
 from datetime import datetime, timedelta 
 import time
+import codecs
 #leitura do config.ini
 import configparser
 
@@ -67,40 +68,33 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         print("PLAIN TEXT: " + texto_limpo)
         print("CRYPTO: " + resposta)
     
-    texto_limpo = Padding.appendPadding(texto_limpo,blocksize=Padding.AES_blocksize,mode=0)
     print("INSERT YOUR ANSWER:")
     resp = input()
     key = hashlib.md5(resp.encode()).digest()
 
     if (algoritmo == 'ECB'):
         plaintext = decryptECB(base64.b64decode(resposta),key,AES.MODE_ECB)
-        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == texto_limpo.strip()):
-            print("CONGRATULATIONS! YOU DID IT YOU LITTLE GENIUS!")
-            return True
-        else:
-            print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
-            return False
+        print(plaintext)
+        plaintext2 = codecs.decode(plaintext, encoding='utf-8', errors='ignore')
+        #plaintext = Padding.removePadding(plaintext,mode=0)
+        print("O QUE È DA BD CRL:'",texto_limpo, "' ")
+        print("TIPO DA BD:", type(texto_limpo))
+        print("O QUE ESCREVESTE CRL:'", plaintext2, "' ")
+        print("TIPO DO OUTRO:", type(plaintext2))
+
     if (algoritmo == 'CBC'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCBC(base64.b64decode(resposta),key,AES.MODE_CBC,iv.encode())
-        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == texto_limpo.strip()):
-            print("CONGRATULATIONS! YOU DID IT YOU LITTLE GENIUS!")
-            return True
-        else:
-            print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
-            return False
+        plaintext = Padding.removePadding(plaintext.decode(), mode=0)
     if(algoritmo == 'CTR'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCTR(base64.b64decode(resposta),key,AES.MODE_CTR,iv.encode())
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == texto_limpo.strip()):
-            print("CONGRATULATIONS! YOU DID IT YOU LITTLE GENIUS!")
-            return True
-        else:
-            print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
-            return False
-    
+        
+    if (plaintext2.strip() == texto_limpo.strip()):
+        # Verifica a hora da ultima submissão desde utilizador a este desafio
+        print("CONSEGUISTE CRL")
+    else:
+        print("TENTA OUTRA VEZ")
