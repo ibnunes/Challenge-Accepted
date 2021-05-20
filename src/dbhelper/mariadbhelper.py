@@ -308,7 +308,7 @@ class MariaDBHelper(object):
     def __init__(self, inipath = None):
         """ Initializes with a decrypted config.ini file """
         self.config = configparser.ConfigParser()
-        self.config.read(os.getcwd() + '/login/config.ini' if inipath is None else inipath)
+        self.config.read(os.getcwd() + '/dbhelper/config.ini' if inipath is None else inipath)
         self.query = ""
         self.isconn = False
 
