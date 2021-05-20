@@ -5,8 +5,11 @@ import os
 #Para esconder o input da password
 from getpass import getpass
 
+from dbhelper.dbcontrol import DBControl, UsernameNotFound, WrongPassword
+
 #leitura do config.ini
 import configparser
+
 
 def loginUser():
     config = configparser.ConfigParser()

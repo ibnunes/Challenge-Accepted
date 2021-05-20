@@ -1,33 +1,54 @@
 import sys
 from tui.menu import *
 from tui.banner import BANNER
+from dbhelper.dbcontrol import *
+from login.user import *
 
 class App(object):
     class flags:
         debug = False
+        halt  = False
 
 
     def __init__(self):
         self.loadUI()
+        self._db = DBControl()
+        self._user = User(self._db)
 
 
-    def debug(self, msg):
+    def debug(self, msg, end='\n'):
         if self.flags.debug:
-            print(f"Debug: {msg}")
+            crt.writeDebug(f"Debug: {msg}", end=end)
 
 
     def launch(self, args=[]):
         if "--debug" in args or "-d" in args:
             self.flags.debug = True
-        self._menuMain.exec()
+        self._db.start()
+        while not self.flags.halt:
+            self._menuMain.exec()
 
 
     def finalize(self):
-        print("Stopping the app")
+        crt.writeDebug("Stopping the app")
+        exit(0)
+
+
+    def userLogin(self):
+        if self._user.login():
+            self._menuHome.exec()
+        else:
+            crt.pause()
+
+
+    def userSignup(self):
+        if self._user.signup():
+            crt.writeSuccess("New user registered.")
+        crt.pause()
 
 
     def loadUI(self):
-        print("Loading UI...", end='')
+        self.debug("Loading UI...", end='')
 
         self._menuAddChallengeCypher = Menu(
             "Cypher Challenge",
@@ -93,8 +114,8 @@ class App(object):
             BANNER + "WELCOME",
             "Please choose an option to start with:",
             [
-                MenuItem("Login",   None),  # Menu.exec_menu(self._menuListChallenges)),
-                MenuItem("Sign up", None),  # Menu.exec_menu(self._menuSubmitChallenge)),
+                MenuItem("Login",   self.userLogin),  # Menu.exec_menu(self._menuListChallenges)),
+                MenuItem("Sign up", self.userSignup),  # Menu.exec_menu(self._menuSubmitChallenge)),
                 MenuItem("Help",    App.about),
                 MenuItem("QUIT",    self.finalize, isexit=True)
             ]
@@ -116,7 +137,7 @@ class App(object):
             ]
         )
 
-        print("[OK]")
+        self.debug("[OK]")
 
 
     def confirm(self, prompt=""):
@@ -126,9 +147,8 @@ class App(object):
 
     @staticmethod
     def about():
-        print("ABOUT\n\n")
+        crt.writeMessage("ABOUT\n")
         crt.pause()
-
 
 
 
@@ -137,4 +157,4 @@ if __name__ == "__main__":
         app = App()
         app.launch(sys.argv)
     except Exception as ex:
-        print(f"FATAL: {ex}")
+        crt.writeFatal(f"FATAL: {ex}")

@@ -14,6 +14,12 @@ class PotentialSQLInjectionAttempt(Exception):
         super().__init__(self.message)
 
 
+class ConnectionNotEstablished(Exception):
+    def __init__(self, message="Connection not established"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class MariaDBHelper(object):
     """
     MariaDB Class Helper: manages a connection to a local or remote MariaDB database.
