@@ -2,7 +2,7 @@ import re
 from dbhelper.dbcontrol import *
 from utils.read         import Read
 from tui.cli            import crt
-from validate_email import validate_email
+from validate_email     import validate_email
 
 
 class User(object):

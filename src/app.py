@@ -1,11 +1,12 @@
 import sys
 
 from challenge.cypher import ChallengeCypher
+from challenge.hash import ChallengeHash
 from tui.menu import *
 from tui.banner import BANNER
 from dbhelper.dbcontrol import *
 from login.user import *
-from utils.cypher import Cypher
+from utils.cypher import Cypher, Hash
 
 class App(object):
     class flags:
@@ -26,10 +27,10 @@ class App(object):
         - Loading the UI;
         - Initializing the Data Base Controller;
         - And the User class;
-        """        
-        self.loadUI()
+        """
         self._db = DBControl()          # TODO: separar DBControl do cliente
         self._user = User(self._db)
+        self.loadUI()
 
 
     def getDBController(self):
@@ -59,6 +60,7 @@ class App(object):
             self.flags.debug = True
         self._db.start()
         ChallengeCypher.bindApp(self)
+        ChallengeHash.bindApp(self)
         while not self.flags.halt:
             self._menuMain.exec()
 
@@ -93,9 +95,9 @@ class App(object):
             "Cypher Challenge",
             "Featuring AES",
             [
-                MenuItem("AES-128-ECB", ChallengeCypher.add(self._user, Cypher.ECB.TYPE)),
-                MenuItem("AES-128-CBC", ChallengeCypher.add(self._user, Cypher.CBC.TYPE)),
-                MenuItem("AES-128-CTR", ChallengeCypher.add(self._user, Cypher.CTR.TYPE)),
+                MenuItem("AES-128-ECB", lambda: ChallengeCypher.add(self._user, Cypher.ECB.TYPE)),
+                MenuItem("AES-128-CBC", lambda: ChallengeCypher.add(self._user, Cypher.CBC.TYPE)),
+                MenuItem("AES-128-CTR", lambda: ChallengeCypher.add(self._user, Cypher.CTR.TYPE)),
                 MenuItem("Back",        None, isexit=True),
                 MenuItem("QUIT",        self.finalize)
             ]
@@ -105,9 +107,9 @@ class App(object):
             "Hash Challenge",
             "Featuring SHA and MD",
             [
-                MenuItem("MD5",    None),
-                MenuItem("SHA256", None),
-                MenuItem("SHA512", None),
+                MenuItem("MD5",    lambda: ChallengeHash.add(self._user, Hash.MD5.TYPE)),
+                MenuItem("SHA256", lambda: ChallengeHash.add(self._user, Hash.SHA256.TYPE)),
+                MenuItem("SHA512", lambda: ChallengeHash.add(self._user, Hash.SHA512.TYPE)),
                 MenuItem("Back",   None, isexit=True),
                 MenuItem("QUIT",   self.finalize),
             ]
@@ -117,10 +119,10 @@ class App(object):
             "CHALLENGES AVAILABLE",
             "",
             [
-                MenuItem("AES Cypher: List all",         ChallengeCypher.show()),
-                MenuItem("AES Cypher: Try to solve one", ChallengeCypher.choose(self._user, showall=False)),
-                MenuItem("Hash: List all",               None),
-                MenuItem("Hash: Try to solve one",       None),
+                MenuItem("AES Cypher: List all",         ChallengeCypher.show),
+                MenuItem("AES Cypher: Try to solve one", lambda: ChallengeCypher.choose(self._user, showall=False)),
+                MenuItem("Hash: List all",               ChallengeHash.show),
+                MenuItem("Hash: Try to solve one",       lambda: ChallengeHash.choose(self._user, showall=False)),
                 MenuItem("Back",       None, isexit=True),
                 MenuItem("QUIT",       self.finalize)
             ]
