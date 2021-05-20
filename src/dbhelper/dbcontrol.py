@@ -322,3 +322,33 @@ class DBControl(object):
         self._helper.resetQuery()
         return True
 
+
+    def getScoreboardFrom(self, thetable):
+        pt = PrettyTable()
+        try:
+            self._helper                                \
+                .Select([
+                    ("u.username", "User"),
+                    ("COUNT(uh.id_user)", "Points") ])  \
+                .From("utilizadores", alias="u")        \
+                .LeftJoin(
+                    table=thetable,
+                    alias="uh",
+                    on="u.id_user = uh.id_user" )       \
+                .Where("uh.sucesso=1")                  \
+                .GroupBy("uh.id_user")                  \
+                .OrderBy("Points", desc=True)           \
+                .execute()
+            pt = from_db_cursor(self._helper.getCursor())
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return pt
+
+
+    def getHashScoreboard(self):
+        return self.getScoreboardFrom("utilizadores_hash")
+
+
+    def getCypherScoreboard(self):
+        return self.getScoreboardFrom("utilizadores_cifras")

@@ -145,7 +145,7 @@ class App(object):
             [
                 MenuItem("List / solve challenges", Menu.exec_menu(self._menuListChallenges)),
                 MenuItem("Submit new challenge",    Menu.exec_menu(self._menuSubmitChallenge)),
-                # MenuItem("Scoreboard",              None),
+                MenuItem("Scoreboard",              lambda: User.showScoreboard(self)),
                 # MenuItem("Settings",                None),
                 MenuItem("Help",                    App.about),
                 MenuItem("Logout",                  None, isexit=True),

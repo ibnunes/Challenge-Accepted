@@ -437,14 +437,25 @@ class MariaDBHelper(object):
         return self
 
 
-    def InnerJoin(self, table, on="", using=""):
+    def InnerJoin(self, table, alias="", on="", using=""):
         """
         Query constructor: `INNER JOIN`
             Adds a table and a condition, such that
-            `INNER JOIN table ON condition`.
+            `INNER JOIN table ON condition USING predicate`.
         """
         self.checkString([table, on, using])
-        self.query += f"INNER JOIN {table} " + (f"ON {on} " if on != "" else "") + (f"USING {using} " if using != "" else "")
+        self.query += f"INNER JOIN {table} {alias} " + (f"ON {on} " if on != "" else "") + (f"USING {using} " if using != "" else "")
+        return self
+
+
+    def LeftJoin(self, table, alias="", on="", using=""):
+        """
+        Query constructor: `LEFT JOIN`
+            Adds a table and a condition, such that
+            `LEFT JOIN table ON condition USING predicate`.
+        """
+        self.checkString([table, on, using])
+        self.query += f"LEFT JOIN {table} {alias} " + (f"ON {on} " if on != "" else "") + (f"USING {using} " if using != "" else "")
         return self
 
 
@@ -475,6 +486,17 @@ class MariaDBHelper(object):
             self.query += "DESC "
         if limit > 0:
             self.query += f"LIMIT {limit} "
+        return self
+
+
+    def GroupBy(self, predicate):
+        self.checkString(predicate)
+        self.query += f"GROUP BY {predicate} "
+        return self
+
+
+    def Except(self):
+        self.query += "EXCEPT "
         return self
 
 
