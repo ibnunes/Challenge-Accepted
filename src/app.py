@@ -6,7 +6,7 @@ from tui.menu import *
 from tui.banner import BANNER
 from dbhelper.dbcontrol import *
 from login.user import *
-from utils.cypher import Cypher, Hash
+from utils.crypto import Cypher, Hash
 
 class App(object):
     class flags:

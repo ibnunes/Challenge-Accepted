@@ -1,5 +1,6 @@
 import hashlib
 import binascii
+from os import times
 from prettytable import PrettyTable
 from prettytable import from_db_cursor
 
@@ -214,31 +215,26 @@ class DBControl(object):
 
 
     def getHashChallenge(self, id_challenge):
-        return None
         try:
             self._helper                                                                        \
                 .Select([
-                    ("desafios_cifras.resposta", None),
-                    ("desafios_cifras.dica", None),
-                    ("desafios_cifras.algoritmo", None),
-                    ("desafios_cifras.texto_limp", None),
-                    ("utilizadores.username", None)     ])                                      \
-                .From("desafios_cifras")                                                        \
-                .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
-                .Where("id_desafio_cifras=?")                                                   \
+                    ("desafios_hash.resposta", None),
+                    ("desafios_hash.dica", None),
+                    ("desafios_hash.algoritmo", None),
+                    ("utilizadores.username", None),    ])                                      \
+                .From("desafios_hash")                                                        \
+                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user")   \
+                .Where("id_desafio_hash=?")                                                   \
                 .execute((id_challenge,))
-            self._helper.resetQuery()
-            for (a, t, x, p, u) in self._helper.getCursor():
+            for (a, t, x, u) in self._helper.getCursor():
                 answer    = a
                 tip       = t
                 algorithm = x
-                plaintext = p
                 username  = u
             return {
                 'answer'    : answer,
                 'tip'       : tip,
                 'algorithm' : algorithm,
-                'plaintext' : plaintext,
                 'username'  : username
             }
         except mariadb.Error as ex:

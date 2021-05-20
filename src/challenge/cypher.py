@@ -11,7 +11,7 @@ from login.user import User
 TODO: - Documentation
 """
 
-from utils.cypher import Cypher
+from utils.crypto import Cypher
 from utils.read import Read
 from tui.cli import crt
 
