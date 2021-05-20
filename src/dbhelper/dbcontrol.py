@@ -55,13 +55,16 @@ class DBControl(object):
             .Where("username=?") \
             .execute((username,))
         
+        self._helper.resetQuery()
+
         try:
             for (x, y, z) in self._helper.getCursor():
                 (id_user, key, salt) = (x, y, z)
+            if (password == "" or salt == ""):
+                raise Exception()
         except (Exception, mariadb.Error) as ex:
             raise UsernameNotFound(f"User '{username}' does not exist.")
         
-        self._helper.resetQuery()
         new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), binascii.unhexlify(salt), 100000)
         if new_key == binascii.unhexlify(key):
             return True
@@ -73,8 +76,14 @@ class DBControl(object):
         # gera salt, calcula o sha256 (10000x) 
         salt = os.urandom(32)   # A new salt for this user
         key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-        self._helper \
-            .InsertInto("utilizadores", ["username, email, password, salt"]) \
-            .execute((username, email, binascii.hexlify(key), binascii.hexlify(salt)))
+        try:
+            self._helper \
+                .InsertInto("utilizadores", ["username", "email", "password", "salt"]) \
+                .execute((username, email, binascii.hexlify(key), binascii.hexlify(salt),))
+            self._helper.commit()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+            return False
         self._helper.resetQuery()
         return True

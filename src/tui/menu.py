@@ -46,6 +46,10 @@ class Menu(object):
         return newme
 
 
+    def setSubtitle(self, subtitle):
+        self._subtitle = subtitle
+
+
     def clearStdErr(self):
         self._warning = ""
         self._error   = ""
