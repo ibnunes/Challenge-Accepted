@@ -41,7 +41,10 @@ class DBControl(object):
             .Where("username=?") \
             .execute((username,))
         self._helper.resetQuery()
-        return len(self._helper.getCursor()) > 0
+        ok = False
+        for (c,) in self._helper.getCursor():
+            ok = True
+        return ok
 
 
     def loginUser(self, username, password):
@@ -52,21 +55,17 @@ class DBControl(object):
             .Where("username=?") \
             .execute((username,))
         
-        crt.writeDebug("Executed query")
         try:
-            (id_user, key, salt) = self._helper.getCursor()[0]
+            for (x, y, z) in self._helper.getCursor():
+                (id_user, key, salt) = (x, y, z)
         except (Exception, mariadb.Error) as ex:
             raise UsernameNotFound(f"User '{username}' does not exist.")
         
         self._helper.resetQuery()
-        crt.writeDebug("Username was found")
         new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), binascii.unhexlify(salt), 100000)
-        crt.writeDebug("Generated new key")
         if new_key == binascii.unhexlify(key):
-            crt.writeDebug("Success!")
             return True
         else:
-            crt.writeDebug("Wrong password!")
             raise WrongPassword(f"Wrong password for user '{username}'.")
 
 
