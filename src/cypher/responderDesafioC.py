@@ -76,12 +76,10 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         plaintext = decryptECB(base64.b64decode(resposta),key,AES.MODE_ECB)
         print(plaintext)
         plaintext2 = codecs.decode(plaintext, encoding='utf-8', errors='ignore')
-        #plaintext = Padding.removePadding(plaintext,mode=0)
-        print("O QUE È DA BD CRL:'",texto_limpo, "' ")
-        print("TIPO DA BD:", type(texto_limpo))
-        print("O QUE ESCREVESTE CRL:'", plaintext2, "' ")
-        print("TIPO DO OUTRO:", type(plaintext2))
-
+        try:
+            plaintext2 = Padding.removePadding(plaintext2,mode=0)
+        except Exception:
+            ()
     if (algoritmo == 'CBC'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
