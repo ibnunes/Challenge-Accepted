@@ -7,7 +7,7 @@ from dbhelper.dbcontrol import *
 app = Flask(__name__)
 
 db = DBControl()
-db.start()
+# db.start()
 
 @app.route("/auth/login", methods=['POST'])
 def login():
