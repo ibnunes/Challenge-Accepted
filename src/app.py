@@ -213,9 +213,13 @@ class App(object):
         input()
         crt.pause()
 
-if __name__ == "__main__":
+
+def main():
     try:
         app = App()
         app.launch(sys.argv)
     except Exception as ex:
         crt.writeFatal(f"FATAL: {ex}")
+
+if __name__ == "__main__":
+    main()
