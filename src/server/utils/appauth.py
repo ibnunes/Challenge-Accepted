@@ -67,16 +67,16 @@ class AppAuthenticationServer(object):
             raise AppAuthHeaderNotFound()
 
     def generatePostSig(self, timestamp, nonce, appId, key, hsig, body):
-        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hobj.hexdigest()
+        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hexdigest()
         sign = "{appid}POST{timestamp}{nonce}{bodyHash}".format(appid = appId, timestamp = timestamp, nonce = nonce, bodyHash = bodyHash)
         hmacsh256 = hmac.new(key=key.encode('utf-8'), msg=sign.encode('utf-8'), digestmod=hashlib.sha256)
-        return hmacsh256 == hsig
+        return hmacsh256.hexdigest() == hsig
 
     def comparePatchSig(self, timestamp, nonce, appId, key, hsig, body):
-        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hobj.hexdigest()
+        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hexdigest()
         sign = "{appid}PATCH{timestamp}{nonce}{bodyHash}".format(appid = appId, timestamp = timestamp, nonce = nonce, bodyHash = bodyHash)
         hmacsh256 = hmac.new(key=key.encode('utf-8'), msg=sign.encode('utf-8'), digestmod=hashlib.sha256)
-        return hmacsh256 == hsig
+        return hmacsh256.hexdigest() == hsig
 
     def compareGetSig(self, timestamp, nonce, appId, key, hsig):
         sign = "{appid}GET{timestamp}{nonce}".format(appid = appId, timestamp = timestamp, nonce = nonce)

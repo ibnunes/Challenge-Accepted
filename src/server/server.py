@@ -14,6 +14,13 @@ appAuth = AppAuthenticationServer()
 @app.route("/auth/hmac", methods=['GET'])
 def getHMACKey():
     try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
+    try:
         return json.dumps({"success" : db.getHMACKey()})
     except Exception as ex:
         return json.dumps({"error" : str(ex)})
@@ -21,6 +28,13 @@ def getHMACKey():
 
 @app.route("/auth/login", methods=['POST'])
 def login():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     username = request.form['username']
     password = request.form['password']
     try:
@@ -35,6 +49,13 @@ def login():
 
 @app.route("/auth/signup", methods=['POST'])
 def signup():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     username = request.form['username']
     password = request.form['password']
     email = request.form['email']
@@ -47,6 +68,13 @@ def signup():
 
 @app.route("/auth/user", methods=['POST'])
 def userExists():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     username = request.form['username']
     ok = db.userExists(username)
     return json.dumps({"success": ok})
@@ -54,6 +82,13 @@ def userExists():
 
 @app.route("/auth/user", methods=['POST'])
 def emailExists():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     email = request.form['email']
     ok = db.emailExists(email)
     return json.dumps({"success": ok})
@@ -61,6 +96,13 @@ def emailExists():
 
 @app.route("/user/email/", methods=['GET'])
 def getEmail():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.args.get('id')
     email = db.getEmail(userid)
     if email is None:
@@ -72,6 +114,13 @@ def getEmail():
 # Cypher Related Routes
 @app.route("/challenge/cypher", methods=['GET'])
 def getCypherChallenges():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     table = db.getAllCypherChallenges()
     if table is None:
         return json.dumps({"error": "Unable to fetch cypher challenges"})
@@ -84,6 +133,13 @@ def getCypherChallenges():
 
 @app.route("/challenge/cypher/<chid>", methods=['GET'])
 def getCypherChallenge(chid):
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     challenge = db.getCypherChallenge(chid)
     if challenge is None:
         return json.dumps({"error": "Unable to fetch cypher challenge"})
@@ -93,6 +149,13 @@ def getCypherChallenge(chid):
 
 @app.route("/challenge/cypher/lasttry", methods=['GET'])
 def getCypherLastTry():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.args.get('userid')
     chid = request.args.get('chid')
     lastTry = db.getCypherLastTry(userid, chid)
@@ -104,6 +167,13 @@ def getCypherLastTry():
 
 @app.route("/challenge/cypher", methods=['POST'])
 def addCypherChallenge():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.form["userid"]
     tip = request.form["tip"]
     msg = request.form["msg"]
@@ -117,6 +187,13 @@ def addCypherChallenge():
 
 @app.route("/challenge/cypher/<chid>", methods=['PATCH'])
 def updateCypherChallenge(chid):
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.form["userid"]
     date = request.form["date"]
     success = request.form["success"]
@@ -127,6 +204,13 @@ def updateCypherChallenge(chid):
 # Hash Related Routes
 @app.route("/challenge/hash", methods=['GET'])
 def getHashChallenges():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     table = db.getAllHashChallenges()
     if table is None:
         return json.dumps({"error": "Unable to fetch hash challenges"})
@@ -139,6 +223,13 @@ def getHashChallenges():
 
 @app.route("/challenge/hash/<chid>", methods=['GET'])
 def getHashChallenge(chid):
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     challenge = db.getHashChallenge(chid)
     if challenge is None:
         return json.dumps({"error": "Unable to fetch cypher challenge"})
@@ -148,6 +239,13 @@ def getHashChallenge(chid):
 
 @app.route("/challenge/hash/lasttry", methods=['GET'])
 def getHashLastTry():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.args.get('userid')
     chid = request.args.get('chid')
     lastTry = db.getHashLastTry(userid, chid)
@@ -159,6 +257,13 @@ def getHashLastTry():
 
 @app.route("/challenge/hash", methods=['POST'])
 def addHashChallenge():
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.form["userid"]
     tip = request.form["tip"]
     msg = request.form["msg"]
@@ -169,6 +274,13 @@ def addHashChallenge():
 
 @app.route("/challenge/hash/<chid>", methods=['PATCH'])
 def updateHashChallenge(chid):
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     userid = request.form["userid"]
     date = request.form["date"]
     success = request.form['success']
@@ -178,6 +290,13 @@ def updateHashChallenge(chid):
 
 @app.route("/user/<userid>/challenges/count", methods=['GET'])
 def getUserCreatedAmount(userid):
+    try:
+        ok = appAuth.authenticateApp(request.headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     result = db.getUserCreatedAmount(userid)
     if result is None:
         return json.dumps({"error": "Unable to fetch user created amount"})

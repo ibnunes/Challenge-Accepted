@@ -1,6 +1,7 @@
 from prettytable import PrettyTable
 from prettytable import from_json
 import prettytable
+from requests.api import head
 
 from tui.cli import crt
 import utils.remote as remote
@@ -47,7 +48,10 @@ class DBControl(object):
 
 
     def getHMACKey(self):
-        r = requests.get(url=f"{self._url}/auth/hmac")
+        r = requests.get(
+            url=f"{self._url}/auth/hmac",
+            headers=self._appauth.generateGetHeader()
+        )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = remote.unpack(r.json())
@@ -58,9 +62,11 @@ class DBControl(object):
 
 
     def userExists(self, username):
+        data = {'username' : username}
         r = requests.post(
-            f"{self._url}/auth/user",
-            data={'username' : username}
+            url=f"{self._url}/auth/user",
+            data=data,
+            headers=self._appauth.generatePostHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -69,9 +75,11 @@ class DBControl(object):
 
 
     def emailExists(self, email):
+        data = {'email' : email}
         r = requests.post(
-            f"{self._url}/auth/email",
-            data={'email' : email}
+            url=f"{self._url}/auth/email",
+            data=data,
+            headers=self._appauth.generatePostHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -80,9 +88,11 @@ class DBControl(object):
 
 
     def loginUser(self, username, password):
+        data = {'username' : username, 'password' : password}
         r = requests.post(
-            f"{self._url}/auth/login",
-            data={'username' : username, 'password' : password}
+            url=f"{self._url}/auth/login",
+            data=data,
+            headers=self._appauth.generatePostHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -93,9 +103,11 @@ class DBControl(object):
 
 
     def registerUser(self, username, password, email):
+        data = {'username' : username, 'password' : password, 'email': email}
         r = requests.post(
-            f"{self._url}/auth/signup",
-            data={'username' : username, 'password' : password, 'email': email}
+            url=f"{self._url}/auth/signup",
+            data=data,
+            headers=self._appauth.generatePostHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -104,9 +116,7 @@ class DBControl(object):
 
 
     def addCypherChallenge(self, id_user, tip, msg, val, iv, hmacdb, algorithm):
-        r = requests.post(
-            f"{self._url}/challenge/cypher",
-            data={
+        data = {
                 'userid' : id_user,
                 'tip'    : tip,
                 'msg'    : msg,
@@ -115,6 +125,10 @@ class DBControl(object):
                 'hmac'   : hmacdb,
                 'algo'   : algorithm
             }
+        r = requests.post(
+            url=f"{self._url}/challenge/cypher",
+            data=data,
+            headers=self._appauth.generatePostHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -125,7 +139,8 @@ class DBControl(object):
     def getAllCypherChallenges(self):
         pt = PrettyTable()
         r = requests.get(
-            f"{self._url}/challenge/cypher"
+            url=f"{self._url}/challenge/cypher",
+            headers=self._appauth.generateGetHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -136,7 +151,10 @@ class DBControl(object):
 
 
     def getCypherChallenge(self, id_challenge):
-        r = requests.get(f"{self._url}/challenge/cypher/{id_challenge}")
+        r = requests.get(
+            url=f"{self._url}/challenge/cypher/{id_challenge}",
+            headers=self._appauth.generateGetHeader()
+        )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = remote.unpack(r.json())
@@ -147,11 +165,12 @@ class DBControl(object):
 
     def getCypherLastTry(self, id_user, id_challenge):
         r = requests.get(
-            f"{self._url}/challenge/cypher/lasttry",
+            url=f"{self._url}/challenge/cypher/lasttry",
             params={
                 "userid" : id_user,
                 "chid"   : id_challenge
-            }
+            },
+            headers=self._appauth.generateGetHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -162,13 +181,15 @@ class DBControl(object):
 
 
     def updateCypherChallengeTry(self, id_user, id_challenge, date, success):
-        r = requests.patch(
-            url=f"{self._url}/challenge/cypher/{id_challenge}",
-            data={
+        data = {
                 "userid"  : id_user,
                 "date"    : date,
                 "success" : 1 if success else 0
             }
+        r = requests.patch(
+            url=f"{self._url}/challenge/cypher/{id_challenge}",
+            data=data,
+            headers=self._appauth.generatePatchHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -177,14 +198,16 @@ class DBControl(object):
 
 
     def addHashChallenge(self, id_user, tip, msg, algorithm):
-        r = requests.post(
-            f"{self._url}/challenge/hash",
-            data={
+        data = {
                 'userid' : id_user,
                 'tip'    : tip,
                 'msg'    : msg,
                 'algo'   : algorithm
             }
+        r = requests.post(
+            url=f"{self._url}/challenge/hash",
+            data=data,
+            headers=self._appauth.generatePostHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -195,7 +218,8 @@ class DBControl(object):
     def getAllHashChallenges(self):
         pt = PrettyTable()
         r = requests.get(
-            f"{self._url}/challenge/hash"
+            url=f"{self._url}/challenge/hash",
+            headers=self._appauth.generateGetHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -206,7 +230,10 @@ class DBControl(object):
 
 
     def getHashChallenge(self, id_challenge):
-        r = requests.get(f"{self._url}/challenge/hash/{id_challenge}")
+        r = requests.get(
+            url=f"{self._url}/challenge/hash/{id_challenge}",
+            headers=self._appauth.generateGetHeader()
+        )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = remote.unpack(r.json())
@@ -217,11 +244,12 @@ class DBControl(object):
 
     def getHashLastTry(self, id_user, id_challenge):
         r = requests.get(
-            f"{self._url}/challenge/hash/lasttry",
+            url=f"{self._url}/challenge/hash/lasttry",
             params={
                 "userid" : id_user,
                 "chid"   : id_challenge
-            }
+            },
+            headers=self._appauth.generateGetHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -232,13 +260,15 @@ class DBControl(object):
 
 
     def updateHashChallengeTry(self, id_user, id_challenge, date, success):
-        r = requests.patch(
-            url=f"{self._url}/challenge/hash/{id_challenge}",
-            data={
+        data = {
                 "userid"  : id_user,
                 "date"    : date,
                 "success" : 1 if success else 0
             }
+        r = requests.patch(
+            url=f"{self._url}/challenge/hash/{id_challenge}",
+            data=data,
+            headers=self._appauth.generatePatchHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -264,8 +294,9 @@ class DBControl(object):
 
     def getEmail(self, id_user):
         r = requests.get(
-            f"{self._url}/user/email",
-            params={'id' : id_user}
+            url=f"{self._url}/user/email",
+            params={'id' : id_user},
+            headers=self._appauth.generateGetHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
@@ -277,7 +308,8 @@ class DBControl(object):
 
     def getUserCreatedAmount(self, id_user):
         r = requests.get(
-            f"{self._url}/user/{id_user}/challenges/count"
+            url=f"{self._url}/user/{id_user}/challenges/count",
+            headers=self._appauth.generateGetHeader()
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
