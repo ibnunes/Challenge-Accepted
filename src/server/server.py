@@ -3,10 +3,12 @@ from flask import request
 import json
 
 from dbhelper.dbcontrol import *
+from utils.appauth import *
 
 app = Flask(__name__)
 
 db = DBControl()
+appAuth = AppAuthenticationServer()
 # db.start()
 
 @app.route("/auth/login", methods=['POST'])
@@ -174,6 +176,14 @@ def getUserCreatedAmount(userid):
 
 @app.route("/scoreboard", methods=['GET'])
 def getScoreboard():
+    headers = appAuth.getHeaders(request)
+    try:
+        ok = appAuth.authenticateApp(headers, request.method)
+        if not ok:
+            return json.dumps({ "error": "Unknown error authenticating app" })
+    except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
+        return json.dumps({ "error": ex.message })
+    
     table = db.getAllScoreboard()
     if table is None:
         return json.dumps({"error": "Unable to fetch scoreboard"})

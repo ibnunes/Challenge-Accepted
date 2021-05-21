@@ -36,6 +36,24 @@ class DBControl(object):
         if self._helper.isConnected():
             self._helper.disconnect()
 
+    def fetchAppId(self, appId):
+        self.start()
+        self._helper                    \
+            .Select([("key", None)])    \
+            .From("apps")               \
+            .Where("appid=?")           \
+            .execute((appId,))
+
+        self._helper.resetQuery()
+
+        try:
+            record = self._helper.getCursor().next()
+            self.stop()
+            return record
+        except (StopIteration, Exception, mariadb.Error):
+            self.stop()
+            return None       
+
 
     def valueExists(self, table, field, value):
         self.start()
