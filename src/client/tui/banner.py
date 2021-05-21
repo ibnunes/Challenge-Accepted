@@ -3,8 +3,7 @@ from tui.cli import crt
 rFG = crt.color.FAIL
 wFG = crt.color.WARNING
 bold = crt.color.BOLD
-END = crt.color.HEADER
-
+END = crt.color.ENDC
 
 BANNER =                                                        \
     f"{rFG+bold} _____  _             _  _                            \n" \
@@ -20,4 +19,4 @@ BANNER =                                                        \
      "| | | || (__ | (__ |  __/| |_) || |_ |  __/| (_| |    \n" \
      "\_| |_/ \___| \___| \___|| .__/  \__| \___| \__,_|    \n" \
      "                         | |                          \n" \
-    f"                         |_|          {END} ver 1.0.0      \n"
+    f"                         |_|          {END}     1.0.0-beta \n"

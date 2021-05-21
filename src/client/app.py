@@ -162,7 +162,7 @@ class App(object):
         )
 
         self._menuMain = Menu(
-            BANNER + "WELCOME",
+            BANNER + "\n\nWELCOME",
             "Please choose an option to start with:",
             [
                 MenuItem("Login",   self.userLogin),
@@ -207,8 +207,28 @@ class App(object):
 
     @staticmethod
     def about():
-        """Content of About interface."""        
-        crt.writeMessage("ABOUT\n")
+        """Content of About interface."""
+        crt.clearScreen()
+        crt.writeMessage(
+f"""{BANNER}
+
+Encryption contains excellent tools for developing challenging mystery games.
+The idea of this work is to develop a system that allows different users to publish and solve challenges.
+
+    Igor Nunes          github.com/thoga31
+    Diogo Simões        github.com/AshKetshup
+    Diogo Lavareda      github.com/dlavareda
+    Beatriz Costa       github.com/beatriztcosta
+    Joana Almeida       github.com/joanalmeida99
+
+UBI - University of Beira Interior, Portugal
+
+
+    Build:              1.0.0-beta
+    Date:               May 2021
+    License:            GNU-GPL 3.0
+"""
+        )
         crt.pause()
 
 
