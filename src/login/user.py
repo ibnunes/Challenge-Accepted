@@ -17,10 +17,35 @@ class User(object):
         """        
         self._username  = ""
         self._password  = ""
+        self._email     = ""
         self._dbcontrol = dbcontroller
         self._logged    = False
         self._userid    = User.NO_USER
+        self._cyphercreated = 0
+        self._hashcreated   = 0
+        self._totalcreated  = 0
+        self._tried     = 0
+        self._solved    = 0
 
+
+    def __str__(self) -> str:
+        self.updateProfile()
+        
+        return \
+        f"          Username : {self._username}\n"        \
+        f"             Email : {self._email}\n"           \
+        f"Created Challenges : {self._created}\n"         \
+        f"          (Cypher) : {self._cyphercreated}\n"   \
+        f"            (Hash) : {self._hashcreated}\n"     \
+        f"  Tried Challenges : {self._tried}\n"           \
+        f" Solved Challenges : {self._solved}\n"          \
+        
+        
+    def updateProfile(self):
+        amount = self._dbcontrol.getUserCreatedAmount(self._userid)
+        self._cyphercreated = amount['cypher']
+        self._hashcreated = amount['hash']
+        self._created = amount['total']
 
     def wipe(self):
         """Resets User stats."""        
@@ -34,6 +59,9 @@ class User(object):
             str: Username of the User.
         """        
         return self._username
+    
+    def getEmail(self):
+        return self._email
 
 
     def getUserID(self):
@@ -42,6 +70,16 @@ class User(object):
             int: UserID of User.
         """
         return self._userid
+
+
+    def getSolved(self):
+        """
+            Gets the number of solved challenges.
+
+            Returns:
+                int: Solved Challengess
+        """
+        return self._solved
 
 
     def isLoggedIn(self):
@@ -73,6 +111,7 @@ class User(object):
             if ok:
                 self._logged = True
                 self._userid = id_user
+                self._email  = self._dbcontrol.getEmail(id_user)
         except (UsernameNotFound, WrongPassword) as ex:
             crt.writeWarning(ex.message)
             self._logged = False

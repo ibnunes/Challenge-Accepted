@@ -147,6 +147,7 @@ class App(object):
                 MenuItem("Submit new challenge",    Menu.exec_menu(self._menuSubmitChallenge)),
                 # MenuItem("Scoreboard",              None),
                 # MenuItem("Settings",                None),
+                MenuItem("Profile",                 lambda: App.profile(self._user)),
                 MenuItem("Help",                    App.about),
                 MenuItem("Logout",                  None, isexit=True),
                 MenuItem("QUIT",                    self.finalize)
@@ -201,9 +202,15 @@ class App(object):
     def about():
         """Content of About interface."""        
         crt.writeMessage("ABOUT\n")
+        input()
         crt.pause()
 
-
+    def profile(user):
+        """Content of User profile"""        
+        crt.writeMessage("PROFILE\n")
+        crt.writeMessage(str(user))
+        input()
+        crt.pause()
 
 if __name__ == "__main__":
     try:
