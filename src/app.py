@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import configparser as ini
 
 from challenge.cypher import ChallengeCypher
