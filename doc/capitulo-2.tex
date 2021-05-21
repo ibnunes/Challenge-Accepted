@@ -16,7 +16,7 @@ Um projeto de sucesso envolve uma preparação prévia exímia. A plataforma \em
 \section{Ferramentas e tecnologias utilizadas}
 \label{sec::engsoft:tecnologia}
 
-As ferramentas utilizadas no âmbito da realização do projeto, sumariadas na Tabela \ref{tab::ferramentas}, visam três componentes essenciais na sua gestão: 1) linguagem de programação, 2) relatório, 3) controlo de versões.
+As ferramentas utilizadas no âmbito da realização do projeto, sumariadas na Tabela \ref{tab::ferramentas}, visam três componentes essenciais na sua gestão: 1) linguagem de programação, 2) servidor, 3) administração bd, 4) relatório, 5) controlo de versões.
 
 
 \begin{table}[!htbp]
@@ -26,14 +26,22 @@ As ferramentas utilizadas no âmbito da realização do projeto, sumariadas na T
 		& {\itshape\bfseries Software} & {\bfseries Versão} \\
 		\midrule
 		\multicolumn{3}{l}{\bfseries Linguagem de Programação} \\
-		& \textit{Python} & 3.0.0 \\
+		& \textit{Python} & 3.8.0 \\
+	    \midrule
+		\multicolumn{3}{l}{\bfseries Servidor} \\
+		& \textit{Microsoft Windows Server} & 2019 \\
+		& \textit{MariaDB} & 10.4.18 \\
+	    \midrule
+		\multicolumn{3}{l}{\bfseries Administração BD} \\
+	    & \textit{DBeaver} & 21.0.5 \\
         \midrule
 		\multicolumn{3}{l}{\bfseries Relatório} \\
 		& \textit{Overleaf} & \\
 		\midrule
 		\multicolumn{3}{l}{\bfseries Controlo de versões} \\
 		& \textit{git} & 2.17.1 \\
-		& \textit{GitKraken} & 7.4.1  \\
+		& \textit{GitKraken} & 7.6.1  \\
+		\midrule
 		\bottomrule
 	\end{tabular}
 	\caption[Ferramentas utilizadas]{Ferramentas e tecnologias utilizadas, organizadas por categoria.}
@@ -57,9 +65,10 @@ A plataforma deve:
 	\item Ter um ecrã de registo e \emph{login} de utilizadores;
 	\item Ter uma \textit{homepage} com acesso direto às seguintes funcionalidades:
 	\begin{enumerate}
-		\item resolução de desafios disponiveis,
+		\item resolução de desafios disponíveis,
 		\item propor desafios,
 		\item pedir ajuda,
+		\item \textit{scoreboard} dos utilizadores,
 	\end{enumerate}
 	\item Permitir responder a desafios;
 	\item Permitir submeter dois tipos de desafios, em que um é de decifra de mensagem e outro de descoberta de mensagem.
@@ -125,6 +134,15 @@ Os diagramas foram elaborados com recurso ao serviço \textit{Visual Paradigm}.
 	\includegraphics[scale=0.8]{uso-hash}
 	\caption[Diagrama de casos de uso: processo de propor desafios do tipo valor de hash]{Diagrama de casos de uso: processo de propor desafios do tipo valor de hash.}
 	\label{fig::casos-uso-hash}
+\end{figure}
+
+\section{Diagrama do sistema}
+\label{sec::engsoft:diagrama-sistema}
+
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=0.37]{Imagens/DiagramaIdeal.png}	\caption[Diagrama da arquitetura do sistema]{Diagrama da arquitetura do sistema}
+	\label{fig::diagrama-sistema}
 \end{figure}
 
 
