@@ -44,9 +44,6 @@ class Hash:
             h.update(plaintext)
             return h.hexdigest()
 
-        def decrypt(plaintext):
-            pass
-
     class SHA256:
         TYPE = "SHA256"
 
@@ -55,9 +52,6 @@ class Hash:
             h.update(plaintext)
             return h.hexdigest()
 
-        def decrypt(plaintext):
-            pass
-
     class SHA512:
         TYPE = "SHA512"
 
@@ -65,6 +59,3 @@ class Hash:
             h = SHA512.new()
             h.update(plaintext)
             return h.hexdigest()
-
-        def decrypt(plaintext):
-            pass

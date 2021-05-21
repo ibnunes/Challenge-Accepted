@@ -6,7 +6,7 @@ from tui.menu import *
 from tui.banner import BANNER
 from dbhelper.dbcontrol import *
 from login.user import *
-from utils.cypher import Cypher, Hash
+from utils.crypto import Cypher, Hash
 
 class App(object):
     class flags:
@@ -68,6 +68,7 @@ class App(object):
     def finalize(self):
         """Finalizes the app, printing a debug message."""        
         self.debug("Stopping the app")
+        self._db.stop()
         exit(0)
 
 
@@ -145,7 +146,7 @@ class App(object):
             [
                 MenuItem("List / solve challenges", Menu.exec_menu(self._menuListChallenges)),
                 MenuItem("Submit new challenge",    Menu.exec_menu(self._menuSubmitChallenge)),
-                # MenuItem("Scoreboard",              None),
+                MenuItem("Scoreboard",              lambda: User.showScoreboard(self)),
                 # MenuItem("Settings",                None),
                 MenuItem("Profile",                 lambda: App.profile(self._user)),
                 MenuItem("Help",                    App.about),

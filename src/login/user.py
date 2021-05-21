@@ -1,4 +1,5 @@
 import re
+import prettytable as pt
 from dbhelper.dbcontrol import *
 from utils.read         import Read
 from tui.cli            import crt
@@ -160,7 +161,14 @@ class User(object):
             
         return self._dbcontrol.registerUser(username, password, email)
 
-    
+
+    @staticmethod
+    def showScoreboard(self, app):
+        crt.writeMessage(app.getDBController().getAllScoreboard())
+        crt.pause()
+
+
+    @staticmethod
     def checkUsername(username):
         """
         Checks the validity of 'username'
@@ -188,6 +196,7 @@ class User(object):
         }
 
 
+    @staticmethod
     def validateUsername(username) -> tuple:
         """
         Declares if a given username is valid or not.
@@ -214,6 +223,7 @@ class User(object):
         return isValid, tip
 
 
+    @staticmethod
     def validateEmail(email) -> bool:
         """
         Validates `email`
@@ -239,6 +249,7 @@ class User(object):
         )
 
 
+    @staticmethod
     def checkPassword(password) -> dict:
         """
         Checks the strength of 'password'
@@ -292,6 +303,7 @@ class User(object):
         }
         
 
+    @staticmethod
     def validatePassword(password) -> tuple:
         """
         Declares if a given password is valid or not.

@@ -152,7 +152,7 @@ class DBControl(object):
                     ("desafios_cifras.resposta", None),
                     ("desafios_cifras.dica", None),
                     ("desafios_cifras.algoritmo", None),
-                    ("desafios_cifras.texto_limp", None),
+                    ("desafios_cifras.texto_limpo", None),
                     ("utilizadores.username", None)     ])                                      \
                 .From("desafios_cifras")                                                        \
                 .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
@@ -178,12 +178,53 @@ class DBControl(object):
         return None
 
 
+    def getCypherLastTry(self, id_user, id_challenge):
+        last_date = None
+        try:
+            self._helper                                    \
+                .Select([("data_ultima_tentativa", None)])  \
+                .From("utilizadores_cifras")                  \
+                .Where("id_user=? AND id_desafio_cifras=?")   \
+                .OrderBy(
+                    predicate="data_ultima_tentativa",
+                    desc=True,
+                    limit=1
+                ).execute((id_user, id_challenge))
+            for (ld,) in self._helper.getCursor():
+                last_date = ld
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return last_date
+
+
+    def updateCypherChallengeTry(self, id_user, id_challenge, date):
+        try:
+            self._helper \
+                .InsertInto(
+                    table="utilizadores_cifras",
+                    keys=[
+                        "id_user",
+                        "id_desafio_cifras",
+                        "data_ultima_tentativa",
+                        "sucesso"
+                    ]
+                ).execute((id_user, id_challenge, date, True))
+            self._helper.commit()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+            return False
+        self._helper.resetQuery()
+        return True
+
+
     def addHashChallenge(self, id_user, tip, msg, algorithm):
         try:
-            self._helper                                                            \
+            self._helper                                            \
                 .InsertInto(
                     "desafios_hash",
-                    ["id_user", "dica", "resposta", "algoritmo"] )   \
+                    ["id_user", "dica", "resposta", "algoritmo"] )  \
                 .execute((id_user, tip, msg, algorithm))
             self._helper.commit()
         except mariadb.Error as ex:
@@ -197,55 +238,165 @@ class DBControl(object):
     def getAllHashChallenges(self):
         pt = PrettyTable()
         try:
-            self._helper                                                                        \
+            self._helper                                                                    \
                 .Select([
                     ("desafios_hash.id_desafio_hash", "ID"),
                     ("desafios_hash.algoritmo", None),
-                    ("utilizadores.username", "Proposto por")])                                 \
-                .From("desafios_hash")                                                        \
-                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user")   \
+                    ("utilizadores.username", "Proposto por")])                             \
+                .From("desafios_hash")                                                      \
+                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
                 .execute()
             pt = from_db_cursor(self._helper.getCursor())
-            self._helper.resetQuery()
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        self._helper.resetQuery()
         return pt
 
 
     def getHashChallenge(self, id_challenge):
-        return None
         try:
-            self._helper                                                                        \
+            self._helper                                                                    \
                 .Select([
-                    ("desafios_cifras.resposta", None),
-                    ("desafios_cifras.dica", None),
-                    ("desafios_cifras.algoritmo", None),
-                    ("desafios_cifras.texto_limp", None),
-                    ("utilizadores.username", None)     ])                                      \
-                .From("desafios_cifras")                                                        \
-                .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
-                .Where("id_desafio_cifras=?")                                                   \
+                    ("desafios_hash.resposta", None),
+                    ("desafios_hash.dica", None),
+                    ("desafios_hash.algoritmo", None),
+                    ("utilizadores.username", None),    ])                                  \
+                .From("desafios_hash")                                                      \
+                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
+                .Where("id_desafio_hash=?")                                                 \
                 .execute((id_challenge,))
-            self._helper.resetQuery()
-            for (a, t, x, p, u) in self._helper.getCursor():
+            for (a, t, x, u) in self._helper.getCursor():
                 answer    = a
                 tip       = t
                 algorithm = x
-                plaintext = p
                 username  = u
             return {
                 'answer'    : answer,
                 'tip'       : tip,
                 'algorithm' : algorithm,
-                'plaintext' : plaintext,
                 'username'  : username
             }
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        self._helper.resetQuery()
         return None
-    
+
+
+    def getHashLastTry(self, id_user, id_challenge):
+        last_date = None
+        try:
+            self._helper                                    \
+                .Select([("data_ultima_tentativa", None)])  \
+                .From("utilizadores_hash")                  \
+                .Where("id_user=? AND id_desafio_hash=?")   \
+                .OrderBy(
+                    predicate="data_ultima_tentativa",
+                    desc=True,
+                    limit=1
+                ).execute((id_user, id_challenge))
+            for (ld,) in self._helper.getCursor():
+                last_date = ld
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return last_date
+
+
+    def updateHashChallengeTry(self, id_user, id_challenge, date):
+        try:
+            self._helper \
+                .InsertInto(
+                    table="utilizadores_hash",
+                    keys=[
+                        "id_user",
+                        "id_desafio_hash",
+                        "data_ultima_tentativa",
+                        "sucesso"
+                    ]
+                ).execute((id_user, id_challenge, date, True))
+            self._helper.commit()
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+            return False
+        self._helper.resetQuery()
+        return True
+
+
+    def getScoreboardFrom(self, thetable):
+        pt = PrettyTable()
+        try:
+            self._helper                                \
+                .Select([
+                    ("u.username", "User"),
+                    ("COUNT(uh.id_user)", "Points") ])  \
+                .From("utilizadores", alias="u")        \
+                .LeftJoin(
+                    table=thetable,
+                    alias="uh",
+                    on="u.id_user = uh.id_user" )       \
+                .Where("uh.sucesso=1")                  \
+                .GroupBy("uh.id_user")                  \
+                .OrderBy("Points", desc=True)           \
+                .execute()
+            pt = from_db_cursor(self._helper.getCursor())
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return pt
+
+
+    def getHashScoreboard(self):
+        return self.getScoreboardFrom("utilizadores_hash")
+
+
+    def getCypherScoreboard(self):
+        return self.getScoreboardFrom("utilizadores_cifras")
+
+
+    def getAllScoreboard(self):
+        pt = PrettyTable()
+        try:
+            self._helper \
+                .AddCustomQuery(
+"""
+select
+u.username as 'User',
+a.CypherOK as 'Cypher',
+a.HashOK as 'Hash',
+(a.CypherOK + a.HashOK) as 'Total'
+from
+(
+select distinct
+uc.id_user as 'CypherID',
+sum(uc.sucesso) as 'CypherOK',
+uc.id_desafio_cifras as 'CypherChal',
+r.HashID,
+r.HashOK,
+r.HashChal
+from utilizadores_cifras uc
+left join
+(
+select distinct
+uh.id_user as 'HashID',
+sum(uh.sucesso) as 'HashOK',
+uh.id_desafio_hash as 'HashChal'
+from utilizadores_hash uh
+where uh.sucesso=1
+group by uh.id_user
+) r on r.HashID = uc.id_user
+where uc.sucesso=1
+group by uc.id_user
+) a
+left join utilizadores u on u.id_user = a.CypherID
+order by Total desc
+"""
+                ).execute()
+            pt = from_db_cursor(self._helper.getCursor())
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return pt
     
     def getEmail(self, id_user):
         try:
@@ -297,3 +448,4 @@ where dc.id_user = ?
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
         return None
+    
