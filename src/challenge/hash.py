@@ -83,10 +83,11 @@ class ChallengeHash(object):
             proposal = Hash.SHA512.encrypt(proposal)
         
         if proposal == challenge['answer']:
-            if ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now()):
+            if ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now(), True):
                 crt.writeSuccess("YOU DID IT!")
             else:
                 crt.writeError("You got it, but I could not save the answer.")
         else:
+            ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now(), False)
             crt.writeMessage("Better luck next time :(")
         crt.pause()

@@ -9,6 +9,14 @@ app = Flask(__name__)
 db = DBControl()
 # db.start()
 
+@app.route("/auth/hmac", methods=['GET'])
+def getHMACKey():
+    try:
+        return json.dumps({"success" : db.getHMACKey()})
+    except Exception as ex:
+        return json.dumps({"error" : str(ex)})
+
+
 @app.route("/auth/login", methods=['POST'])
 def login():
     username = request.form['username']
@@ -52,7 +60,6 @@ def emailExists():
 @app.route("/user/email/", methods=['GET'])
 def getEmail():
     userid = request.args.get('id')
-    print(userid)
     email = db.getEmail(userid)
     if email is None:
         return json.dumps({"error": "Unable to fetch email"})
@@ -74,7 +81,7 @@ def getCypherChallenges():
 
 
 @app.route("/challenge/cypher/<chid>", methods=['GET'])
-def getCypherChallenge(id):
+def getCypherChallenge(chid):
     challenge = db.getCypherChallenge(chid)
     if challenge is None:
         return json.dumps({"error": "Unable to fetch cypher challenge"})
@@ -99,16 +106,19 @@ def addCypherChallenge():
     tip = request.form["tip"]
     msg = request.form["msg"]
     val = request.form["val"]
+    iv  = request.form["iv"]
+    hmac = request.form["hmac"]
     algo = request.form["algo"]
-    ok = db.addCypherChallenge(userid, tip, msg, val, algo)
+    ok = db.addCypherChallenge(userid, tip, msg, val, iv, hmac, algo)
     return json.dumps({"success": ok})
 
 
 @app.route("/challenge/cypher/<chid>", methods=['PATCH'])
-def updateCypherChallenge(id):
+def updateCypherChallenge(chid):
     userid = request.form["userid"]
     date = request.form["date"]
-    ok = db.updateCypherChallengeTry(userid, chid, date)
+    success = request.form['success']
+    ok = db.updateCypherChallengeTry(userid, chid, date, success)
     return json.dumps({"success": ok})
 
 
@@ -126,7 +136,7 @@ def getHashChallenges():
 
 
 @app.route("/challenge/hash/<chid>", methods=['GET'])
-def getHashChallenge(id):
+def getHashChallenge(chid):
     challenge = db.getHashChallenge(chid)
     if challenge is None:
         return json.dumps({"error": "Unable to fetch cypher challenge"})
@@ -156,10 +166,11 @@ def addHashChallenge():
 
 
 @app.route("/challenge/hash/<chid>", methods=['PATCH'])
-def updateHashChallenge(id):
+def updateHashChallenge(chid):
     userid = request.form["userid"]
     date = request.form["date"]
-    ok = db.updateHashChallengeTry(userid, chid, date)
+    success = request.form['success']
+    ok = db.updateHashChallengeTry(userid, chid, date, success)
     return json.dumps({"success": ok})
 
 

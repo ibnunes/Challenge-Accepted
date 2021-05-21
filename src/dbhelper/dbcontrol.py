@@ -44,6 +44,17 @@ class DBControl(object):
         pass
 
 
+    def getHMACKey(self):
+        r = requests.post(url=f"{self._url}/auth/hmac")
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
+        else:
+            raise Exception(data)
+
+
     def userExists(self, username):
         r = requests.post(
             f"{self._url}/auth/user",
@@ -90,7 +101,7 @@ class DBControl(object):
         return ok
 
 
-    def addCypherChallenge(self, id_user, tip, msg, val, algorithm):
+    def addCypherChallenge(self, id_user, tip, msg, val, iv, hmacdb, algorithm):
         r = requests.post(
             f"{self._url}/challenge/cypher",
             data={
@@ -98,6 +109,8 @@ class DBControl(object):
                 'tip'    : tip,
                 'msg'    : msg,
                 'val'    : val,
+                'iv'     : iv,
+                'hmac'   : hmacdb,
                 'algo'   : algorithm
             }
         )
@@ -146,12 +159,13 @@ class DBControl(object):
         return None
 
 
-    def updateCypherChallengeTry(self, id_user, id_challenge, date):
+    def updateCypherChallengeTry(self, id_user, id_challenge, date, success):
         r = requests.patch(
             url=f"{self._url}/challenge/cypher/{id_challenge}",
             params={
-                "userid" : id_user,
-                "date"   : date
+                "userid"  : id_user,
+                "date"    : date,
+                "success" : success
             }
         )
         if r.status_code != 200:
@@ -215,12 +229,13 @@ class DBControl(object):
         return None
 
 
-    def updateHashChallengeTry(self, id_user, id_challenge, date):
+    def updateHashChallengeTry(self, id_user, id_challenge, date, success):
         r = requests.patch(
             url=f"{self._url}/challenge/hash/{id_challenge}",
             params={
-                "userid" : id_user,
-                "date"   : date
+                "userid"  : id_user,
+                "date"    : date,
+                "success" : success
             }
         )
         if r.status_code != 200:
