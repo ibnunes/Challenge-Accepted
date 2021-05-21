@@ -4,7 +4,7 @@ from prettytable import PrettyTable
 from prettytable import from_db_cursor
 
 from .mariadbhelper import *
-from tui.cli import crt
+from .tui.cli import crt
 
 """
 TODO: - Documentation
@@ -397,3 +397,55 @@ order by Total desc
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
         return pt
+    
+    def getEmail(self, id_user):
+        try:
+            self._helper                    \
+                .Select([("email", None)])  \
+                .From("utilizadores")       \
+                .Where("id_user = ?")       \
+                .execute((id_user,))
+            self._helper.resetQuery()
+            for (email,) in self._helper.getCursor():
+                useremail = email
+            return useremail
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+        return None
+    
+    
+    def getUserCreatedAmount(self, id_user):
+        try:
+            self._helper\
+                .AddCustomQuery(
+"""
+select
+    count(dc.id_desafio_cifras) as 'Cypher',
+    r.Hash,
+    count(dc.id_desafio_cifras) + r.Hash as 'Total'
+from desafios_cifras dc
+left join (
+select 
+    count(dh.id_desafio_hash) as 'Hash'
+from desafios_hash dh
+where dh.id_user = ?
+) r on true
+where dc.id_user = ?
+"""
+                ).execute((id_user, id_user))
+            self._helper.resetQuery()
+            for (c, h, total) in self._helper.getCursor():
+                Cypher = c
+                Hash   = h
+                Total  = total
+            return {
+                'cypher': Cypher,
+                'hash': Hash,
+                'total': Total
+            }
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+            self._helper.resetQuery()
+        return None
+    
