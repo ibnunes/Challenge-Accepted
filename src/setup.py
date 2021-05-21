@@ -1,5 +1,4 @@
 from distutils.core import setup, find_packages
-from importlib.metadata import entry_points
 
 setup(
     name='Challenge Accepted',
@@ -9,8 +8,8 @@ The idea of this work is to develop a system that allows different users to publ
     version='1.0.0',
     author='C-Team',
     install_requires=[
-        'prettytable',
         'Padding',
+        'prettytable',
         'pycryptodome',
         'requests',
         'validate_email'
