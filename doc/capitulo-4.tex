@@ -1,0 +1,42 @@
+\chapter{Implementação e Testes}
+% Os titulos dados aos capítulos são meros exemplos. Cada relatório deve adequar-se ao projeto desenvolvido.
+\label{chap:imp-test}
+
+\section{Introdução}
+\label{chap4:sec:intro}
+Cada capítulo \underline{intermédio} deve começar com uma breve introdução onde é explicado com um pouco mais de detalhe qual é o tema deste capítulo, e como é que se encontra organizado (i.e., o que é que cada secção seguinte discute).
+
+\section{Secções Intermédias}
+\label{chap4:sec:...}
+
+O trecho de código seguinte mostra a função \texttt{main()} e o seu funcionamento:
+\begin{lstlisting}[caption=Trecho de código usado no projeto.]
+#include <stdio.h>
+
+int main(){
+  int i = 0;
+  for(i = 0; i < 100; i++)
+    printf("%d\n",i);
+}
+\end{lstlisting}
+
+
+Se quiser definir a distribuição de Pareto, posso colocar a fórmula \emph{inline}, da seguinte forma $P(x)=\frac{x^{1/\Lambda}_{i}}{2}$, ou numa linha em separada, como se mostra a seguir:
+$$ y^2 = \sum_{x=0}^{20}( x^3 - 2x + 3).$$
+
+Outra maneira, mas numerada, é usar o ambiente \texttt{equation}, como se mostra na (\ref{eq:eq1}):
+\begin{equation}
+ y^2 = \sum_{x=0}^{20}( x^3 - 2x + 3).
+ \label{eq:eq1}
+\end{equation}
+
+\begin{align}
+ 2+2+2+2+2+2+2+2+2+2+y^2 = & \sum_{x=0}^{20}( x^3 - 2x + 3);\\
+                         = & x^4 -2.
+ \label{eq:eq2}
+\end{align}
+
+
+\section{Conclusões}
+\label{chap4:sec:concs}
+Cada capítulo \underline{intermédio} deve referir o que demais importante se conclui desta parte do trabalho, de modo a fornecer a motivação para o capítulo ou passos seguintes.
