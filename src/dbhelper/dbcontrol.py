@@ -148,7 +148,7 @@ class DBControl(object):
 
     def updateCypherChallengeTry(self, id_user, id_challenge, date):
         r = requests.patch(
-            url="{self._url}/challenge/cypher/{id_challenge}",
+            url=f"{self._url}/challenge/cypher/{id_challenge}",
             params={
                 "userid" : id_user,
                 "date"   : date
@@ -217,7 +217,7 @@ class DBControl(object):
 
     def updateHashChallengeTry(self, id_user, id_challenge, date):
         r = requests.patch(
-            url="{self._url}/challenge/hash/{id_challenge}",
+            url=f"{self._url}/challenge/hash/{id_challenge}",
             params={
                 "userid" : id_user,
                 "date"   : date
