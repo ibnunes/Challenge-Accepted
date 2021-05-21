@@ -127,7 +127,6 @@ class DBControl(object):
 
 
     def getAllCypherChallenges(self):
-        pt = PrettyTable()
         try:
             self._helper                                                                        \
                 .Select([
@@ -137,12 +136,14 @@ class DBControl(object):
                 .From("desafios_cifras")                                                        \
                 .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
                 .execute()
-            pt = from_db_cursor(self._helper.getCursor())
+            row_headers=[x[0] for x in self._helper.getCursor().description]
+            rv = self._helper.getCursor().fetchall()
             self._helper.resetQuery()
+            return (row_headers, rv)
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
-        return pt
+        return None
 
 
     def getCypherChallenge(self, id_challenge):
@@ -236,7 +237,6 @@ class DBControl(object):
 
 
     def getAllHashChallenges(self):
-        pt = PrettyTable()
         try:
             self._helper                                                                    \
                 .Select([
@@ -246,11 +246,14 @@ class DBControl(object):
                 .From("desafios_hash")                                                      \
                 .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
                 .execute()
-            pt = from_db_cursor(self._helper.getCursor())
+            row_headers=[x[0] for x in self._helper.getCursor().description]
+            rv = self._helper.getCursor().fetchall()
+            self._helper.resetQuery()
+            return (row_headers, rv)
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
-        return pt
+        return None
 
 
     def getHashChallenge(self, id_challenge):
@@ -355,16 +358,15 @@ class DBControl(object):
 
 
     def getAllScoreboard(self):
-        pt = PrettyTable()
         try:
             self._helper \
                 .AddCustomQuery(
 """
 select
 u.username as 'User',
-a.CypherOK as 'Cypher',
-a.HashOK as 'Hash',
-(a.CypherOK + a.HashOK) as 'Total'
+CAST(a.CypherOK AS int) as 'Cypher',
+CAST(a.HashOK AS int) as 'Hash',
+CAST(a.CypherOK + a.HashOK AS int) as 'Total'
 from
 (
 select distinct
@@ -392,11 +394,14 @@ left join utilizadores u on u.id_user = a.CypherID
 order by Total desc
 """
                 ).execute()
-            pt = from_db_cursor(self._helper.getCursor())
+            row_headers=[x[0] for x in self._helper.getCursor().description]
+            rv = self._helper.getCursor().fetchall()
+            self._helper.resetQuery()
+            return (row_headers, rv)
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
-        return pt
+        return None
     
     def getEmail(self, id_user):
         try:
