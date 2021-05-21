@@ -76,7 +76,7 @@ class ChallengeCypher(object):
     def choose(user : User, showall=True):
         if showall:
             ChallengeCypher.show(user, pause=False)
-        ChallengeCypher.solve(Read.tryAsInt("Choose challenge by ID: "))
+        ChallengeCypher.solve(user, Read.tryAsInt("Choose challenge by ID: "))
 
 
     @staticmethod
@@ -118,12 +118,13 @@ class ChallengeCypher(object):
         elif challenge['algorithm'] == Cypher.CTR.TYPE:
             plaintext = Cypher.CTR.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_CTR, iv.encode())
 
-        try:
-            plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        except:
-            ()
+        #try:
+        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
+        #except:
+        #    ()
         msgHMAC = hmac.new(hmackey, plaintext.encode(), hashlib.sha256)
 
+        crt.writeDebug(f"{msgHMAC.hexdigest()} == {hmacdb}")
         if (msgHMAC.hexdigest() == hmacdb):
             if ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), True):
                 crt.writeSuccess("YOU DID IT!")

@@ -7,7 +7,7 @@ class Clock:
 
     @staticmethod
     def isAfter(date_curr, date_next):
-        if date_curr is None or date_next is None:
+        if (date_curr is None) or (date_next is None):
             return False
         return date_curr > date_next
 
@@ -15,4 +15,4 @@ class Clock:
     def addSeconds(date_curr, seconds):
         if date_curr is None:
             return False
-        return date_curr[0] + seconds
+        return date_curr + seconds

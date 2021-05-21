@@ -45,12 +45,12 @@ class DBControl(object):
 
 
     def getHMACKey(self):
-        r = requests.post(url=f"{self._url}/auth/hmac")
+        r = requests.get(url=f"{self._url}/auth/hmac")
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = remote.unpack(r.json())
         if ok:
-            return data
+            return bytes(data, 'utf-8')
         else:
             raise Exception(data)
 
@@ -162,7 +162,7 @@ class DBControl(object):
     def updateCypherChallengeTry(self, id_user, id_challenge, date, success):
         r = requests.patch(
             url=f"{self._url}/challenge/cypher/{id_challenge}",
-            params={
+            data={
                 "userid"  : id_user,
                 "date"    : date,
                 "success" : success
@@ -232,7 +232,7 @@ class DBControl(object):
     def updateHashChallengeTry(self, id_user, id_challenge, date, success):
         r = requests.patch(
             url=f"{self._url}/challenge/hash/{id_challenge}",
-            params={
+            data={
                 "userid"  : id_user,
                 "date"    : date,
                 "success" : success

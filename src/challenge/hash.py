@@ -48,7 +48,7 @@ class ChallengeHash(object):
     def choose(user : User, showall=True):
         if showall:
             ChallengeHash.show(user, pause=False)
-        ChallengeHash.solve(Read.tryAsInt("Choose challenge by ID: "))
+        ChallengeHash.solve(user, Read.tryAsInt("Choose challenge by ID: "))
 
 
     @staticmethod

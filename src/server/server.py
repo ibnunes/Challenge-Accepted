@@ -117,7 +117,7 @@ def addCypherChallenge():
 def updateCypherChallenge(chid):
     userid = request.form["userid"]
     date = request.form["date"]
-    success = request.form['success']
+    success = request.form["success"]
     ok = db.updateCypherChallengeTry(userid, chid, date, success)
     return json.dumps({"success": ok})
 
