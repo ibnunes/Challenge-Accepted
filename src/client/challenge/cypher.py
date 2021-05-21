@@ -8,26 +8,41 @@ import secrets
 
 # from app import App
 from login.user import User
-from utils.clock import Clock
-
-"""
-TODO: - Documentation
-"""
-
 from utils.crypto import Cypher
 from utils.read import Read
+from utils.clock import Clock
 from tui.cli import crt
+
+"""
+TODO: colocar na base de dados que teve sucesso
+"""
 
 class ChallengeCypher(object):
     APP = None
 
     @staticmethod
     def bindApp(app):
+        """
+        Binds Challenge with the app.
+
+        Args:
+            app (App): Application
+        """
         ChallengeCypher.APP = app
 
 
     @staticmethod
     def add(user : User, algorithm):
+        """
+        Adds Challenge.
+
+        Args:
+            user (User): Author
+            algorithm (str): given type of algorithm 
+
+        Returns:
+            bool: if not logged in returns false
+        """
         if not user.isLoggedIn():
             return False
         
@@ -65,6 +80,15 @@ class ChallengeCypher(object):
 
     @staticmethod
     def show(pause=True):
+        """
+        Lists every Cypher Challenge available
+
+        Args:
+            pause (bool, optional): if wished to be paused. Defaults to True.
+
+        Returns:
+            str: PrettyTable of every Cypher Challenge available
+        """
         pt = ChallengeCypher.APP.getDBController().getAllCypherChallenges()
         crt.writeMessage(pt)
         if pause:
@@ -74,6 +98,13 @@ class ChallengeCypher(object):
 
     @staticmethod
     def choose(user : User, showall=True):
+        """
+        Awaits input for the Challenge wished to me solved 
+
+        Args:
+            user (User): User
+            showall (bool, optional): True if wanted to list challenges. Defaults to True.
+        """
         if showall:
             ChallengeCypher.show(user, pause=False)
         ChallengeCypher.solve(user, Read.tryAsInt("Choose challenge by ID: "))
@@ -81,6 +112,13 @@ class ChallengeCypher(object):
 
     @staticmethod
     def solve(user : User, id_challenge):
+        """
+        Runs an attempt of user to solve the challenge
+
+        Args:
+            user (User): User
+            id_challenge (int): ID of Challenge
+        """
         challenge = ChallengeCypher.APP.getDBController().getCypherChallenge(id_challenge)
         if challenge is None:
             crt.writeError("This challenge does not exist.")
@@ -134,3 +172,4 @@ class ChallengeCypher(object):
             ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), False)
             crt.writeMessage("Better luck next time :(")
         crt.pause()
+
