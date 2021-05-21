@@ -10,11 +10,27 @@ class ChallengeHash(object):
 
     @staticmethod
     def bindApp(app):
+        """
+        Binds Challenge with the app.
+    
+        Args:
+            app (App): Application
+        """
         ChallengeHash.APP = app
 
 
     @staticmethod
     def add(user : User, algorithm):
+        """
+        Adds Challenge.
+
+        Args:
+            user (User): Author
+            algorithm (str): given type of algorithm 
+
+        Returns:
+            bool: if not logged in returns false
+        """
         if not user.isLoggedIn():
             return False
         
@@ -37,6 +53,15 @@ class ChallengeHash(object):
 
     @staticmethod
     def show(pause=True):
+        """
+        Lists every Cypher Challenge available
+
+        Args:
+            pause (bool, optional): if wished to be paused. Defaults to True.
+
+        Returns:
+            str: PrettyTable of every Cypher Challenge available
+        """
         pt = ChallengeHash.APP.getDBController().getAllHashChallenges()
         crt.writeMessage(pt)
         if pause:
@@ -46,6 +71,13 @@ class ChallengeHash(object):
 
     @staticmethod
     def choose(user : User, showall=True):
+        """
+        Awaits input for the Challenge wished to me solved 
+
+        Args:
+            user (User): User
+            showall (bool, optional): True if wanted to list challenges. Defaults to True.
+        """
         if showall:
             ChallengeHash.show(user, pause=False)
         ChallengeHash.solve(Read.tryAsInt("Choose challenge by ID: "))
@@ -53,6 +85,13 @@ class ChallengeHash(object):
 
     @staticmethod
     def solve(user : User, id_challenge):
+        """
+        Runs an attempt of user to solve the challenge
+
+        Args:
+            user (User): User
+            id_challenge (int): ID of Challenge
+        """
         challenge = ChallengeHash.APP.getDBController().getCypherChallenge(id_challenge)
         if challenge is None:
             crt.writeError("This challenge does not exist.")

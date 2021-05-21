@@ -6,8 +6,9 @@ import base64
 
 # from app import App
 from login.user import User
-from utils.cypher import Cypher
+from utils.crypto import Cypher
 from utils.read import Read
+from utils.clock import Clock
 from tui.cli import crt
 
 """
@@ -24,7 +25,7 @@ class ChallengeCypher(object):
 
         Args:
             app (App): Application
-        """        
+        """
         ChallengeCypher.APP = app
 
 
@@ -39,7 +40,7 @@ class ChallengeCypher(object):
 
         Returns:
             bool: if not logged in returns false
-        """        
+        """
         if not user.isLoggedIn():
             return False
         
@@ -83,7 +84,7 @@ class ChallengeCypher(object):
 
         Returns:
             str: PrettyTable of every Cypher Challenge available
-        """        
+        """
         pt = ChallengeCypher.APP.getDBController().getAllCypherChallenges()
         crt.writeMessage(pt)
         if pause:
@@ -99,7 +100,7 @@ class ChallengeCypher(object):
         Args:
             user (User): User
             showall (bool, optional): True if wanted to list challenges. Defaults to True.
-        """        
+        """
         if showall:
             ChallengeCypher.show(user, pause=False)
         ChallengeCypher.solve(Read.tryAsInt("Choose challenge by ID: "))
@@ -113,7 +114,7 @@ class ChallengeCypher(object):
         Args:
             user (User): User
             id_challenge (int): ID of Challenge
-        """        
+        """
         challenge = ChallengeCypher.APP.getDBController().getCypherChallenge(id_challenge)
         if challenge is None:
             crt.writeError("This challenge does not exist.")
