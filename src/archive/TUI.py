@@ -1,3 +1,4 @@
+from getpass import getpass
 import os
 
 # TODO: documentation
@@ -13,9 +14,14 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    
 
+<<<<<<< HEAD:src/TUI.py
+class Item(object):
+=======
 
 class Item():
+>>>>>>> dev-ds:src/archive/TUI.py
     def __init__(self, descr, func) -> None:
         self._description = descr
         self._function = func
@@ -33,7 +39,7 @@ class Item():
         self._function = func
 
 
-class Menu():
+class Menu(object):
     def __init__(self, title, subtitle, itemlist) -> None:
         self._title = title
         self._subtitle = subtitle
@@ -42,20 +48,18 @@ class Menu():
         self._warning = ""
         self._success = ""
 
-    def inputMenu(self) -> None:
+    def show(self) -> None:
         s = ""
-        counter = 0
-
         for count, item in enumerate(self._items):
             description = item.getDescription()
             s += f"{bcolors.BOLD + str(count) + bcolors.ENDC}.{' '*3}{description}\n"
-            counter += 1
-
-        # print("\n" + "=:"*len(self._title) + "\n")
         
         Menu.clearScreen()
         index = input(
-            f"{bcolors.HEADER + self._title + bcolors.ENDC}\n{self._subtitle}\n\n{s}\n{self._error+self._warning+self._success}\n >>> "
+            f"{bcolors.HEADER + self._title + bcolors.ENDC}\n" + 
+            f"{self._subtitle}\n\n" +
+            f"{s}\n" +
+            f"{self._error+self._warning+self._success}\n >>> "
         )
         self._error, self._warning, self._success = "", "", ""
         
@@ -84,6 +88,52 @@ class Menu():
         else:
             # WINDOWS Systems
             _ = os.system('cls')
+            
+            
+class LoginScreen(object):
+    def __init__(self):
+        self._username = ""
+        self._password = ""
+        self._attempts = 3
+        self._error    = ""
+        self._warning  = ""
+        self._success  = ""
+        
+    def show(self, loginFun):
+        if not (self._attempts < 0):
+            Menu.clearScreen()
+            print(self._error + self._warning + self._success)
+            try:
+                self._username = input(bcolors.BOLD + "Username: " + bcolors.ENDC)
+                self._password = getpass("Password: ")
+                loginFun(self._username, self._password)
+            except WrongPasswordOrUsername:
+                self._attempts -= 1
+                self.addWarning(f"Wrong username and/or password. {self._attempts} attempts left.")
+                self._username, self._password = "", ""
+                self.show()
+            except NonValidatedPassword:
+                self._attempts -= 1
+                self.addError(f"You've inserted a Username and/or password with invalid characters.")
+                self._username, self._password = "", ""
+                self.show()
+            
+            return True
+        
+        else:
+            return False
+        
+    def addError(self, err) -> None:
+        self._success, self._warning = "", ""
+        self._error = bcolors.FAIL + bcolors.BOLD + err + bcolors.ENDC
+
+    def addWarning(self, warn) -> None:
+        self._success, self._error = "", ""
+        self._warning = bcolors.WARNING + warn + bcolors.ENDC
+
+    def addSuccess(self, succ) -> None:
+        self._warning, self._error = "", ""
+        self._success = bcolors.OKGREEN + succ + bcolors.ENDC
 
 
 # Exemplo Caso tenham duvidas vejam isto...
@@ -94,8 +144,13 @@ if __name__ == "__main__":
     def f2():
         print("WOOOO")
         
-    menu = Menu("Quilbanner todo pipi", "#bannerpipi", [Item("Clica-me, gostoso...", f1), Item("Não, clica EM mim... hmmmmm :3", f2)])
+    menu = Menu(
+        "Quilbanner todo pipi", 
+        "#bannerpipi", 
+        [Item("Clica-me, gostoso...", f1),
+         Item("Não, clica EM mim... hmmmmm :3", f2)]
+    )
     menu.addError("FDS Tá td fdd")
     menu.addWarning("Ooolha bandeira amarela") # Só o ultimo definido funciona
     # menu.addSuccess("OH MARABILHAA")
-    menu.inputMenu()
+    menu.show()
