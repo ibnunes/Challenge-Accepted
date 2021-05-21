@@ -29,6 +29,22 @@ def decryptCTR(ciphertext,key, mode, iv):
     encobj = AES.new(key,mode,counter=ctr)
     return(encobj.decrypt(ciphertext))
 
+def decryptOTP(ciphertext, key):
+    encobj = onetimepad.decrypt(ciphertext, key)
+    return(encobj.decrypt(ciphertext))
+
+def decryptVigenere(ciphertext, key):
+    encobj = decipher_vigenere(ciphertext, key)
+    return(encobj.decrypt(ciphertext))
+
+def decryptCaesar(ciphertext, key, word):
+    encobj = word.caesar_decripher(ciphertext, key)
+    return(encobj.decrypt(ciphertext))
+
+def decryptElgamal(ciphertext, key):
+    encobj = Elgamal.decrypt(ciphertext, key)
+    return(encobj.decrypt(ciphertext, key))
+
 
 def responderDesafioCrypto(id_desafio_crypto, user):
     id_user = user #é preciso alterar para 
@@ -98,6 +114,19 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         except Exception:
             ()
         msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
+    if(algoritmo == 'CAESAR'):
+        plaintext2 = decryptCaesar(base64.b64decode(resposta),key)
+    if(algoritmo == 'ELGAMAL'):
+        plaintext2 = decryptElGamal(base64.b64decode(resposta),key)
+    if(algoritmo == 'ONETIMEPAD'):
+        plaintext = decryptOTP(base64.b64decode(resposta),key)
+        try:
+            plaintext2 = plaintext.decode()
+        except Exception:
+            ()
+    if(algoritmo == 'VIGENERE'):
+        plaintext2 = decryptVigenere(base64.b64decode(resposta),key)  
+        
             
     if (msgHMAC.hexdigest() == hmacDB):
         # Verifica a hora da ultima submissão desde utilizador a este desafio
