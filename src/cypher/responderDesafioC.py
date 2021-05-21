@@ -86,18 +86,22 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCBC(base64.b64decode(resposta),key,AES.MODE_CBC,iv.encode())
+        plaintext2 = codecs.decode(plaintext, encoding='utf-8', errors='ignore')
         try:
             plaintext2 = Padding.removePadding(plaintext2,mode=0)
         except Exception:
             ()
+        msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
     if(algoritmo == 'CTR'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCTR(base64.b64decode(resposta),key,AES.MODE_CTR,iv.encode())
+        plaintext2 = codecs.decode(plaintext, encoding='utf-8', errors='ignore')
         try:
             plaintext2 = Padding.removePadding(plaintext2,mode=0)
         except Exception:
             ()
+        msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
             
     if (msgHMAC.hexdigest() == hmacDB):
         # Verifica a hora da ultima submissão desde utilizador a este desafio

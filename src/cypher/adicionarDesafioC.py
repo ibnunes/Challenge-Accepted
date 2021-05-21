@@ -123,7 +123,7 @@ def adicionarDesafioCypher(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
             (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CBC'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
