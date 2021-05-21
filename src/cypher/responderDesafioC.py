@@ -99,7 +99,7 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         except Exception:
             ()
             
-    if (plaintext2.strip() == texto_limpo.strip()):
+    if (msgHMAC.hexdigest() == hmacDB):
         # Verifica a hora da ultima submissão desde utilizador a este desafio
         cur2 = conn.cursor()
         cur2.execute(
@@ -130,6 +130,16 @@ def responderDesafioCrypto(id_desafio_crypto, user):
                 conn.close()
                 conn2.close()
                 print("CONGRATULATIONS! YOU DID IT!")
+                print("                                           .''.      ")
+                print("       .''.      .        *''*    :_\/_:     .       ")
+                print("      :_\/_:   _\(/_  .:.*_\/_*   : /\ :  .'.:.'.    ")
+                print("  .''.: /\ :   ./)\   ':'* /\ * :  '..'.  -=:o:=-    ")
+                print(" :_\/_:'.:::.    ' *''*    * '.\'/.' _\(/_'.':'.'    ")
+                print(" : /\ : :::::     *_\/_*     -= o =-  /)\    '  *    ")
+                print("  '..'  ':::'     * /\ *     .'/.\'.   '             ")
+                print("      *            *..*         :                    ")
+                print("       *                                             ")
+                print("        *                                            ")
                 return True #Como ja inseriu fecha
 
         #Para os casos em que não existe uma tentativa deste utilizador neste desafio
@@ -150,6 +160,16 @@ def responderDesafioCrypto(id_desafio_crypto, user):
             conn.close()
             conn2.close()
             print("CONGRATULATIONS! YOU DID IT!")
+            print("                                           .''.      ")
+            print("       .''.      .        *''*    :_\/_:     .       ")
+            print("      :_\/_:   _\(/_  .:.*_\/_*   : /\ :  .'.:.'.    ")
+            print("  .''.: /\ :   ./)\   ':'* /\ * :  '..'.  -=:o:=-    ")
+            print(" :_\/_:'.:::.    ' *''*    * '.\'/.' _\(/_'.':'.'    ")
+            print(" : /\ : :::::     *_\/_*     -= o =-  /)\    '  *    ")
+            print("  '..'  ':::'     * /\ *     .'/.\'.   '             ")
+            print("      *            *..*         :                    ")
+            print("       *                                             ")
+            print("        *                                            ")
             return True
     else:
         try: 
@@ -163,4 +183,13 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         conn.close()
         conn2.close()
         print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
+        print("""    .-''''''-.
+  .'          '.
+ /   O      O   \\
+:           `    :
+|                | 
+:    .------.    :
+ \  '        '  /
+  '.          .'
+    '-......-'""")
         return False
