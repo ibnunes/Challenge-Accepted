@@ -518,7 +518,6 @@ class MariaDBHelper(object):
         return self
 
 
-    @PendingDeprecationWarning
     def AddCustomQuery(self, query):
         """
         Query constructor: CUSTOM QUERY

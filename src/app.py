@@ -68,6 +68,7 @@ class App(object):
     def finalize(self):
         """Finalizes the app, printing a debug message."""        
         self.debug("Stopping the app")
+        self._db.stop()
         exit(0)
 
 
