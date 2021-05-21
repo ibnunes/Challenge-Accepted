@@ -362,7 +362,6 @@ class MariaDBHelper(object):
         except mariadb.Error as e:
             print(f"Error connecting to MariaDB Platform: {e}")
             return None
-        
         self.cursor = self.connection.cursor()
         return self.getCursor()
 

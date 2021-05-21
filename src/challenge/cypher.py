@@ -2,6 +2,7 @@ from Crypto.Cipher import AES
 import hashlib
 import Padding
 import base64
+import hmac
 # from prettytable import PrettyTable
 
 # from app import App

@@ -1,4 +1,5 @@
-import sys
+import sys, os
+import configparser as ini
 
 from challenge.cypher import ChallengeCypher
 from challenge.hash import ChallengeHash
@@ -28,7 +29,9 @@ class App(object):
         - Initializing the Data Base Controller;
         - And the User class;
         """
-        self._db = DBControl()          # TODO: separar DBControl do cliente
+        self._config = ini.ConfigParser()
+        self._config.read(os.getcwd() + '/config.ini')
+        self._db = DBControl()
         self._user = User(self._db)
         self.loadUI()
 
@@ -58,7 +61,10 @@ class App(object):
         """
         if "--debug" in args or "-d" in args:
             self.flags.debug = True
-        self._db.start()
+        self._db.start(
+            url=self._config['SERVER']['host'],
+            port=self._config['SERVER']['port']
+        )
         ChallengeCypher.bindApp(self)
         ChallengeHash.bindApp(self)
         while not self.flags.halt:
@@ -206,12 +212,14 @@ class App(object):
         input()
         crt.pause()
 
+
     def profile(user):
         """Content of User profile"""        
         crt.writeMessage("PROFILE\n")
         crt.writeMessage(str(user))
         input()
         crt.pause()
+
 
 if __name__ == "__main__":
     try:
