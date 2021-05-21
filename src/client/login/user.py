@@ -113,7 +113,7 @@ class User(object):
                 self._logged = True
                 self._userid = id_user
                 self._email  = self._dbcontrol.getEmail(id_user)
-        except (UsernameNotFound, WrongPassword) as ex:
+        except (StatusCodeError, UsernameNotFound, WrongPassword) as ex:
             crt.writeWarning(ex.message)
             self._logged = False
             self.wipe()
@@ -163,7 +163,7 @@ class User(object):
 
 
     @staticmethod
-    def showScoreboard(self, app):
+    def showScoreboard(app):
         crt.writeMessage(app.getDBController().getAllScoreboard())
         crt.pause()
 

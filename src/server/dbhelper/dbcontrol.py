@@ -1,10 +1,8 @@
 import hashlib
 import binascii
-from prettytable import PrettyTable
-from prettytable import from_db_cursor
 
 from .mariadbhelper import *
-from tui.cli import crt
+from .tui.cli import crt
 
 """
 TODO: - Documentation
@@ -38,8 +36,33 @@ class DBControl(object):
         if self._helper.isConnected():
             self._helper.disconnect()
 
+    def fetchAppId(self, appId):
+        self.start()
+        self._helper                    \
+            .Select([("`key`", None)])    \
+            .From("apps")               \
+            .Where("appid=?")           \
+            .execute((appId,))
+
+        self._helper.resetQuery()
+
+        try:
+            record = self._helper.getCursor().next()[0]
+            #for (r,) in self._helper.getCursor():
+            #    record = r
+            self.stop()
+            return record
+        except (StopIteration, Exception, mariadb.Error):
+            self.stop()
+            return None
+
+
+    def getHMACKey(self):
+        return self._helper.config['VALIDATION']['hmac']
+
 
     def valueExists(self, table, field, value):
+        self.start()
         self._helper                    \
             .Select([(field, None)])    \
             .From(table)                \
@@ -49,6 +72,7 @@ class DBControl(object):
         ok = False
         for (c,) in self._helper.getCursor():
             ok = True
+        self.stop()
         return ok
 
 
@@ -69,6 +93,7 @@ class DBControl(object):
 
 
     def loginUser(self, username, password):
+        self.start()
         key, salt = "", ""
         self._helper \
             .Select([("id_user", None), ("password", None), ("salt", None)]) \
@@ -85,7 +110,7 @@ class DBControl(object):
                 raise Exception()
         except (Exception, mariadb.Error) as ex:
             raise UsernameNotFound(f"User '{username}' does not exist.")
-        
+        self.stop()
         new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), binascii.unhexlify(salt), 100000)
         if new_key == binascii.unhexlify(key):
             return (True, id_user)
@@ -95,6 +120,7 @@ class DBControl(object):
 
     def registerUser(self, username, password, email):
         # gera salt, calcula o sha256 (10000x) 
+        self.start()
         salt = os.urandom(32)   # A new salt for this user
         key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
         try:
@@ -105,29 +131,34 @@ class DBControl(object):
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+            self.stop()
             return False
         self._helper.resetQuery()
+        self.stop()
         return True
 
 
-    def addCypherChallenge(self, id_user, tip, msg, val, algorithm):
+    def addCypherChallenge(self, id_user, tip, msg, val, iv, hmacdb, algorithm):
+        self.start()
         try:
             self._helper                                                            \
                 .InsertInto(
                     "desafios_cifras",
-                    ["id_user", "dica", "resposta", "texto_limpo", "algoritmo"] )   \
-                .execute((id_user, tip, msg, val, algorithm))
+                    ["id_user", "dica", "resposta", "texto_limpo", "iv", "hmac", "algoritmo"] )   \
+                .execute((id_user, tip, msg, val, iv, hmacdb, algorithm))
             self._helper.commit()
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+            self.stop()
             return False
         self._helper.resetQuery()
+        self.stop()
         return True
 
 
     def getAllCypherChallenges(self):
-        pt = PrettyTable()
+        self.start()
         try:
             self._helper                                                                        \
                 .Select([
@@ -137,15 +168,20 @@ class DBControl(object):
                 .From("desafios_cifras")                                                        \
                 .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
                 .execute()
-            pt = from_db_cursor(self._helper.getCursor())
+            row_headers=[x[0] for x in self._helper.getCursor().description]
+            rv = self._helper.getCursor().fetchall()
             self._helper.resetQuery()
+            self.stop()
+            return (row_headers, rv)
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
-        return pt
+        self.stop()
+        return None
 
 
     def getCypherChallenge(self, id_challenge):
+        self.start()
         try:
             self._helper                                                                        \
                 .Select([
@@ -153,33 +189,42 @@ class DBControl(object):
                     ("desafios_cifras.dica", None),
                     ("desafios_cifras.algoritmo", None),
                     ("desafios_cifras.texto_limpo", None),
+                    ("desafios_cifras.iv", None),
+                    ("desafios_cifras.hmac", None),
                     ("utilizadores.username", None)     ])                                      \
                 .From("desafios_cifras")                                                        \
                 .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
                 .Where("id_desafio_cifras=?")                                                   \
                 .execute((id_challenge,))
             self._helper.resetQuery()
-            for (a, t, x, p, u) in self._helper.getCursor():
+            for (a, t, x, p, i, hm, u) in self._helper.getCursor():
                 answer    = a
                 tip       = t
                 algorithm = x
                 plaintext = p
+                iv        = i
+                hmacdb    = hm
                 username  = u
+            self.stop()
             return {
                 'answer'    : answer,
                 'tip'       : tip,
                 'algorithm' : algorithm,
                 'plaintext' : plaintext,
+                'iv'        : iv,
+                'hmac'      : hmacdb,
                 'username'  : username
             }
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+        self.stop()
         return None
 
 
     def getCypherLastTry(self, id_user, id_challenge):
         last_date = None
+        self.start()
         try:
             self._helper                                    \
                 .Select([("data_ultima_tentativa", None)])  \
@@ -195,10 +240,12 @@ class DBControl(object):
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
+        self.stop()
         return last_date
 
 
-    def updateCypherChallengeTry(self, id_user, id_challenge, date):
+    def updateCypherChallengeTry(self, id_user, id_challenge, date, success):
+        self.start()
         try:
             self._helper \
                 .InsertInto(
@@ -209,17 +256,20 @@ class DBControl(object):
                         "data_ultima_tentativa",
                         "sucesso"
                     ]
-                ).execute((id_user, id_challenge, date, True))
+                ).execute((id_user, id_challenge, date, success))
             self._helper.commit()
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+            self.stop()
             return False
         self._helper.resetQuery()
+        self.stop()
         return True
 
 
     def addHashChallenge(self, id_user, tip, msg, algorithm):
+        self.start()
         try:
             self._helper                                            \
                 .InsertInto(
@@ -230,13 +280,15 @@ class DBControl(object):
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+            self.stop()
             return False
         self._helper.resetQuery()
+        self.stop()
         return True
 
 
     def getAllHashChallenges(self):
-        pt = PrettyTable()
+        self.start()
         try:
             self._helper                                                                    \
                 .Select([
@@ -246,14 +298,20 @@ class DBControl(object):
                 .From("desafios_hash")                                                      \
                 .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
                 .execute()
-            pt = from_db_cursor(self._helper.getCursor())
+            row_headers=[x[0] for x in self._helper.getCursor().description]
+            rv = self._helper.getCursor().fetchall()
+            self._helper.resetQuery()
+            self.stop()
+            return (row_headers, rv)
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
-        return pt
+        self.stop()
+        return None
 
 
     def getHashChallenge(self, id_challenge):
+        self.start()
         try:
             self._helper                                                                    \
                 .Select([
@@ -270,6 +328,7 @@ class DBControl(object):
                 tip       = t
                 algorithm = x
                 username  = u
+            self.stop()
             return {
                 'answer'    : answer,
                 'tip'       : tip,
@@ -279,11 +338,13 @@ class DBControl(object):
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
+        self.stop()
         return None
 
 
     def getHashLastTry(self, id_user, id_challenge):
         last_date = None
+        self.start()
         try:
             self._helper                                    \
                 .Select([("data_ultima_tentativa", None)])  \
@@ -299,10 +360,12 @@ class DBControl(object):
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
+        self.stop()
         return last_date
 
 
-    def updateHashChallengeTry(self, id_user, id_challenge, date):
+    def updateHashChallengeTry(self, id_user, id_challenge, date, success):
+        self.start()
         try:
             self._helper \
                 .InsertInto(
@@ -313,58 +376,29 @@ class DBControl(object):
                         "data_ultima_tentativa",
                         "sucesso"
                     ]
-                ).execute((id_user, id_challenge, date, True))
+                ).execute((id_user, id_challenge, date, success))
             self._helper.commit()
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+            self.stop()
             return False
         self._helper.resetQuery()
+        self.stop()
         return True
 
 
-    def getScoreboardFrom(self, thetable):
-        pt = PrettyTable()
-        try:
-            self._helper                                \
-                .Select([
-                    ("u.username", "User"),
-                    ("COUNT(uh.id_user)", "Points") ])  \
-                .From("utilizadores", alias="u")        \
-                .LeftJoin(
-                    table=thetable,
-                    alias="uh",
-                    on="u.id_user = uh.id_user" )       \
-                .Where("uh.sucesso=1")                  \
-                .GroupBy("uh.id_user")                  \
-                .OrderBy("Points", desc=True)           \
-                .execute()
-            pt = from_db_cursor(self._helper.getCursor())
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
-        return pt
-
-
-    def getHashScoreboard(self):
-        return self.getScoreboardFrom("utilizadores_hash")
-
-
-    def getCypherScoreboard(self):
-        return self.getScoreboardFrom("utilizadores_cifras")
-
-
     def getAllScoreboard(self):
-        pt = PrettyTable()
+        self.start()
         try:
             self._helper \
                 .AddCustomQuery(
 """
 select
 u.username as 'User',
-a.CypherOK as 'Cypher',
-a.HashOK as 'Hash',
-(a.CypherOK + a.HashOK) as 'Total'
+CAST(if(a.CypherOK is null, 0, a.CypherOK) AS int) as 'Cypher',
+CAST(if(a.HashOK is null, 0, a.HashOK) AS int) as 'Hash',
+CAST(if(a.CypherOK is null, 0, a.CypherOK) + if(a.HashOK is null, 0, a.HashOK) as int) as 'Total'
 from
 (
 select distinct
@@ -392,13 +426,20 @@ left join utilizadores u on u.id_user = a.CypherID
 order by Total desc
 """
                 ).execute()
-            pt = from_db_cursor(self._helper.getCursor())
+            row_headers=[x[0] for x in self._helper.getCursor().description]
+            rv = self._helper.getCursor().fetchall()
+            self._helper.resetQuery()
+            self.stop()
+            return (row_headers, rv)
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
-        return pt
-    
+        self.stop()
+        return None
+
+
     def getEmail(self, id_user):
+        self.start()
         try:
             self._helper                    \
                 .Select([("email", None)])  \
@@ -408,14 +449,17 @@ order by Total desc
             self._helper.resetQuery()
             for (email,) in self._helper.getCursor():
                 useremail = email
+            self.stop()
             return useremail
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+        self.stop()
         return None
     
     
     def getUserCreatedAmount(self, id_user):
+        self.start()
         try:
             self._helper\
                 .AddCustomQuery(
@@ -439,13 +483,15 @@ where dc.id_user = ?
                 Cypher = c
                 Hash   = h
                 Total  = total
+            self.stop()
             return {
                 'cypher': Cypher,
-                'hash': Hash,
-                'total': Total
+                'hash':   Hash,
+                'total':  Total
             }
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
+        self.stop()
         return None
     

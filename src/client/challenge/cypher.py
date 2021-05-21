@@ -2,6 +2,8 @@ from Crypto.Cipher import AES
 import hashlib
 import Padding
 import base64
+import hmac
+import secrets
 # from prettytable import PrettyTable
 
 # from app import App
@@ -51,7 +53,9 @@ class ChallengeCypher(object):
         ival      = 10
         plaintext = val
         key       = hashlib.md5(password.encode()).digest()
-        iv        = hex(ival)[2:8].zfill(16)
+        iv        = secrets.token_hex(8)    # hex(ival)[2:8].zfill(16)
+        hmackey   = ChallengeCypher.APP.getDBController().getHMACKey()
+        msgHMAC   = hmac.new(hmackey, val.encode(), hashlib.sha256).hexdigest()
         
         if algorithm == Cypher.ECB.TYPE:
             plaintext  = Padding.appendPadding(plaintext, blocksize=Padding.AES_blocksize, mode=0)
@@ -67,7 +71,7 @@ class ChallengeCypher(object):
         
         msg = base64.b64encode(bytearray(ciphertext)).decode()
 
-        if ChallengeCypher.APP.getDBController().addCypherChallenge(user.getUserID(), tip, msg, val, algorithm):
+        if ChallengeCypher.APP.getDBController().addCypherChallenge(user.getUserID(), tip, msg, val, iv, msgHMAC, algorithm):
             crt.writeSuccess("Challenge submitted successfully!")
         else:
             crt.writeError("The challenge could not be submitted for unknown reasons.")
@@ -103,7 +107,7 @@ class ChallengeCypher(object):
         """
         if showall:
             ChallengeCypher.show(user, pause=False)
-        ChallengeCypher.solve(Read.tryAsInt("Choose challenge by ID: "))
+        ChallengeCypher.solve(user, Read.tryAsInt("Choose challenge by ID: "))
 
 
     @staticmethod
@@ -140,26 +144,32 @@ class ChallengeCypher(object):
         challenge['plaintext'] = Padding.appendPadding(challenge['plaintext'], blocksize=Padding.AES_blocksize, mode=0)
 
         proposal = Read.asString("Insert your answer: ")
-        key = hashlib.md5(proposal.encode()).digest()
+        key      = hashlib.md5(proposal.encode()).digest()
+        iv       = challenge['iv']
+        hmacdb   = challenge['hmac']
+        hmackey  = ChallengeCypher.APP.getDBController().getHMACKey()
 
         if challenge['algorithm'] == Cypher.ECB.TYPE:
             plaintext = Cypher.ECB.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_ECB)
         elif challenge['algorithm'] == Cypher.CBC.TYPE:
-            ival=10
-            iv= hex(ival)[2:8].zfill(16)
             plaintext = Cypher.CBC.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_CBC, iv.encode())
         elif challenge['algorithm'] == Cypher.CTR.TYPE:
-            ival=10
-            iv= hex(ival)[2:8].zfill(16)
             plaintext = Cypher.CTR.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_CTR, iv.encode())
 
+        #try:
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        if (plaintext.strip() == challenge['plaintext'].strip()):
-            if ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now()):
+        #except:
+        #    ()
+        msgHMAC = hmac.new(hmackey, plaintext.encode(), hashlib.sha256)
+
+        crt.writeDebug(f"{msgHMAC.hexdigest()} == {hmacdb}")
+        if (msgHMAC.hexdigest() == hmacdb):
+            if ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), True):
                 crt.writeSuccess("YOU DID IT!")
             else:
                 crt.writeError("You got it, but I could not save the answer.")
         else:
+            ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), False)
             crt.writeMessage("Better luck next time :(")
         crt.pause()
 
