@@ -152,7 +152,7 @@ class DBControl(object):
                     ("desafios_cifras.resposta", None),
                     ("desafios_cifras.dica", None),
                     ("desafios_cifras.algoritmo", None),
-                    ("desafios_cifras.texto_limp", None),
+                    ("desafios_cifras.texto_limpo", None),
                     ("utilizadores.username", None)     ])                                      \
                 .From("desafios_cifras")                                                        \
                 .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
@@ -352,3 +352,48 @@ class DBControl(object):
 
     def getCypherScoreboard(self):
         return self.getScoreboardFrom("utilizadores_cifras")
+
+
+    def getAllScoreboard(self):
+        pt = PrettyTable()
+        try:
+            self._helper \
+                .AddCustomQuery(
+"""
+select
+u.username as 'User',
+a.CypherOK as 'Cypher',
+a.HashOK as 'Hash',
+(a.CypherOK + a.HashOK) as 'Total'
+from
+(
+select distinct
+uc.id_user as 'CypherID',
+sum(uc.sucesso) as 'CypherOK',
+uc.id_desafio_cifras as 'CypherChal',
+r.HashID,
+r.HashOK,
+r.HashChal
+from utilizadores_cifras uc
+left join
+(
+select distinct
+uh.id_user as 'HashID',
+sum(uh.sucesso) as 'HashOK',
+uh.id_desafio_hash as 'HashChal'
+from utilizadores_hash uh
+where uh.sucesso=1
+group by uh.id_user
+) r on r.HashID = uc.id_user
+where uc.sucesso=1
+group by uc.id_user
+) a
+left join utilizadores u on u.id_user = a.CypherID
+order by Total desc
+"""
+                ).execute()
+            pt = from_db_cursor(self._helper.getCursor())
+        except mariadb.Error as ex:
+            crt.writeError(f"Error at database: {ex}")
+        self._helper.resetQuery()
+        return pt

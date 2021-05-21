@@ -125,8 +125,7 @@ class User(object):
 
     @staticmethod
     def showScoreboard(self, app):
-        # TODO: scoreboard
-        crt.writeInfo("Soon to be released")
+        crt.writeMessage(app.getDBController().getAllScoreboard())
         crt.pause()
 
 

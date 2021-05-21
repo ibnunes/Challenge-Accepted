@@ -509,12 +509,12 @@ class MariaDBHelper(object):
         return self
 
 
-    def CloseSubQuery(self):
+    def CloseSubQuery(self, alias=""):
         """
         Query constructor: `)` (CLOSE SUBQUERY)
             Adds right parenthesis.
         """
-        self.query += " ) "
+        self.query += f" ) {alias} "
         return self
 
 
