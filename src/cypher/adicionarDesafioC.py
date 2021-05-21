@@ -47,6 +47,39 @@ def decryptCTR(ciphertext,key, mode, iv):
     encobj = AES.new(key,mode,counter=ctr)
     return(encobj.decrypt(ciphertext))
 
+def encryptOTP(plaintext, key):
+    encobj = onetimepad.encrypt(plaintext, key)
+    return(encobj.encrypt(plaintext))
+
+def decryptOTP(ciphertext, key):
+    encobj = onetimepad.decrypt(ciphertext, key)
+    return(encobj.decrypt(ciphertext))
+
+def encryptVigenere(plaintext, key):
+    encobj = encipher_vigenere(plaintext, key)
+    return(encobj.encrypt(plaintext))
+
+def decryptVigenere(ciphertext, key):
+    encobj = decipher_vigenere(ciphertext, key)
+    return(encobj.decrypt(ciphertext))
+
+def encryptCaesar(plaintext, key, word):
+    encobj = word.caesar_encipher(plaintext, key)
+    return(encobj.encrypt(plaintext))
+
+def decryptCaesar(ciphertext, key, word):
+    encobj = word.caesar_decripher(ciphertext, key)
+    return(encobj.decrypt(ciphertext))
+
+def encryptElgamal(plaintext, key):
+    encobj = Elgamal.encrypt(plaintext, key)
+    return(encobj.encrypt(plaintext))
+
+def decryptElgamal(ciphertext, key):
+    encobj = Elgamal.decrypt(ciphertext, key)
+    return(encobj.decrypt(ciphertext, key))
+
+
 def adicionarDesafioCypher(user):
     id_user = user
     print("AES CYPHER CHALLENGE\n")
@@ -170,7 +203,7 @@ def adicionarDesafioCypher2(user):
     print("9. Back")
     print("0. Quit")
     algoritmo = input()
-    if (algoritmo != "0" and algoritmo != "9" and algoritmo != "1" and algoritmo != "2"):
+    if (algoritmo != "0" and algoritmo != "9" and algoritmo != "2"):
         print("Message:")
         val = input()
         print("Cypher Key:")
@@ -190,7 +223,7 @@ def adicionarDesafioCypher2(user):
         msgHMAC = hmac.new(keyHMAC, val.encode(), hashlib.sha256)
 
     #para caesar e elgamal
-    if (algoritmo == "1" or algoritmo == "2"):
+    if (algoritmo == "2"):
         print("Message:")
         val = input()
         print ("If you want, leave a tip for the users who will try to answer this challenge:")
@@ -211,10 +244,10 @@ def adicionarDesafioCypher2(user):
 
     #CAESAR
     if (algoritmo == "1"):
+        plaintext = val
         
-        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
-
-        ciphertext = encryptECB(plaintext.encode(),key,AES.MODE_ECB)
+        word = pycaesarcipher.pycaesarcipher()
+        ciphertext = encryptCaesar(val, password, word)
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
 
@@ -233,10 +266,10 @@ def adicionarDesafioCypher2(user):
     #ELGAMAL
     if (algoritmo == "2"):
         
-        plaintext=val
-        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
-
-        ciphertext = encryptCBC(plaintext.encode(),key,AES.MODE_CBC,iv.encode())
+        plaintext = val
+        pb, pv = Elgamal.newkeys(128)
+        
+        ciphertext = encryptElgamal(plaintext.encode(), pb)
         
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
@@ -245,8 +278,8 @@ def adicionarDesafioCypher2(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'ELGAMAL'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, iv, algoritmo) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), pv, 'ELGAMAL'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -257,10 +290,14 @@ def adicionarDesafioCypher2(user):
     #ONETIMEPAD
     if (algoritmo == "3"):
         
-        plaintext=val
-        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
+        while (val.__len__ != password.__len__):
+            print("Chave de Cifra tem que ter o mesmo tamanho que a mensagem a cifrar!")
+            print("Chave de cifra")
+            password = input()
+        
+        plaintext = val
 
-        ciphertext = encryptCTR(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+        ciphertext = encryptOTP(plaintext, password)
         
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
@@ -280,12 +317,12 @@ def adicionarDesafioCypher2(user):
     if (algoritmo == "4"):
         
         plaintext=val
-        plaintext = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
 
-        ciphertext = encryptCTR(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+        ciphertext = encryptVigenere(plaintext, password)
         
         #String a guardar na BD
         msg = base64.b64encode(bytearray(ciphertext)).decode()
+        
         
         #Grava na BD
         try: 
