@@ -12,7 +12,7 @@ class AppAuthenticationClient(object):
     def generatePostHeader(self, body):
         timestamp = str(int(time.time()))
         nonce = str(uuid.uuid4())
-        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hobj.hexdigest()
+        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hexdigest()
         sign = "{appid}POST{timestamp}{nonce}{bodyHash}".format(appid = self._appId, timestamp = timestamp, nonce = nonce, bodyHash = bodyHash)
         hmacsh256 = hmac.new(key=self._appKey.encode(), msg=sign.encode(), digestmod=hashlib.sha256)
         return { "timestamp": timestamp, "nonce": nonce, "sig": hmacsh256.hexdigest(), "appid": self._appId }
@@ -20,7 +20,7 @@ class AppAuthenticationClient(object):
     def generatePatchHeader(self, body):
         timestamp = str(int(time.time()))
         nonce = str(uuid.uuid4())
-        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hobj.hexdigest()
+        bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hexdigest()
         sign = "{appid}PATCH{timestamp}{nonce}{bodyHash}".format(appid = self._appId, timestamp = timestamp, nonce = nonce, bodyHash = bodyHash)
         hmacsh256 = hmac.new(key=self._appKey.encode(), msg=sign.encode(), digestmod=hashlib.sha256)
         return { "timestamp": timestamp, "nonce": nonce, "sig": hmacsh256.hexdigest(), "appid": self._appId }
