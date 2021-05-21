@@ -1,4 +1,5 @@
 import os
+from getpass import getpass
 
 class crt(object):
     class color:
@@ -123,9 +124,10 @@ class crt(object):
 
         Args:
             msg (str, optional): Message. Defaults to "Press any key to continue... ".
-        """        
-        if os.name == 'nt':
-            print(msg, end='')
-            os.system("pause")
-        else:
-            os.system(f'read -s -n 1 -p "{msg}"')
+        """
+        #if os.name == 'nt':
+        #    print(msg, end='')
+        #    os.system("pause")
+        #else:
+        #    os.system(f'read -s -n 1 -p "{msg}"')
+        getpass(msg)

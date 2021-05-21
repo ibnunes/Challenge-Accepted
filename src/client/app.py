@@ -209,7 +209,6 @@ class App(object):
     def about():
         """Content of About interface."""        
         crt.writeMessage("ABOUT\n")
-        input()
         crt.pause()
 
 
@@ -217,7 +216,6 @@ class App(object):
         """Content of User profile"""        
         crt.writeMessage("PROFILE\n")
         crt.writeMessage(str(user))
-        input()
         crt.pause()
 
 
