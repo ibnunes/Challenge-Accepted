@@ -126,3 +126,6 @@ dmypy.json
 TW-proposals.pdf
 src/.idea
 .vscode/
+
+src/archive
+.DS_Store
