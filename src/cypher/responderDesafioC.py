@@ -9,6 +9,7 @@ import os
 from datetime import datetime, timedelta 
 import time
 import codecs
+import hmac
 #leitura do config.ini
 import configparser
 
@@ -59,9 +60,9 @@ def responderDesafioCrypto(id_desafio_crypto, user):
 
     cur = conn.cursor()
     cur.execute(
-        "SELECT desafios_cifras.resposta, desafios_cifras.dica, desafios_cifras.algoritmo, desafios_cifras.texto_limpo, utilizadores.username FROM desafios_cifras INNER JOIN utilizadores ON desafios_cifras.id_user=utilizadores.id_user WHERE id_desafio_cifras=?", 
+        "SELECT desafios_cifras.resposta, desafios_cifras.dica, desafios_cifras.algoritmo, desafios_cifras.texto_limpo, desafios_cifras.hmac, utilizadores.username FROM desafios_cifras INNER JOIN utilizadores ON desafios_cifras.id_user=utilizadores.id_user WHERE id_desafio_cifras=?", 
         (id_desafio_crypto,))
-    for (resposta, dica, algoritmo, texto_limpo, username) in cur:
+    for (resposta, dica, algoritmo, texto_limpo, hmacDB, username) in cur:
         print("SUBMITTED BY: " + username)
         print("TIP: " + dica)
         print("ALGORITHM: " + algoritmo)
@@ -71,28 +72,51 @@ def responderDesafioCrypto(id_desafio_crypto, user):
     print("INSERT YOUR ANSWER:")
     resp = input()
     key = hashlib.md5(resp.encode()).digest()
+    keyHMAC = b'secret'
+    
 
     if (algoritmo == 'ECB'):
         plaintext = decryptECB(base64.b64decode(resposta),key,AES.MODE_ECB)
-        print(plaintext)
         plaintext2 = codecs.decode(plaintext, encoding='utf-8', errors='ignore')
         try:
             plaintext2 = Padding.removePadding(plaintext2,mode=0)
         except Exception:
             ()
+        msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
     if (algoritmo == 'CBC'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCBC(base64.b64decode(resposta),key,AES.MODE_CBC,iv.encode())
         plaintext = Padding.removePadding(plaintext.decode(), mode=0)
+        msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
     if(algoritmo == 'CTR'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCTR(base64.b64decode(resposta),key,AES.MODE_CTR,iv.encode())
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
+        msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
         
-    if (plaintext2.strip() == texto_limpo.strip()):
+    if (msgHMAC.hexdigest() == hmacDB):
         # Verifica a hora da ultima submissão desde utilizador a este desafio
-        print("CONSEGUISTE CRL")
+        print("CONGRATULATIONS")
+        print("                                           .''.      ")
+        print("       .''.      .        *''*    :_\/_:     .       ")
+        print("      :_\/_:   _\(/_  .:.*_\/_*   : /\ :  .'.:.'.    ")
+        print("  .''.: /\ :   ./)\   ':'* /\ * :  '..'.  -=:o:=-    ")
+        print(" :_\/_:'.:::.    ' *''*    * '.\'/.' _\(/_'.':'.'    ")
+        print(" : /\ : :::::     *_\/_*     -= o =-  /)\    '  *    ")
+        print("  '..'  ':::'     * /\ *     .'/.\'.   '             ")
+        print("      *            *..*         :                    ")
+        print("       *                                             ")
+        print("        *                                            ")
     else:
         print("TENTA OUTRA VEZ")
+        print("""    .-''''''-.
+  .'          '.
+ /   O      O   \\
+:           `    :
+|                | 
+:    .------.    :
+ \  '        '  /
+  '.          .'
+    '-......-'""")

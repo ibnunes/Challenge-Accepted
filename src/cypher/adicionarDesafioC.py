@@ -7,6 +7,8 @@ import base64
 import mariadb
 import time
 import os
+import hmac
+
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
@@ -68,6 +70,10 @@ def adicionarDesafioCypher(user):
         key = hashlib.md5(password.encode()).digest()
 
         iv= hex(ival)[2:8].zfill(16)
+        #criação do HMAC para gravar na BD
+        keyHMAC = b'secret'
+        msgHMAC = hmac.new(keyHMAC, val.encode(), hashlib.sha256)
+
     #Ligação a BD
     try:
         conn = mariadb.connect(
@@ -93,8 +99,8 @@ def adicionarDesafioCypher(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'ECB'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'ECB'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -117,8 +123,8 @@ def adicionarDesafioCypher(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'CBC'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CBC'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -140,8 +146,8 @@ def adicionarDesafioCypher(user):
         #Grava na BD
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'CTR'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CTR'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -179,6 +185,10 @@ def adicionarDesafioCypher2(user):
         key = hashlib.md5(password.encode()).digest()
 
         iv= hex(ival)[2:8].zfill(16)
+        #criação do HMAC para gravar na BD
+        keyHMAC = b'secret'
+        msgHMAC = hmac.new(keyHMAC, val.encode(), hashlib.sha256)
+
     #para caesar e elgamal
     if (algoritmo == "1" or algoritmo == "2"):
         print("Message:")
@@ -210,8 +220,8 @@ def adicionarDesafioCypher2(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'CAESAR'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CAESAR'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit()
@@ -235,8 +245,8 @@ def adicionarDesafioCypher2(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'ELGAMAL'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'ELGAMAL'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -258,8 +268,8 @@ def adicionarDesafioCypher2(user):
         #Grava na BD
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'ONETIMEPAD'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'ONETIMEPAD'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -280,8 +290,8 @@ def adicionarDesafioCypher2(user):
         #Grava na BD
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, 'VIGENERE'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'VIGENERE'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
