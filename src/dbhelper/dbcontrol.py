@@ -4,6 +4,7 @@ import prettytable
 
 from tui.cli import crt
 import utils.remote as remote
+from utils.appauth import AppAuthenticationClient
 
 import json
 import requests
@@ -30,6 +31,7 @@ class StatusCodeError(Exception):
 class DBControl(object):
     def __init__(self):
         self._url  = "localhost:80"
+        self._appauth = AppAuthenticationClient("9556bd24-fa30-41f0-8af8-fd1b3b9f6500", "Zyoz46m7IosX1RILxtghjxRqpch5FQlj80VE4d1OiNIo")
 
 
     def start(self, url=None, port=None):
@@ -246,12 +248,17 @@ class DBControl(object):
 
     def getAllScoreboard(self):
         pt = PrettyTable()
-        r = requests.get(f"{self._url}/scoreboard")
+        r = requests.get(
+            url=f"{self._url}/scoreboard",
+            headers=self._appauth.generateGetHeader()
+        )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = remote.unpack(r.json())
         if ok:
             pt = from_json(json.dumps(data))
+        else:
+            crt.writeDebug(str(data))
         return pt
 
 

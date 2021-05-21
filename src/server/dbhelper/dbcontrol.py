@@ -39,7 +39,7 @@ class DBControl(object):
     def fetchAppId(self, appId):
         self.start()
         self._helper                    \
-            .Select([("key", None)])    \
+            .Select([("`key`", None)])    \
             .From("apps")               \
             .Where("appid=?")           \
             .execute((appId,))
@@ -47,12 +47,14 @@ class DBControl(object):
         self._helper.resetQuery()
 
         try:
-            record = self._helper.getCursor().next()
+            record = self._helper.getCursor().next()[0]
+            #for (r,) in self._helper.getCursor():
+            #    record = r
             self.stop()
             return record
         except (StopIteration, Exception, mariadb.Error):
             self.stop()
-            return None       
+            return None
 
 
     def getHMACKey(self):

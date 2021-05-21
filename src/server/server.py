@@ -187,9 +187,8 @@ def getUserCreatedAmount(userid):
 
 @app.route("/scoreboard", methods=['GET'])
 def getScoreboard():
-    headers = appAuth.getHeaders(request)
     try:
-        ok = appAuth.authenticateApp(headers, request.method)
+        ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
             return json.dumps({ "error": "Unknown error authenticating app" })
     except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
