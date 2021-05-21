@@ -10,6 +10,13 @@ from datetime import datetime, timedelta
 import time
 import codecs
 import hmac
+from sympy.crypto.crypto import encipher_vigenere
+from sympy.crypto.crypto import decipher_vigenere
+from elgamal.elgamal import Elgamal
+import pycaesarcipher
+import onetimepad
+
+
 #leitura do config.ini
 import configparser
 
@@ -30,16 +37,17 @@ def decryptCTR(ciphertext,key, mode, iv):
     return(encobj.decrypt(ciphertext))
 
 def decryptOTP(ciphertext, key):
-    encobj = onetimepad.decrypt(ciphertext, key)
-    return(encobj.decrypt(ciphertext))
+    encobj = onetimepad.decrypt(bytearray(ciphertext).decode(), key)
+    return(encobj)
 
 def decryptVigenere(ciphertext, key):
-    encobj = decipher_vigenere(ciphertext, key)
-    return(encobj.decrypt(ciphertext))
+    encobj = decipher_vigenere(bytearray(ciphertext).decode(), key)
+    return(encobj)
 
-def decryptCaesar(ciphertext, key, word):
-    encobj = word.caesar_decripher(ciphertext, key)
-    return(encobj.decrypt(ciphertext))
+def decryptCaesar(ciphertext, key):
+    word = pycaesarcipher.pycaesarcipher()
+    encobj = word.caesar_decipher(bytearray(ciphertext).decode(), key)
+    return(encobj)
 
 def decryptElgamal(ciphertext, key):
     encobj = Elgamal.decrypt(ciphertext, key)
@@ -82,13 +90,14 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         print("TIP: " + dica)
         print("ALGORITHM: " + algoritmo)
         print("PLAIN TEXT: " + texto_limpo)
-        print("CRYPTO: " + resposta)
+        print("CRYPTO: " + codecs.decode(base64.b64decode(resposta), encoding='utf-8', errors='ignore'))
     
     print("INSERT YOUR ANSWER:")
     resp = input()
     key = hashlib.md5(resp.encode()).digest()
     keyHMAC = b'secret'
-    
+    msgHMAC = hmac.new(keyHMAC, resp.encode(), hashlib.sha256)
+
 
     if (algoritmo == 'ECB'):
         plaintext = decryptECB(base64.b64decode(resposta),key,AES.MODE_ECB)
@@ -115,18 +124,25 @@ def responderDesafioCrypto(id_desafio_crypto, user):
             ()
         msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
     if(algoritmo == 'CAESAR'):
-        plaintext2 = decryptCaesar(base64.b64decode(resposta),key)
+        if (resp.isdigit()):
+            plaintext2 = decryptCaesar(base64.b64decode(resposta),int(resp))
+            msgHMAC = hmac.new(keyHMAC, plaintext2.encode(), hashlib.sha256)
+        else:
+            print("Input is not digit!")
+            return 1
     if(algoritmo == 'ELGAMAL'):
-        plaintext2 = decryptElGamal(base64.b64decode(resposta),key)
+        plaintext2 = decryptElgamal(base64.b64decode(resposta),resp)
     if(algoritmo == 'ONETIMEPAD'):
-        plaintext = decryptOTP(base64.b64decode(resposta),key)
-        try:
-            plaintext2 = plaintext.decode()
-        except Exception:
-            ()
+
+        plaintext = decryptOTP(base64.b64decode(resposta),resp)
+        #try:
+        #    plaintext2 = plaintext.decode()
+        #except Exception:
+        #    ()
+        msgHMAC = hmac.new(keyHMAC, plaintext.encode(), hashlib.sha256)
     if(algoritmo == 'VIGENERE'):
-        plaintext2 = decryptVigenere(base64.b64decode(resposta),key)  
-        
+        plaintext2 = decryptVigenere(base64.b64decode(resposta),resp)  
+        msgHMAC = hmac.new(keyHMAC, plaintext2.lower().encode() , hashlib.sha256)
             
     if (msgHMAC.hexdigest() == hmacDB):
         # Verifica a hora da ultima submissão desde utilizador a este desafio

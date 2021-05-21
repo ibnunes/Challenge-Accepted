@@ -10,6 +10,13 @@ import time
 import os
 import hmac
 import secrets
+from sympy.crypto.crypto import encipher_vigenere
+from sympy.crypto.crypto import decipher_vigenere
+from elgamal.elgamal import Elgamal
+import pycaesarcipher
+import onetimepad
+
+
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
@@ -49,7 +56,7 @@ def decryptCTR(ciphertext,key, mode, iv):
 
 def encryptOTP(plaintext, key):
     encobj = onetimepad.encrypt(plaintext, key)
-    return(encobj.encrypt(plaintext))
+    return(encobj)
 
 def decryptOTP(ciphertext, key):
     encobj = onetimepad.decrypt(ciphertext, key)
@@ -57,15 +64,16 @@ def decryptOTP(ciphertext, key):
 
 def encryptVigenere(plaintext, key):
     encobj = encipher_vigenere(plaintext, key)
-    return(encobj.encrypt(plaintext))
+    return(encobj)
 
 def decryptVigenere(ciphertext, key):
     encobj = decipher_vigenere(ciphertext, key)
     return(encobj.decrypt(ciphertext))
 
-def encryptCaesar(plaintext, key, word):
+def encryptCaesar(plaintext, key):
+    word = pycaesarcipher.pycaesarcipher()
     encobj = word.caesar_encipher(plaintext, key)
-    return(encobj.encrypt(plaintext))
+    return(encobj.encode())
 
 def decryptCaesar(ciphertext, key, word):
     encobj = word.caesar_decripher(ciphertext, key)
@@ -73,7 +81,7 @@ def decryptCaesar(ciphertext, key, word):
 
 def encryptElgamal(plaintext, key):
     encobj = Elgamal.encrypt(plaintext, key)
-    return(encobj.encrypt(plaintext))
+    return(encobj)
 
 def decryptElgamal(ciphertext, key):
     encobj = Elgamal.decrypt(ciphertext, key)
@@ -156,7 +164,7 @@ def adicionarDesafioCypher(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo, iv) VALUES (?, ?, ?, ?, ?, ?,?)", 
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo, iv) VALUES (?, ?, ?, ?, ?, ?, ?)", 
             (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CBC', iv))
         except mariadb.Error as e: 
             print(f"Error: {e}")
@@ -244,30 +252,31 @@ def adicionarDesafioCypher2(user):
 
     #CAESAR
     if (algoritmo == "1"):
-        plaintext = val
-        
-        word = pycaesarcipher.pycaesarcipher()
-        ciphertext = encryptCaesar(val, password, word)
-        #String a guardar na BD
-        msg = base64.b64encode(bytearray(ciphertext)).decode()
+        if(password.isdigit()):
+            plaintext = val
+            ciphertext = encryptCaesar(val, int(password))
+            #String a guardar na BD
+            msg = base64.b64encode(ciphertext)
 
-        try: 
-            cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CAESAR'))
-        except mariadb.Error as e: 
-            print(f"Error: {e}")
-        conn.commit()
-        print("Your challenge was submitted - Let the challenges begin!")
-        conn.close()
-        time.sleep(200) 
+            try: 
+                cur.execute(
+                "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
+                (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CAESAR'))
+            except mariadb.Error as e: 
+                print(f"Error: {e}")
+            conn.commit()
+            print("Your challenge was submitted - Let the challenges begin!")
+            conn.close()
+        else:
+            print("Input is not digit!")
         return 1
 
     #ELGAMAL
     if (algoritmo == "2"):
         
         plaintext = val
-        pb, pv = Elgamal.newkeys(128)
+        pb, pv = Elgamal.newkeys(6)
+        pKey = "" + str(pv.p) + str(pv.x)
         
         ciphertext = encryptElgamal(plaintext.encode(), pb)
         
@@ -279,7 +288,7 @@ def adicionarDesafioCypher2(user):
         try: 
             cur.execute(
             "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, iv, algoritmo) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, msgHMAC.hexdigest(), pv, 'ELGAMAL'))
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), pKey, 'ELGAMAL'))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -290,7 +299,7 @@ def adicionarDesafioCypher2(user):
     #ONETIMEPAD
     if (algoritmo == "3"):
         
-        while (val.__len__ != password.__len__):
+        while (len(val)!= len(password)):
             print("Chave de Cifra tem que ter o mesmo tamanho que a mensagem a cifrar!")
             print("Chave de cifra")
             password = input()
@@ -298,9 +307,9 @@ def adicionarDesafioCypher2(user):
         plaintext = val
 
         ciphertext = encryptOTP(plaintext, password)
-        
+
         #String a guardar na BD
-        msg = base64.b64encode(bytearray(ciphertext)).decode()
+        msg = base64.b64encode(bytearray(ciphertext.encode()))
         
         #Grava na BD
         try: 
@@ -321,7 +330,7 @@ def adicionarDesafioCypher2(user):
         ciphertext = encryptVigenere(plaintext, password)
         
         #String a guardar na BD
-        msg = base64.b64encode(bytearray(ciphertext)).decode()
+        msg = base64.b64encode(bytearray(ciphertext.encode()))
         
         
         #Grava na BD
