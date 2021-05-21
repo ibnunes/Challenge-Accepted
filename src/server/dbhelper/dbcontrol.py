@@ -376,9 +376,9 @@ class DBControl(object):
 """
 select
 u.username as 'User',
-CAST(a.CypherOK AS int) as 'Cypher',
-CAST(a.HashOK AS int) as 'Hash',
-CAST(a.CypherOK + a.HashOK AS int) as 'Total'
+CAST(if(a.CypherOK is null, 0, a.CypherOK) AS int) as 'Cypher',
+CAST(if(a.HashOK is null, 0, a.HashOK) AS int) as 'Hash',
+CAST(if(a.CypherOK is null, 0, a.CypherOK) + if(a.HashOK is null, 0, a.HashOK) as int) as 'Total'
 from
 (
 select distinct
@@ -466,8 +466,8 @@ where dc.id_user = ?
             self.stop()
             return {
                 'cypher': Cypher,
-                'hash': Hash,
-                'total': Total
+                'hash':   Hash,
+                'total':  Total
             }
         except mariadb.Error as ex:
             crt.writeError(f"Error at database: {ex}")

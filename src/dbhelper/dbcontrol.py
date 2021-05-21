@@ -165,7 +165,7 @@ class DBControl(object):
             data={
                 "userid"  : id_user,
                 "date"    : date,
-                "success" : success
+                "success" : 1 if success else 0
             }
         )
         if r.status_code != 200:
@@ -235,7 +235,7 @@ class DBControl(object):
             data={
                 "userid"  : id_user,
                 "date"    : date,
-                "success" : success
+                "success" : 1 if success else 0
             }
         )
         if r.status_code != 200:
