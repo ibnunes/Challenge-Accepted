@@ -112,8 +112,9 @@ class User(object):
             if ok:
                 self._logged = True
                 self._userid = id_user
+                crt.writeDebug(id_user)
                 self._email  = self._dbcontrol.getEmail(id_user)
-        except (UsernameNotFound, WrongPassword) as ex:
+        except (StatusCodeError, UsernameNotFound, WrongPassword) as ex:
             crt.writeWarning(ex.message)
             self._logged = False
             self.wipe()

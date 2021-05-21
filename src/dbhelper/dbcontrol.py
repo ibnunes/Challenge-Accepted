@@ -1,14 +1,13 @@
-import hashlib
-import binascii
 from prettytable import PrettyTable
-from prettytable import from_db_cursor
+from prettytable import from_json
 
 from .mariadbhelper import *
 from tui.cli import crt
+import utils.remote as remote
 
-"""
-TODO: - Documentation
-"""
+import json
+import requests
+
 
 class UsernameNotFound(Exception):
     def __init__(self, message="Username not found"):
@@ -22,430 +21,245 @@ class WrongPassword(Exception):
         super().__init__(self.message)
 
 
+class StatusCodeError(Exception):
+    def __init__(self, message="Status Code not 200"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class DBControl(object):
     def __init__(self):
-        self._helper = MariaDBHelper()
-        self._helper.bindErrorCallback(crt.writeError)
+        self._url  = "localhost:80"
 
 
-    def start(self):
-        self._helper.connect()
-        if not self._helper.isConnected():
-            raise ConnectionNotEstablished()
+    def start(self, url=None, port=None):
+        if url is not None:
+            self._url = "http://" + url
+        if port is not None:
+            self._url += f":{port}"
+        crt.writeDebug(self._url)
 
 
     def stop(self):
-        if self._helper.isConnected():
-            self._helper.disconnect()
-
-
-    def valueExists(self, table, field, value):
-        self._helper                    \
-            .Select([(field, None)])    \
-            .From(table)                \
-            .Where(f"{field}=?")        \
-            .execute((value,))
-        self._helper.resetQuery()
-        ok = False
-        for (c,) in self._helper.getCursor():
-            ok = True
-        return ok
+        pass
 
 
     def userExists(self, username):
-        return self.valueExists(
-            table = "utilizadores",
-            field = "username",
-            value = username
+        r = requests.post(
+            f"{self._url}/auth/user",
+            data={'username' : username}
         )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return data
 
 
     def emailExists(self, email):
-        return self.valueExists(
-            table = "utilizadores",
-            field = "email",
-            value = email
+        r = requests.post(
+            f"{self._url}/auth/email",
+            data={'email' : email}
         )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return data
 
 
     def loginUser(self, username, password):
-        key, salt = "", ""
-        self._helper \
-            .Select([("id_user", None), ("password", None), ("salt", None)]) \
-            .From("utilizadores") \
-            .Where("username=?") \
-            .execute((username,))
-        
-        self._helper.resetQuery()
-
-        try:
-            for (x, y, z) in self._helper.getCursor():
-                (id_user, key, salt) = (x, y, z)
-            if (password == "" or salt == ""):
-                raise Exception()
-        except (Exception, mariadb.Error) as ex:
-            raise UsernameNotFound(f"User '{username}' does not exist.")
-        
-        new_key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), binascii.unhexlify(salt), 100000)
-        if new_key == binascii.unhexlify(key):
-            return (True, id_user)
-        else:
-            raise WrongPassword(f"Wrong password for user '{username}'.")
+        r = requests.post(
+            f"{self._url}/auth/login",
+            data={'username' : username, 'password' : password}
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if not ok:
+            raise StatusCodeError(data)
+        return (ok, data['user_id'])
 
 
     def registerUser(self, username, password, email):
-        # gera salt, calcula o sha256 (10000x) 
-        salt = os.urandom(32)   # A new salt for this user
-        key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-        try:
-            self._helper \
-                .InsertInto("utilizadores", ["username", "email", "password", "salt"]) \
-                .execute((username, email, binascii.hexlify(key), binascii.hexlify(salt),))
-            self._helper.commit()
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
-            return False
-        self._helper.resetQuery()
-        return True
+        r = requests.post(
+            f"{self._url}/auth/signup",
+            data={'username' : username, 'password' : password, 'email': email}
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return ok
 
 
     def addCypherChallenge(self, id_user, tip, msg, val, algorithm):
-        try:
-            self._helper                                                            \
-                .InsertInto(
-                    "desafios_cifras",
-                    ["id_user", "dica", "resposta", "texto_limpo", "algoritmo"] )   \
-                .execute((id_user, tip, msg, val, algorithm))
-            self._helper.commit()
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
-            return False
-        self._helper.resetQuery()
-        return True
+        r = requests.post(
+            f"{self._url}/challenge/cypher",
+            data={
+                'userid' : id_user,
+                'tip'    : tip,
+                'msg'    : msg,
+                'val'    : val,
+                'algo'   : algorithm
+            }
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return data
 
 
     def getAllCypherChallenges(self):
         pt = PrettyTable()
-        try:
-            self._helper                                                                        \
-                .Select([
-                    ("desafios_cifras.id_desafio_cifras", "ID"),
-                    ("desafios_cifras.algoritmo", None),
-                    ("utilizadores.username", "Proposto por")])                                 \
-                .From("desafios_cifras")                                                        \
-                .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
-                .execute()
-            pt = from_db_cursor(self._helper.getCursor())
-            self._helper.resetQuery()
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        r = requests.get(
+            f"{self._url}/challenge/cypher"
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            pt = from_json(json.dumps(data))
         return pt
 
 
     def getCypherChallenge(self, id_challenge):
-        try:
-            self._helper                                                                        \
-                .Select([
-                    ("desafios_cifras.resposta", None),
-                    ("desafios_cifras.dica", None),
-                    ("desafios_cifras.algoritmo", None),
-                    ("desafios_cifras.texto_limpo", None),
-                    ("utilizadores.username", None)     ])                                      \
-                .From("desafios_cifras")                                                        \
-                .InnerJoin("utilizadores", on="desafios_cifras.id_user=utilizadores.id_user")   \
-                .Where("id_desafio_cifras=?")                                                   \
-                .execute((id_challenge,))
-            self._helper.resetQuery()
-            for (a, t, x, p, u) in self._helper.getCursor():
-                answer    = a
-                tip       = t
-                algorithm = x
-                plaintext = p
-                username  = u
-            return {
-                'answer'    : answer,
-                'tip'       : tip,
-                'algorithm' : algorithm,
-                'plaintext' : plaintext,
-                'username'  : username
-            }
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        r = requests.get(f"{self._url}/challenge/cypher/{id_challenge}")
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
         return None
 
 
     def getCypherLastTry(self, id_user, id_challenge):
-        last_date = None
-        try:
-            self._helper                                    \
-                .Select([("data_ultima_tentativa", None)])  \
-                .From("utilizadores_cifras")                  \
-                .Where("id_user=? AND id_desafio_cifras=?")   \
-                .OrderBy(
-                    predicate="data_ultima_tentativa",
-                    desc=True,
-                    limit=1
-                ).execute((id_user, id_challenge))
-            for (ld,) in self._helper.getCursor():
-                last_date = ld
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
-        return last_date
+        r = requests.get(
+            f"{self._url}/challenge/cypher/lasttry",
+            params={
+                "userid" : id_user,
+                "chid"   : id_challenge
+            }
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
+        return None
 
 
     def updateCypherChallengeTry(self, id_user, id_challenge, date):
-        try:
-            self._helper \
-                .InsertInto(
-                    table="utilizadores_cifras",
-                    keys=[
-                        "id_user",
-                        "id_desafio_cifras",
-                        "data_ultima_tentativa",
-                        "sucesso"
-                    ]
-                ).execute((id_user, id_challenge, date, True))
-            self._helper.commit()
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
-            return False
-        self._helper.resetQuery()
-        return True
+        r = requests.patch(
+            url="{self._url}/challenge/cypher/{id_challenge}",
+            params={
+                "userid" : id_user,
+                "date"   : date
+            }
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return data
 
 
     def addHashChallenge(self, id_user, tip, msg, algorithm):
-        try:
-            self._helper                                            \
-                .InsertInto(
-                    "desafios_hash",
-                    ["id_user", "dica", "resposta", "algoritmo"] )  \
-                .execute((id_user, tip, msg, algorithm))
-            self._helper.commit()
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
-            return False
-        self._helper.resetQuery()
-        return True
+        r = requests.post(
+            f"{self._url}/challenge/hash",
+            data={
+                'userid' : id_user,
+                'tip'    : tip,
+                'msg'    : msg,
+                'algo'   : algorithm
+            }
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return data
 
 
     def getAllHashChallenges(self):
         pt = PrettyTable()
-        try:
-            self._helper                                                                    \
-                .Select([
-                    ("desafios_hash.id_desafio_hash", "ID"),
-                    ("desafios_hash.algoritmo", None),
-                    ("utilizadores.username", "Proposto por")])                             \
-                .From("desafios_hash")                                                      \
-                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
-                .execute()
-            pt = from_db_cursor(self._helper.getCursor())
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
+        r = requests.get(
+            f"{self._url}/challenge/hash"
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            pt = from_json(json.dumps(data))
         return pt
 
 
     def getHashChallenge(self, id_challenge):
-        try:
-            self._helper                                                                    \
-                .Select([
-                    ("desafios_hash.resposta", None),
-                    ("desafios_hash.dica", None),
-                    ("desafios_hash.algoritmo", None),
-                    ("utilizadores.username", None),    ])                                  \
-                .From("desafios_hash")                                                      \
-                .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
-                .Where("id_desafio_hash=?")                                                 \
-                .execute((id_challenge,))
-            for (a, t, x, u) in self._helper.getCursor():
-                answer    = a
-                tip       = t
-                algorithm = x
-                username  = u
-            return {
-                'answer'    : answer,
-                'tip'       : tip,
-                'algorithm' : algorithm,
-                'username'  : username
-            }
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
+        r = requests.get(f"{self._url}/challenge/hash/{id_challenge}")
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
         return None
 
 
     def getHashLastTry(self, id_user, id_challenge):
-        last_date = None
-        try:
-            self._helper                                    \
-                .Select([("data_ultima_tentativa", None)])  \
-                .From("utilizadores_hash")                  \
-                .Where("id_user=? AND id_desafio_hash=?")   \
-                .OrderBy(
-                    predicate="data_ultima_tentativa",
-                    desc=True,
-                    limit=1
-                ).execute((id_user, id_challenge))
-            for (ld,) in self._helper.getCursor():
-                last_date = ld
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
-        return last_date
+        r = requests.get(
+            f"{self._url}/challenge/hash/lasttry",
+            params={
+                "userid" : id_user,
+                "chid"   : id_challenge
+            }
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
+        return None
 
 
     def updateHashChallengeTry(self, id_user, id_challenge, date):
-        try:
-            self._helper \
-                .InsertInto(
-                    table="utilizadores_hash",
-                    keys=[
-                        "id_user",
-                        "id_desafio_hash",
-                        "data_ultima_tentativa",
-                        "sucesso"
-                    ]
-                ).execute((id_user, id_challenge, date, True))
-            self._helper.commit()
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
-            return False
-        self._helper.resetQuery()
-        return True
-
-
-    def getScoreboardFrom(self, thetable):
-        pt = PrettyTable()
-        try:
-            self._helper                                \
-                .Select([
-                    ("u.username", "User"),
-                    ("COUNT(uh.id_user)", "Points") ])  \
-                .From("utilizadores", alias="u")        \
-                .LeftJoin(
-                    table=thetable,
-                    alias="uh",
-                    on="u.id_user = uh.id_user" )       \
-                .Where("uh.sucesso=1")                  \
-                .GroupBy("uh.id_user")                  \
-                .OrderBy("Points", desc=True)           \
-                .execute()
-            pt = from_db_cursor(self._helper.getCursor())
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
-        return pt
-
-
-    def getHashScoreboard(self):
-        return self.getScoreboardFrom("utilizadores_hash")
-
-
-    def getCypherScoreboard(self):
-        return self.getScoreboardFrom("utilizadores_cifras")
+        r = requests.patch(
+            url="{self._url}/challenge/hash/{id_challenge}",
+            params={
+                "userid" : id_user,
+                "date"   : date
+            }
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        return data
 
 
     def getAllScoreboard(self):
         pt = PrettyTable()
-        try:
-            self._helper \
-                .AddCustomQuery(
-"""
-select
-u.username as 'User',
-a.CypherOK as 'Cypher',
-a.HashOK as 'Hash',
-(a.CypherOK + a.HashOK) as 'Total'
-from
-(
-select distinct
-uc.id_user as 'CypherID',
-sum(uc.sucesso) as 'CypherOK',
-uc.id_desafio_cifras as 'CypherChal',
-r.HashID,
-r.HashOK,
-r.HashChal
-from utilizadores_cifras uc
-left join
-(
-select distinct
-uh.id_user as 'HashID',
-sum(uh.sucesso) as 'HashOK',
-uh.id_desafio_hash as 'HashChal'
-from utilizadores_hash uh
-where uh.sucesso=1
-group by uh.id_user
-) r on r.HashID = uc.id_user
-where uc.sucesso=1
-group by uc.id_user
-) a
-left join utilizadores u on u.id_user = a.CypherID
-order by Total desc
-"""
-                ).execute()
-            pt = from_db_cursor(self._helper.getCursor())
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-        self._helper.resetQuery()
+        r = requests.get(f"{self._url}/scoreboard")
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            pt = from_json(json.dumps(data))
         return pt
-    
+
+
     def getEmail(self, id_user):
-        try:
-            self._helper                    \
-                .Select([("email", None)])  \
-                .From("utilizadores")       \
-                .Where("id_user = ?")       \
-                .execute((id_user,))
-            self._helper.resetQuery()
-            for (email,) in self._helper.getCursor():
-                useremail = email
-            return useremail
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        r = requests.get(
+            f"{self._url}/user/email",
+            params={'id' : id_user}
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
         return None
-    
-    
+
+
     def getUserCreatedAmount(self, id_user):
-        try:
-            self._helper\
-                .AddCustomQuery(
-"""
-select
-    count(dc.id_desafio_cifras) as 'Cypher',
-    r.Hash,
-    count(dc.id_desafio_cifras) + r.Hash as 'Total'
-from desafios_cifras dc
-left join (
-select 
-    count(dh.id_desafio_hash) as 'Hash'
-from desafios_hash dh
-where dh.id_user = ?
-) r on true
-where dc.id_user = ?
-"""
-                ).execute((id_user, id_user))
-            self._helper.resetQuery()
-            for (c, h, total) in self._helper.getCursor():
-                Cypher = c
-                Hash   = h
-                Total  = total
-            return {
-                'cypher': Cypher,
-                'hash': Hash,
-                'total': Total
-            }
-        except mariadb.Error as ex:
-            crt.writeError(f"Error at database: {ex}")
-            self._helper.resetQuery()
+        r = requests.get(
+            f"{self._url}/user/{id_user}/challenges/count"
+        )
+        if r.status_code != 200:
+            raise StatusCodeError(str(r.status_code))
+        (ok, data) = remote.unpack(r.json())
+        if ok:
+            return data
         return None
-    
