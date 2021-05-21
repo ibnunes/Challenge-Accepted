@@ -1,3 +1,4 @@
+import secrets
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
 import hashlib
@@ -8,7 +9,7 @@ import mariadb
 import time
 import os
 import hmac
-
+import secrets
 #leitura do config.ini
 import configparser
 config = configparser.ConfigParser()
@@ -68,8 +69,7 @@ def adicionarDesafioCypher(user):
         #Gerar um hash de 128bits pra uso como key no AES
         #Derivação da password
         key = hashlib.md5(password.encode()).digest()
-
-        iv= hex(ival)[2:8].zfill(16)
+        iv = secrets.token_hex(8)
         #criação do HMAC para gravar na BD
         keyHMAC = b'secret'
         msgHMAC = hmac.new(keyHMAC, val.encode(), hashlib.sha256)
@@ -123,8 +123,8 @@ def adicionarDesafioCypher(user):
 
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CBC'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo, iv) VALUES (?, ?, ?, ?, ?, ?,?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CBC', iv))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
@@ -146,8 +146,8 @@ def adicionarDesafioCypher(user):
         #Grava na BD
         try: 
             cur.execute(
-            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo) VALUES (?, ?, ?, ?, ?, ?)", 
-            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CTR'))
+            "INSERT INTO desafios_cifras (id_user, dica, resposta, texto_limpo, hmac, algoritmo, iv) VALUES (?, ?, ?, ?, ?, ?,?)", 
+            (id_user, dica, msg, val, msgHMAC.hexdigest(), 'CTR', iv))
         except mariadb.Error as e: 
             print(f"Error: {e}")
         conn.commit() 
