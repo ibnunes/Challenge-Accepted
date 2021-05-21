@@ -1,7 +1,7 @@
 from prettytable import PrettyTable
 from prettytable import from_json
+import prettytable
 
-from .mariadbhelper import *
 from tui.cli import crt
 import utils.remote as remote
 
@@ -34,7 +34,7 @@ class DBControl(object):
 
     def start(self, url=None, port=None):
         if url is not None:
-            self._url = "http://" + url
+            self._url = url
         if port is not None:
             self._url += f":{port}"
         crt.writeDebug(self._url)

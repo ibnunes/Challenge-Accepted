@@ -2,7 +2,7 @@ from flask import Flask
 from flask import request
 import json
 
-from .dbhelper.dbcontrol import *
+from dbhelper.dbcontrol import *
 
 app = Flask(__name__)
 
@@ -182,3 +182,7 @@ def getScoreboard():
         for result in table[1]:
             json_data.append(dict(zip(table[0],result)))
         return json.dumps({"success": json_data})
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0')
