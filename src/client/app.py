@@ -215,6 +215,8 @@ f"""{BANNER}
 Encryption contains excellent tools for developing challenging mystery games.
 The idea of this work is to develop a system that allows different users to publish and solve challenges.
 
+    <<< C-TEAM >>>
+
     Igor Nunes          github.com/thoga31
     Diogo Simões        github.com/AshKetshup
     Diogo Lavareda      github.com/dlavareda
