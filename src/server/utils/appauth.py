@@ -1,5 +1,5 @@
-from src.server.dbhelper.mariadbhelper import *
-from src.server.dbhelper.dbcontrol import *
+from dbhelper.mariadbhelper import *
+from dbhelper.dbcontrol import *
 import time
 import uuid
 import hashlib
@@ -69,16 +69,16 @@ class AppAuthenticationServer(object):
     def generatePostSig(self, timestamp, nonce, appId, key, hsig, body):
         bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hobj.hexdigest()
         sign = "{appid}POST{timestamp}{nonce}{bodyHash}".format(appid = appId, timestamp = timestamp, nonce = nonce, bodyHash = bodyHash)
-        hmacsh256 = hmac.new(key=key.encode(), msg=sign.encode(), digestmod=hashlib.sha256)
+        hmacsh256 = hmac.new(key=key.encode('utf-8'), msg=sign.encode('utf-8'), digestmod=hashlib.sha256)
         return hmacsh256 == hsig
 
     def comparePatchSig(self, timestamp, nonce, appId, key, hsig, body):
         bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hobj.hexdigest()
         sign = "{appid}PATCH{timestamp}{nonce}{bodyHash}".format(appid = appId, timestamp = timestamp, nonce = nonce, bodyHash = bodyHash)
-        hmacsh256 = hmac.new(key=key.encode(), msg=sign.encode(), digestmod=hashlib.sha256)
+        hmacsh256 = hmac.new(key=key.encode('utf-8'), msg=sign.encode('utf-8'), digestmod=hashlib.sha256)
         return hmacsh256 == hsig
 
     def compareGetSig(self, timestamp, nonce, appId, key, hsig):
-        sign = "{appid}PATCH{timestamp}{nonce}".format(appid = appId, timestamp = timestamp, nonce = nonce)
-        hmacsh256 = hmac.new(key=key.encode(), msg=sign.encode(), digestmod=hashlib.sha256)
-        return hmacsh256 == hsig
+        sign = "{appid}GET{timestamp}{nonce}".format(appid = appId, timestamp = timestamp, nonce = nonce)
+        hmacsh256 = hmac.new(key=key.encode('utf-8'), msg=sign.encode('utf-8'), digestmod=hashlib.sha256)
+        return hmacsh256.hexdigest() == hsig

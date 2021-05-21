@@ -48,7 +48,7 @@ class ChallengeHash(object):
     def choose(user : User, showall=True):
         if showall:
             ChallengeHash.show(user, pause=False)
-        ChallengeHash.solve(Read.tryAsInt("Choose challenge by ID: "))
+        ChallengeHash.solve(user, Read.tryAsInt("Choose challenge by ID: "))
 
 
     @staticmethod
@@ -83,10 +83,11 @@ class ChallengeHash(object):
             proposal = Hash.SHA512.encrypt(proposal)
         
         if proposal == challenge['answer']:
-            if ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now()):
+            if ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now(), True):
                 crt.writeSuccess("YOU DID IT!")
             else:
                 crt.writeError("You got it, but I could not save the answer.")
         else:
+            ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now(), False)
             crt.writeMessage("Better luck next time :(")
         crt.pause()
