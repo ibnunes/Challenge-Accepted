@@ -56,7 +56,6 @@ def responderDesafioCrypto(id_desafio_crypto, user):
     except mariadb.Error as e:
         print(f"Error connecting to MariaDB Platform: {e}")
 
-
     cur = conn.cursor()
     cur.execute(
         "SELECT desafios_cifras.resposta, desafios_cifras.dica, desafios_cifras.algoritmo, desafios_cifras.texto_limpo, utilizadores.username FROM desafios_cifras INNER JOIN utilizadores ON desafios_cifras.id_user=utilizadores.id_user WHERE id_desafio_cifras=?", 
@@ -84,15 +83,81 @@ def responderDesafioCrypto(id_desafio_crypto, user):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCBC(base64.b64decode(resposta),key,AES.MODE_CBC,iv.encode())
-        plaintext = Padding.removePadding(plaintext.decode(), mode=0)
+        try:
+            plaintext2 = Padding.removePadding(plaintext2,mode=0)
+        except Exception:
+            ()
     if(algoritmo == 'CTR'):
         ival=10
         iv= hex(ival)[2:8].zfill(16)
         plaintext = decryptCTR(base64.b64decode(resposta),key,AES.MODE_CTR,iv.encode())
-        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        
+        try:
+            plaintext2 = Padding.removePadding(plaintext2,mode=0)
+        except Exception:
+            ()
+            
     if (plaintext2.strip() == texto_limpo.strip()):
         # Verifica a hora da ultima submissão desde utilizador a este desafio
-        print("CONSEGUISTE CRL")
+        cur2 = conn.cursor()
+        cur2.execute(
+            "SELECT data_ultima_tentativa FROM utilizadores_cifras WHERE id_user=? AND id_desafio_cifras = ? ORDER BY data_ultima_tentativa DESC LIMIT 1", 
+            (id_user, id_desafio_crypto))
+        
+        #Para os casos em que ja existe uma tentativa deste utilizador neste desafio
+        for (data_ultima_tentativa) in cur2:
+            new_date = data_ultima_tentativa[0] + 15
+            tempoactual = int(time.time())
+            if(new_date > tempoactual):
+                print("Take it easy, you gotta wait a bit longer to submit another answer.")
+                conn.close()
+                conn2.close()
+                return
+            else:
+                #Pode inserir
+                #Insere a resolução
+                #Grava na BD
+                try: 
+                    cur3 = conn2.cursor()
+                    cur3.execute(
+                    "INSERT INTO utilizadores_cifras (id_user, id_desafio_cifras, data_ultima_tentativa, sucesso) VALUES (?, ?, ?, ?)", 
+                    (id_user, id_desafio_crypto, int(time.time()), True))
+                    conn2.commit() 
+                except mariadb.Error as e: 
+                    print(f"Error: {e}")
+                conn.close()
+                conn2.close()
+                print("CONGRATULATIONS! YOU DID IT!")
+                return True #Como ja inseriu fecha
+
+        #Para os casos em que não existe uma tentativa deste utilizador neste desafio
+            #Pode inserir
+            #Insere a resolução
+            #Grava na BD
+        cursor = cur2.fetchall()
+        date = len(cursor)
+        if(date == 0):
+            try: 
+                cur3 = conn2.cursor()
+                cur3.execute(
+                "INSERT INTO utilizadores_cifras (id_user, id_desafio_cifras, data_ultima_tentativa, sucesso) VALUES (?, ?, ?, ?)", 
+                (id_user, id_desafio_crypto, int(time.time()), True))
+                conn2.commit() 
+            except mariadb.Error as e: 
+                print(f"Error: {e}")
+            conn.close()
+            conn2.close()
+            print("CONGRATULATIONS! YOU DID IT!")
+            return True
     else:
-        print("TENTA OUTRA VEZ")
+        try: 
+            cur3 = conn2.cursor()
+            cur3.execute(
+            "INSERT INTO utilizadores_cifras (id_user, id_desafio_cifras, data_ultima_tentativa, sucesso) VALUES (?, ?, ?, ?)", 
+            (id_user, id_desafio_crypto, int(time.time()), False))
+            conn2.commit() 
+        except mariadb.Error as e: 
+            print(f"Error: {e}")
+        conn.close()
+        conn2.close()
+        print("YOU SHALL NOT PASS. WRONG ANSWER, TRY AGAIN!")
+        return False
