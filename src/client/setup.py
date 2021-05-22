@@ -13,7 +13,7 @@ The idea of this work is to develop a system that allows different users to publ
         'prettytable',
         'pycryptodome',
         'requests',
-        'validate_email',
+        'py3-validate-email',
         'sympy',
         'pycaesarcipher',
         'onetimepad',
