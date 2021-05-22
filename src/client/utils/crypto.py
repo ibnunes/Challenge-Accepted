@@ -15,28 +15,28 @@ class Cypher:
         TYPE = "ECB"
         
         def encrypt(plaintext, key, mode):
-            return AES.new(key, mode).encrypt(plaintext).decode()
+            return AES.new(key, mode).encrypt(plaintext)
         
         def decrypt(ciphertext, key, mode):
-            return AES.new(key, mode).decrypt(ciphertext).decode()
+            return AES.new(key, mode).decrypt(ciphertext)
 
     class CBC:
         TYPE = "CBC"
         
         def encrypt(plaintext, key, mode, iv):
-            return AES.new(key, mode, iv).encrypt(plaintext).decode()
+            return AES.new(key, mode, iv).encrypt(plaintext)
         
         def decrypt(ciphertext, key, mode, iv):
-            return AES.new(key, mode, iv).decrypt(ciphertext).decode()
+            return AES.new(key, mode, iv).decrypt(ciphertext)
     
     class CTR:
         TYPE = "CTR"
 
         def encrypt(plaintext, key, mode, iv):
-            return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).encrypt(plaintext).decode()
+            return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).encrypt(plaintext)
         
         def decrypt(ciphertext, key, mode, iv):
-            return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).decrypt(ciphertext).decode()
+            return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).decrypt(ciphertext)
 
     class OTP:
         TYPE = "ONETIMEPAD"
@@ -60,7 +60,7 @@ class Cypher:
         TYPE = "CAESAR"
 
         def encrypt(plaintext, key):
-            return pycaesarcipher.pycaesarcipher().caesar_encipher(plaintext, key)
+            return pycaesarcipher.pycaesarcipher().caesar_encipher(plaintext, key).encode()
 
         def decrypt(ciphertext, key):
             return pycaesarcipher.pycaesarcipher().caesar_decipher(bytearray(ciphertext).decode(), key)
