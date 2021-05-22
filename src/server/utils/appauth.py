@@ -125,7 +125,6 @@ class AppAuthenticationServer(object):
         """
         bodyHash = hashlib.sha256(json.dumps(body).encode('utf-8')).hexdigest()
         sign = f"{appId}POST{timestamp}{nonce}{bodyHash}"
-        
         hmacsh256 = hmac.new(
             key=key.encode('utf-8'), 
             msg=sign.encode('utf-8'), 

@@ -603,7 +603,7 @@ def getScoreboard():
     * Description: Adds attempt of concluding a hash challenge using User as `userid`, 
     Challenge as `chid`, Date as `date` and Success as `success` 
     * Endpoint:    `/challenge/hash/<chid>`
-    * HTTP Method: ``PATCH``
+    * HTTP Method: ``GET``
     
     Possible Success:
     * ```{ "success" : list()}``` - Returns list of dictionaries with the results table.

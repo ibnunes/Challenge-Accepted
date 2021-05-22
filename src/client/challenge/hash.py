@@ -92,7 +92,7 @@ class ChallengeHash(object):
             user (User): User
             id_challenge (int): ID of Challenge
         """
-        challenge = ChallengeHash.APP.getDBController().getCypherChallenge(id_challenge)
+        challenge = ChallengeHash.APP.getDBController().getHashChallenge(id_challenge)
         if challenge is None:
             crt.writeError("This challenge does not exist.")
             crt.pause()
@@ -127,6 +127,8 @@ class ChallengeHash(object):
             else:
                 crt.writeError("You got it, but I could not save the answer.")
         else:
-            ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now(), False)
-            crt.writeMessage("Better luck next time :(")
+            if ChallengeHash.APP.getDBController().updateHashChallengeTry(id_user, id_challenge, Clock.now(), False):
+                crt.writeMessage("Better luck next time :(")
+            else:
+                crt.writeError("You did NOT got it, but I could not save the answer.")
         crt.pause()

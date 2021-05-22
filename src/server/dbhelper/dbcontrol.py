@@ -206,7 +206,7 @@ class DBControl(object):
                 .InsertInto("utilizadores", ["username", "email", "password", "salt"]) \
                 .execute((username, email, binascii.hexlify(key), binascii.hexlify(salt),))
             self._helper.commit()
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
             self.stop()
@@ -240,7 +240,7 @@ class DBControl(object):
                     ["id_user", "dica", "resposta", "texto_limpo", "iv", "hmac", "algoritmo"] )   \
                 .execute((id_user, tip, msg, val, iv, hmacdb, algorithm))
             self._helper.commit()
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
             self.stop()
@@ -273,7 +273,7 @@ class DBControl(object):
             self._helper.resetQuery()
             self.stop()
             return (row_headers, rv)
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
         self.stop()
@@ -333,7 +333,7 @@ class DBControl(object):
                 'hmac'      : hmacdb,
                 'username'  : username
             }
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
         self.stop()
@@ -365,7 +365,7 @@ class DBControl(object):
                 ).execute((id_user, id_challenge))
             for (ld,) in self._helper.getCursor():
                 last_date = ld
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
         self.stop()
@@ -398,7 +398,7 @@ class DBControl(object):
                     ]
                 ).execute((id_user, id_challenge, date, success))
             self._helper.commit()
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
             self.stop()
@@ -429,7 +429,7 @@ class DBControl(object):
                     ["id_user", "dica", "resposta", "algoritmo"] )  \
                 .execute((id_user, tip, msg, algorithm))
             self._helper.commit()
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
             self.stop()
@@ -462,7 +462,7 @@ class DBControl(object):
             self._helper.resetQuery()
             self.stop()
             return (row_headers, rv)
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
         self.stop()
@@ -492,11 +492,12 @@ class DBControl(object):
                     ("desafios_hash.resposta", None),
                     ("desafios_hash.dica", None),
                     ("desafios_hash.algoritmo", None),
-                    ("utilizadores.username", None),    ])                                  \
+                    ("utilizadores.username", None)     ])                                  \
                 .From("desafios_hash")                                                      \
                 .InnerJoin("utilizadores", on="desafios_hash.id_user=utilizadores.id_user") \
                 .Where("id_desafio_hash=?")                                                 \
                 .execute((id_challenge,))
+            self._helper.resetQuery()
             for (a, t, x, u) in self._helper.getCursor():
                 answer    = a
                 tip       = t
@@ -509,7 +510,7 @@ class DBControl(object):
                 'algorithm' : algorithm,
                 'username'  : username
             }
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
         self.stop()
@@ -541,7 +542,7 @@ class DBControl(object):
                 ).execute((id_user, id_challenge))
             for (ld,) in self._helper.getCursor():
                 last_date = ld
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
         self.stop()
@@ -574,7 +575,7 @@ class DBControl(object):
                     ]
                 ).execute((id_user, id_challenge, date, success))
             self._helper.commit()
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
             self.stop()
@@ -628,7 +629,7 @@ order by Total desc
             self._helper.resetQuery()
             self.stop()
             return (row_headers, rv)
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
         self._helper.resetQuery()
         self.stop()
@@ -658,7 +659,7 @@ order by Total desc
                 useremail = email
             self.stop()
             return useremail
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
         self.stop()
@@ -710,7 +711,7 @@ where dc.id_user = ?
                 'hash':   Hash,
                 'total':  Total
             }
-        except mariadb.Error as ex:
+        except (Exception, mariadb.Error) as ex:
             crt.writeError(f"Error at database: {ex}")
             self._helper.resetQuery()
         self.stop()
