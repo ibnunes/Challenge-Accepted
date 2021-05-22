@@ -15,6 +15,9 @@ class PotentialSQLInjectionAttempt(Exception):
 
 
 class ConnectionNotEstablished(Exception):
+    """
+    Exception that indicates when a connection isn't established.
+    """    
     def __init__(self, message="Connection not established"):
         self.message = message
         super().__init__(self.message)

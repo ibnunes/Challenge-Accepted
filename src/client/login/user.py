@@ -301,7 +301,7 @@ class User(object):
             'lowercase_error': lowercase_error,
             'symbol_error': symbol_error
         }
-        
+
 
     @staticmethod
     def validatePassword(password) -> tuple:

@@ -4,17 +4,16 @@ import binascii
 from .mariadbhelper import *
 from .tui.cli import crt
 
-"""
-TODO: - Documentation
-"""
 
 class UsernameNotFound(Exception):
+    """Exception UsernameNotFound."""
     def __init__(self, message="Username not found"):
         self.message = message
         super().__init__(self.message)
 
 
 class WrongPassword(Exception):
+    """Exception WrongPassword."""
     def __init__(self, message="Wrong password"):
         self.message = message
         super().__init__(self.message)
@@ -22,24 +21,42 @@ class WrongPassword(Exception):
 
 class DBControl(object):
     def __init__(self):
+        """Initializes DBControl."""        
         self._helper = MariaDBHelper()
         self._helper.bindErrorCallback(crt.writeError)
 
 
     def start(self):
+        """
+        Starts DBControl.
+
+        Raises:
+            ConnectionNotEstablished: raised when MariaDBHelper isn't connected
+        """
         self._helper.connect()
         if not self._helper.isConnected():
             raise ConnectionNotEstablished()
 
 
     def stop(self):
+        """Stops DBControl."""        
         if self._helper.isConnected():
             self._helper.disconnect()
 
     def fetchAppId(self, appId):
+        """
+        Fetchs App ID.
+        WHERE THE HELL IS THIS CALLED???
+
+        Args:
+            appId (int): Application ID
+
+        Returns:
+            [type]: [description] 
+        """        
         self.start()
         self._helper                    \
-            .Select([("`key`", None)])    \
+            .Select([("`key`", None)])  \
             .From("apps")               \
             .Where("appid=?")           \
             .execute((appId,))
@@ -58,10 +75,27 @@ class DBControl(object):
 
 
     def getHMACKey(self):
+        """
+        Gets HMAC Key from the config.
+
+        Returns:
+            str: HMAC key
+        """        
         return self._helper.config['VALIDATION']['hmac']
 
 
     def valueExists(self, table, field, value):
+        """
+        Checks if value exists.
+
+        Args:
+            table (str): Table
+            field (str): Field
+            value (str): Value
+
+        Returns:
+            bool: True IF exists ELSE False
+        """        
         self.start()
         self._helper                    \
             .Select([(field, None)])    \
@@ -77,6 +111,15 @@ class DBControl(object):
 
 
     def userExists(self, username):
+        """
+        Checks if user exists.
+
+        Args:
+            username (str): Username
+
+        Returns:
+            bool: True IF exists ELSE False
+        """
         return self.valueExists(
             table = "utilizadores",
             field = "username",
@@ -85,6 +128,15 @@ class DBControl(object):
 
 
     def emailExists(self, email):
+        """
+        Checks if an email already exists.
+
+        Args:
+            email (str): email
+
+        Returns:
+            bool: True IF exists ELSE False
+        """
         return self.valueExists(
             table = "utilizadores",
             field = "email",
@@ -93,6 +145,21 @@ class DBControl(object):
 
 
     def loginUser(self, username, password):
+        """
+        Logs the user in.
+
+        Args:
+            username (str): Username
+            password (str): Password
+
+        Raises:
+            Exception:        Generic Exception
+            UsernameNotFound: Could not find username
+            WrongPassword:    Wrong Password
+
+        Returns:
+            (bool, int): (Success, User ID)
+        """
         self.start()
         key, salt = "", ""
         self._helper \
@@ -119,7 +186,18 @@ class DBControl(object):
 
 
     def registerUser(self, username, password, email):
-        # gera salt, calcula o sha256 (10000x) 
+        """
+        Registers User.
+        Generates salt, calculates sha256 (10000x)
+
+        Args:
+            username (str): Username
+            password (str): Password
+            email (str): Email
+
+        Returns:
+            bool: True IF successful ELSE False
+        """
         self.start()
         salt = os.urandom(32)   # A new salt for this user
         key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
@@ -139,9 +217,24 @@ class DBControl(object):
 
 
     def addCypherChallenge(self, id_user, tip, msg, val, iv, hmacdb, algorithm):
+        """
+        Adds cypher challenge.
+
+        Args:
+            id_user (int): User ID
+            tip (str): Challenge Tip
+            msg (str): Message
+            val (str): Value
+            iv (str): Inicializer Vector
+            hmacdb (str): HMAC
+            algorithm (str): Algorithm
+
+        Returns:
+            bool: True IF successful ELSE False
+        """        
         self.start()
         try:
-            self._helper                                                            \
+            self._helper                                                                          \
                 .InsertInto(
                     "desafios_cifras",
                     ["id_user", "dica", "resposta", "texto_limpo", "iv", "hmac", "algoritmo"] )   \
@@ -158,6 +251,13 @@ class DBControl(object):
 
 
     def getAllCypherChallenges(self):
+        """
+        Gets every cypher challenge.
+
+        Returns:
+            (list, Any): Row Headers, Row Values
+            None: When failed
+        """
         self.start()
         try:
             self._helper                                                                        \
@@ -181,6 +281,24 @@ class DBControl(object):
 
 
     def getCypherChallenge(self, id_challenge):
+        """
+        Gets cypher challenge.
+
+        Args:
+            id_challenge (int): Challenge ID
+
+        Returns:
+            dict: {
+                'answer': Answer, 
+                'tip': , 
+                'algorithm': Challenge algorithm, 
+                'plaintext': Plain Text,
+                'iv': Initialized Vector,
+                'hmac': HMAC,
+                'username': Username
+            }
+            None: When failed
+        """
         self.start()
         try:
             self._helper                                                                        \
@@ -223,6 +341,16 @@ class DBControl(object):
 
 
     def getCypherLastTry(self, id_user, id_challenge):
+        """
+        Gets last try of cypher.
+
+        Args:
+            id_user (int): UserID
+            id_challenge (int): ChallengeID
+
+        Returns:
+            float: Last Date of an attempt
+        """
         last_date = None
         self.start()
         try:
@@ -245,6 +373,18 @@ class DBControl(object):
 
 
     def updateCypherChallengeTry(self, id_user, id_challenge, date, success):
+        """
+        Adds attempt of concluding a challenge.
+
+        Args:
+            id_user (int): UserID
+            id_challenge (int): ChallengeID
+            date (float): Date of the attempt
+            success (bool): Success
+
+        Returns:
+            bool: True IF successful ELSE False
+        """
         self.start()
         try:
             self._helper \
@@ -269,6 +409,18 @@ class DBControl(object):
 
 
     def addHashChallenge(self, id_user, tip, msg, algorithm):
+        """
+        Adds hash challenge.
+
+        Args:
+            id_user (int): UserID
+            tip (str): Tip
+            msg (str): Message
+            algorithm (str): Algorithm
+
+        Returns:
+            bool: True IF successful ELSE False
+        """
         self.start()
         try:
             self._helper                                            \
@@ -288,6 +440,13 @@ class DBControl(object):
 
 
     def getAllHashChallenges(self):
+        """
+        Gets every cypher challenge.
+
+        Returns:
+            (list, Any): Row Headers, Row Values
+            None: When failed
+        """
         self.start()
         try:
             self._helper                                                                    \
@@ -311,6 +470,21 @@ class DBControl(object):
 
 
     def getHashChallenge(self, id_challenge):
+        """
+        Gets hash challenge.
+
+        Args:
+            id_challenge (int): Challenge ID
+
+        Returns:
+            dict: {
+                'answer': str,
+                'tip': str,
+                'algorithm': str,
+                'username': str
+            }
+            None: When fails 
+        """        
         self.start()
         try:
             self._helper                                                                    \
@@ -343,6 +517,16 @@ class DBControl(object):
 
 
     def getHashLastTry(self, id_user, id_challenge):
+        """
+        Gets last try of hash challenge.
+
+        Args:
+            id_user (int): UserID
+            id_challenge (int): ChallengeID
+
+        Returns:
+            float: Last Date of an attempt
+        """
         last_date = None
         self.start()
         try:
@@ -365,6 +549,18 @@ class DBControl(object):
 
 
     def updateHashChallengeTry(self, id_user, id_challenge, date, success):
+        """
+        Adds attempt of concluding a challenge.
+
+        Args:
+            id_user (int): UserID
+            id_challenge (int): ChallengeID
+            date (float): Date of the attempt
+            success (bool): Success
+
+        Returns:
+            bool: True IF successful ELSE False
+        """
         self.start()
         try:
             self._helper \
@@ -389,6 +585,7 @@ class DBControl(object):
 
 
     def getAllScoreboard(self):
+        """Gets all scores."""
         self.start()
         try:
             self._helper \
@@ -439,6 +636,16 @@ order by Total desc
 
 
     def getEmail(self, id_user):
+        """
+        Gets Email.
+
+        Args:
+            id_user (str): User ID
+
+        Returns:
+            str: User's Email
+            None: When fails
+        """        
         self.start()
         try:
             self._helper                    \
@@ -459,6 +666,20 @@ order by Total desc
     
     
     def getUserCreatedAmount(self, id_user):
+        """
+        Gets user created challenges amount.
+
+        Args:
+            id_user (int): User ID
+            
+        Returns:
+            dict: {
+                'cypher': int,
+                'hash':   int,
+                'total':  int
+            }
+            None: when fails
+        """        
         self.start()
         try:
             self._helper\

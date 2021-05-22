@@ -4,7 +4,7 @@ import prettytable
 from requests.api import head
 
 from tui.cli import crt
-import utils.remote as remote
+from utils.remote import unpack
 from utils.appauth import AppAuthenticationClient
 
 import json
@@ -54,7 +54,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return bytes(data, 'utf-8')
         else:
@@ -70,7 +70,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return data
 
 
@@ -83,7 +83,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return data
 
 
@@ -96,7 +96,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if not ok:
             raise StatusCodeError(data)
         return (ok, data['user_id'])
@@ -111,7 +111,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return ok
 
 
@@ -132,7 +132,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return data
 
 
@@ -144,7 +144,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             pt = from_json(json.dumps(data))
         return pt
@@ -157,7 +157,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return data
         return None
@@ -174,7 +174,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return data
         return None
@@ -193,7 +193,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return data
 
 
@@ -211,7 +211,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return data
 
 
@@ -223,7 +223,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             pt = from_json(json.dumps(data))
         return pt
@@ -236,7 +236,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return data
         return None
@@ -253,7 +253,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return data
         return None
@@ -268,11 +268,11 @@ class DBControl(object):
         r = requests.patch(
             url=f"{self._url}/challenge/hash/{id_challenge}",
             data=data,
-            headers=self._appauth.generatePatchHeader()
+            headers=self._appauth.generatePatchHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         return data
 
 
@@ -284,7 +284,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             pt = from_json(json.dumps(data))
         else:
@@ -300,7 +300,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return data
         return None
@@ -313,7 +313,7 @@ class DBControl(object):
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
-        (ok, data) = remote.unpack(r.json())
+        (ok, data) = unpack(r.json())
         if ok:
             return data
         return None
