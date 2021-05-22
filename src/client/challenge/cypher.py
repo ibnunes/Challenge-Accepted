@@ -190,7 +190,7 @@ class ChallengeCypher(object):
         
         elif challenge['algorithm'] == Cypher.Vigenere.TYPE:
             plaintext = Cypher.Vigenere.decrypt(base64.b64decode(challenge['answer']), proposal)
-        
+            plaintext = plaintext.lower()
         try:
             plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         except:
