@@ -102,11 +102,14 @@ class App(object):
             "Cypher Challenge",
             "Featuring AES",
             [
-                MenuItem("AES-128-ECB", lambda: ChallengeCypher.add(self._user, Cypher.ECB.TYPE)),
-                MenuItem("AES-128-CBC", lambda: ChallengeCypher.add(self._user, Cypher.CBC.TYPE)),
-                MenuItem("AES-128-CTR", lambda: ChallengeCypher.add(self._user, Cypher.CTR.TYPE)),
-                MenuItem("Back",        None, isexit=True),
-                MenuItem("QUIT",        self.finalize)
+                MenuItem("Caesar",       lambda: ChallengeCypher.add(self, Cypher.Caesar.TYPE)),
+                MenuItem("One Time Pad", lambda: ChallengeCypher.add(self, Cypher.OTP.TYPE)),
+                MenuItem("Vigenere",     lambda: ChallengeCypher.add(self, Cypher.Vigenere.TYPE)),
+                MenuItem("AES-128-ECB",  lambda: ChallengeCypher.add(self._user, Cypher.ECB.TYPE)),
+                MenuItem("AES-128-CBC",  lambda: ChallengeCypher.add(self._user, Cypher.CBC.TYPE)),
+                MenuItem("AES-128-CTR",  lambda: ChallengeCypher.add(self._user, Cypher.CTR.TYPE)),
+                MenuItem("Back",         None, isexit=True),
+                MenuItem("QUIT",         self.finalize)
             ]
         )
 
