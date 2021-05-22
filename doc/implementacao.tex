@@ -139,18 +139,21 @@ O algoritmo de \textit{hash} utilizado no processo é o \textit{SHA256}.
 \section{Manual de Instalação}
 \label{sec::implementacao:maninstall}
 
-Para a primeira utilização da aplicação é necessário executar o \textit{script} \verb|setup.py| no terminal, com recurso ao comando \verb|python3 setup.py|. Este instala automaticamente todas as dependências necessárias para o devido funcionamento do programa.
+Para a primeira utilização da aplicação é necessário, no terminal, mudar para o diretório onde se encontra o ficheiro \verb|setup.py| e executar o comando \verb|pip3 install .| a fim de instalar as dependências necessárias do \textit{Python}.
+
+Após este passo, o programa pode ser utilizado conforme indicado no manual de utilização (Capítulo \ref{sec::implementacao:manuser}).
 
 
 \section{Manual de Utilização}
 \label{sec::implementacao:manuser}
 
-Ao correr a aplicação \appname, é apresentado ao utilizador um primeiro menu, no qual pode escolher entre criar uma conta (caso seja a primeira utilização da plataforma), fazer \textit{login}, ver informações da aplicação ou sair do programa.  Para o caso de criar conta, é-lhe pedido o fornecimento de um \textit{email} válido e uma \textit{password}, a qual é confirmada uma segunda vez.
+Ao correr a aplicação \appname~(com o comando \verb|python3 app.py|), é apresentado ao utilizador um primeiro menu, no qual pode escolher entre criar uma conta (caso seja a primeira utilização da plataforma), fazer \textit{login}, ver informações da aplicação ou sair do programa.  Para o caso de criar conta, é-lhe pedido o fornecimento de um \textit{email} válido e uma \textit{password}, a qual é confirmada uma segunda vez.
 
 Após o \textit{login}, é apresentada ao utilizador uma \textit{homepage} onde o utilizador tem acesso às várias funcionalidades da aplicação: propor desafio, responder a desafio, listar desafios e ver \textit{scoreboard} dos jogadores.
 
 Um utilizador poderá submeter vários tipos de desafios, mas não poderá responder aos que por ele foram criados. Conforme o utilizador responda com sucesso aos desafios propostos, é-lhe atribuída uma pontuação e o mesmo poderá verificar em que lugar se encontra no \textit{scoreboard}.
 
+Está disponível com o argumento \verb|--debug| (ou \verb|-d|) um modo de \textit{debugging} para desenvolvimento.
 
 
 \section{Conclusões}
