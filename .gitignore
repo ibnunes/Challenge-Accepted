@@ -122,3 +122,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+TW-proposals.pdf
+src/.idea
+.vscode/
+
+.DS_Store
+src/archive
