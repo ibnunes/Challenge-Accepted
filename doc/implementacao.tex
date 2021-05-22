@@ -70,21 +70,69 @@ particular destacam-se:
 
 %Porquanto a implementação no seu todo desse facilmente origem a um vasto documento técnico, três situações destacaram-se:
 
+\subsection{Navegação}
+\label{ssec::implementacao:detalhes:nav}
+
+A navegação é feita com menus, os quais são objetos instanciados da classe \verb|Menu|, criada para este projeto. Esta classe permite fazer a gestão automatizada de menus, sendo uma função invocada quando uma dada opção válida do menu é selecionada.
+
+Tal permite tirar partido da \textit{stack} de invocações do sistema operativo, levando a que a navegação entre menus seja resultado da hierarquia destas chamadas.
+
+
 \subsection{Estruturação dos \textit{packages} e classes}
 \label{ssec::implementacao:detalhes:estrutura}
 
+A linguagem \textit{Python}, porquanto não siga a mesma filosofia de \textit{packages} da linguagem \textit{Java}, tem mecanismos que o permitem simular até certo ponto.
 
+Desta forma, os vários ficheiros que constituem bibliotecas da aplicação foram distribuídas por pastas, ficando o interpretador \textit{Python} a conhecer a sua localização graças à criação de ficheiros \verb|__init__.py| na raiz de cada pasta que se queira considerar como uma \textit{package}:
+
+\begin{itemize}
+    \item \verb|challenge|: Classes com métodos estáticos que implementam elementos da \ac{TUI} específicos ao programa;
+    \item \verb|dbhelper|: Comunicação com o \textit{webservice};
+    \item \verb|login|: Gestão de \textit{login}, registo e sessão local de um utilizador;
+    \item \verb|tui|: Elementos essenciais à \ac{TUI};
+    \item \verb|utils|: Utilitários variados transversais às restantes bibliotecas.
+\end{itemize}
+
+Por outro lado, diferentes objetivos e funcionalidades são divididos em classes distintas com métodos que permitem melhor abstrair, sequencialmente, as operações que se tornam progressivamente de mais ``baixo nível'' (i.e., da \ac{TUI} à comunicação com o \textit{webservice}).
 
 
 \subsection{Cifras e algoritmos de \textit{hash}}
 \label{ssec::implementacao:detalhes:cifras}
 
-
+Os algoritmos implementados foram reunidos nas classes \verb|Cypher| e \verb|Hash| do \textit{package} \verb|client.util|. Os respetivos métodos foram implementados com recurso a bibliotecas disponibilizadas pela ferramenta \textit{pip3}, as quais têm as vantagens de ser atuais, \textit{open-source} e vastamente utilizadas pela comunidade criptográfica e de \textit{development}.
 
 
 \subsection{\textit{Webservice}}
 \label{ssec::implementacao:detalhes:webservice}
 
+A fim de o cliente comunicar com o serviço alojado na \textit{cloud} de forma encriptada e segura, foi criado um \textit{webservice} com recurso à \textit{framework} \textit{\bfseries Flask}. Este escuta por pedidos no porto $443$ (protocolo \ac{HTTPS}) e, conforme o método do pedido (\verb|GET|, \verb|POST| ou \verb|PATCH|) e o \ac{URL} por onde este é efetuado, o \textit{webservice} executa uma ação programada e devolve uma resposta com o resultado do pedido.
+
+Os dados são bidirecionalmente encapsulados no formato \ac{JSON}. O \textit{webservice} em particular devolve uma resposta com indicação de sucesso no pedido (fornecendo os dados respetivos) ou de erro (com a respetiva mensagem associada).
+
+O \textit{webservice}, a cada pedido (e após confirmar que se trata de um pedido efetuado por uma \textit{app} autorizada (Secção \ref{ssec::implementacao:detalhes:auth})), abre uma conexão com a \acl{BD} e processa os resultados da \textit{query} de forma a devolvê-los num formato aceite pelo cliente (\textit{string} ou dicionário).
+
+O \textit{webservice} encontra-se atualmente alojado no domínio \url{https://chapted.igornunes.com}.
+
+
+\subsection{Serviço de autenticação de clientes}
+\label{ssec::implementacao:detalhes:auth}
+
+Um cliente apenas pode realizar pedidos ao \textit{webservice} caso seja uma \textit{app} autorizada. Para tal, o cliente deve enfrentar um desafio proposto pelo \textit{webservice} a fim de a autenticar.
+
+Para tal, é gerado um \textit{header} no pedido \ac{HTTPS} com os dados necessários para o \textit{webservice} constatar que o cliente superou o desafio e é, portanto, válido.
+
+O algoritmo envolve um ID da aplicação cliente, uma chave associada, e a geração do \textit{hash} do corpo do pedido \ac{HTTPS}, assim como um \textit{timestamp} e um \textit{nonce}. No final do desafio, a \textit{signature} deve coincidir com o \textit{HMAC} dos dados anteriores processados.
+
+A não presença deste \textit{header} (Figura \ref{fig::auth-fail}) ou a presença de dados que não permitem resolver o desafio do \textit{webservice} invalidam o acesso a este, sendo o pedido recusado.
+
+O algoritmo de \textit{hash} utilizado no processo é o \textit{SHA256}.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[scale=0.75]{authfail}
+    \caption[Falha de autenticação]{Exemplo de falha de autenticação ao aceder através de um \textit{browser}.}
+    \label{fig::auth-fail}
+\end{figure}
 
 
 
