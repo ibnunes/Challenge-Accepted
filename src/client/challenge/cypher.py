@@ -192,8 +192,7 @@ class ChallengeCypher(object):
             plaintext = Cypher.Vigenere.decrypt(base64.b64decode(challenge['answer']), proposal)
         
         try:
-            #plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-            plaintext = Padding.removePadding(plaintext, mode=0)
+            plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         except:
             ()
         msgHMAC = hmac.new(hmackey, plaintext.encode(), hashlib.sha256)
