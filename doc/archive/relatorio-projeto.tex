@@ -1,14 +1,11 @@
-\documentclass[12pt,a4paper]{memoir}
-% \documentclass[titlepage,12pt,a4paper]{book}
+\documentclass[titlepage,12pt,a4paper,times,oneside]{book}
 
-% substituir linha seguinte por 
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+% substituir linha anterior por 
 % \usepackage[english]{babel} 
 % se o relatório for escrito na língua inglesa.
-\usepackage[portuguese]{babel}
-
-% \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-
 \usepackage{makeidx}
 \usepackage{xspace}
 \usepackage{graphicx,color,times}
@@ -18,18 +15,28 @@
 % \usepackage{mathptm}
 % \usepackage{amssymb}
 % \usepackage{amsfonts}
-
 \usepackage{amsmath}
 \usepackage{latexsym}
 \usepackage[printonlyused]{acronym}
 \usepackage{float}
 \usepackage{listings}
 \usepackage{tocbibind}
-\usepackage{natbib}
+\usepackage{wrapfig}
+% \usepackage{natbib}
 \usepackage{hyperref}
-
 % \usepackage{glossaries}
 % \makeglossaries
+
+\usepackage{minted}
+\usepackage{paralist}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{calc}
+\usepackage{array}
+\usepackage{color}
+\usepackage{colortbl}
+% \usepackage{biblatex}
 
 % \renewcommand{\ttdefault}{phv}
 
@@ -41,7 +48,7 @@
 \fancyhead[RE]{\bfseries\leftmark}
 \renewcommand{\headrulewidth}{0.5pt}
 \renewcommand{\footrulewidth}{0pt}
-\setlength{\headheight}{15.6pt}
+\addtolength{\headheight}{0.5pt}
 \setlength{\marginparsep}{0cm}
 \setlength{\marginparwidth}{0cm}
 \setlength{\marginparpush}{0cm}
@@ -49,45 +56,6 @@
 \addtolength{\oddsidemargin}{\evensidemargin}
 \addtolength{\oddsidemargin}{0.5cm}
 \addtolength{\evensidemargin}{-0.5cm}
-
-
-\usepackage{fix-cm}
-\usepackage{fourier}
-\usepackage[scaled=.92]{helvet}
-\definecolor{ChapGrey}{rgb}{0.6,0.6,0.6}
-\newcommand{\LargeFont}{
-  \usefont{\encodingdefault}{\rmdefault}{b}{n}
-  \fontsize{60}{80}\selectfont\color{ChapGrey}
-  }
-\makeatletter
-\makechapterstyle{GreyNum}{
-  \renewcommand{\chapnamefont}{\large\sffamily\bfseries\itshape}
-  \renewcommand{\chapnumfont}{\LargeFont}
-  \renewcommand{\chaptitlefont}{\Huge\sffamily\bfseries\itshape}
-  \setlength{\beforechapskip}{0pt}
-  \setlength{\midchapskip}{40pt}
-  \setlength{\afterchapskip}{60pt}
-  \renewcommand\chapterheadstart{\vspace*{\beforechapskip}}
-  \renewcommand\printchaptername{
-  \begin{tabular}{@{}c@{}}
-    \chapnamefont \@chapapp\\}
-    \renewcommand\chapternamenum{\noalign{\vskip 2ex}}
-    \renewcommand\printchapternum{\chapnumfont\thechapter\par}
-    \renewcommand\afterchapternum{
-  \end{tabular}
-  \par\nobreak\vskip\midchapskip}
-  \renewcommand\printchapternonum{}
-  \renewcommand\printchaptertitle[1]{
-  {\chaptitlefont{##1}\par}}
-  \renewcommand\afterchaptertitle{\par\nobreak\vskip \afterchapskip}
-}
-\makeatother
-\chapterstyle{GreyNum}
-
-\setcounter{tocdepth}{3}
-\setsecnumdepth{subsubsection}
-
-\renewcommand{\ttdefault}{lmtt}
 
 
 % NEW COLORS
@@ -113,13 +81,32 @@
   belowskip=0cm
 }
 
-\renewcommand{\lstlistingname}{Excerto de Código}
-\renewcommand{\lstlistlistingname}{Lista de Excertos de Código}
+\renewcommand{\listingscaption}{Excerto de Código}
+\renewcommand{\listoflistingscaption}{Lista de Excertos de Código}% 
 
-\renewcommand{\today}{\day \ifcase \month \or Janeiro\or Fevereiro\or Março\or %
-Abril\or Maio\or Junho\or Julho\or Agosto\or Setembro\or Outubro\or Novembro\or %
-Dezembro\fi de \number \year} 
+\graphicspath{{./img/}}
+\newcommand{\usecasescale}{0.5}
 
+\newcommand{\cybervictim}{\textsc{Cybervictim}}
+\newcommand{\theteam}{C-Team}
+\newcommand{\theapp}{Aid Is On The Way}
+\newcommand{\groupname}{{\itshape\theteam}}
+\newcommand{\appname}{{\itshape\theapp}}
+
+\newcommand{\famousquote}[2]{
+    \begin{quote}
+        \rule{\textwidth-2\leftmargin}{0.4pt}
+        {\itshape #1}
+        \vspace{-12pt}
+        \begin{flushright}
+            \textasciitilde~#2
+        \end{flushright}
+        \vspace{-20pt}
+        \rule{\textwidth-2\leftmargin}{0.4pt}
+    \end{quote}
+}
+
+% \setlist{nosep}
 
 
 \begin{document}
@@ -130,53 +117,54 @@ Dezembro\fi de \number \year}
 
 \frontmatter
 
-\include{agradecimentos}
+\include{resumo}
 
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 
 
 \tableofcontents
 
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 
 \listoffigures
 
-% #   ATENÇÃO
-% Se não existirem tabelas, comentar as duas linhas seguintes
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+% Se não existirem tabelas, comentar as seguintes linhas
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 \listoftables
 
-% #   ATENÇÃO
 % Se existirem trechos de código, descomentar as seguintes linhas
 % \clearpage{\thispagestyle{empty}\cleardoublepage}
-% \lstlistoflistings
+\listoflistings
+\addcontentsline{toc}{chapter}{\listoflistingscaption}
 
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 \include{acronimos}
 
 % \clearpage{\pagestyle{empty}\cleardoublepage}
 % \include{glossario}
 
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 
 \mainmatter
 \acresetall
 \include{introducao}
-\clearpage{\thispagestyle{empty}\cleardoublepage}
-\include{capitulo-2}
-\clearpage{\thispagestyle{empty}\cleardoublepage}
-\include{capitulo-3}
-\clearpage{\thispagestyle{empty}\cleardoublepage}
-\include{capitulo-4}
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
+\include{engenharia}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
+\include{implementacao}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
+\include{reflexao}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 \include{conc-trab-futuro}
-\clearpage{\thispagestyle{empty}\cleardoublepage}
+%\clearpage{\thispagestyle{empty}\cleardoublepage}
 
 % SE EXISTIREM APENDICES, DESCOMENTAR O QUE ESTÁ EM BAIXO
-% \appendix
-% \include{apendice1}
+%\pagenumbering{Alph}
+
+\appendix
+\include{chatbot}
 % \clearpage{\pagestyle{empty}\cleardoublepage}
-% \include{continuacao}
+\include{codigo}
 % \clearpage{\pagestyle{empty}\cleardoublepage}
 % \include{apendice2}
 % \clearpage{\pagestyle{empty}\cleardoublepage}
@@ -185,7 +173,8 @@ Dezembro\fi de \number \year}
 
 \backmatter
 
-\bibliographystyle{unsrt}
+% \bibliographystyle{plain}
+\bibliographystyle{IEEEtran}
 \bibliography{bibliografia}
 
 \end{document}
