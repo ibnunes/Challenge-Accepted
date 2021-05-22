@@ -3,7 +3,7 @@ import time
 class Clock:
     @staticmethod
     def now():
-        return time.time()
+        return int(time.time())
 
     @staticmethod
     def isAfter(date_curr, date_next):

@@ -182,9 +182,9 @@ class DBControl(object):
 
     def updateCypherChallengeTry(self, id_user, id_challenge, date, success):
         data = {
-                "userid"  : id_user,
-                "date"    : date,
-                "success" : 1 if success else 0
+                "userid"  : str(id_user),
+                "date"    : str(date),
+                "success" : str(1 if success else 0)
             }
         r = requests.patch(
             url=f"{self._url}/challenge/cypher/{id_challenge}",
@@ -194,15 +194,18 @@ class DBControl(object):
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = unpack(r.json())
-        return data
+        if ok:
+            return data
+        else:
+            return False
 
 
     def addHashChallenge(self, id_user, tip, msg, algorithm):
         data = {
-                'userid' : id_user,
-                'tip'    : tip,
-                'msg'    : msg,
-                'algo'   : algorithm
+                'userid' : str(id_user),
+                'tip'    : str(tip),
+                'msg'    : str(msg),
+                'algo'   : str(algorithm)
             }
         r = requests.post(
             url=f"{self._url}/challenge/hash",
@@ -261,9 +264,9 @@ class DBControl(object):
 
     def updateHashChallengeTry(self, id_user, id_challenge, date, success):
         data = {
-                "userid"  : id_user,
-                "date"    : date,
-                "success" : 1 if success else 0
+                "userid"  : str(id_user),
+                "date"    : str(date),
+                "success" : str(1 if success else 0)
             }
         r = requests.patch(
             url=f"{self._url}/challenge/hash/{id_challenge}",
@@ -273,7 +276,10 @@ class DBControl(object):
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
         (ok, data) = unpack(r.json())
-        return data
+        if ok:
+            return data
+        else:
+            return False
 
 
     def getAllScoreboard(self):

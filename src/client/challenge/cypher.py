@@ -191,19 +191,22 @@ class ChallengeCypher(object):
         elif challenge['algorithm'] == Cypher.Vigenere.TYPE:
             plaintext = Cypher.Vigenere.decrypt(base64.b64decode(challenge['answer']), proposal)
         
-        #try:
-        plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-        #except:
-        #    ()
+        try:
+            #plaintext = Padding.removePadding(plaintext.decode(),mode=0)
+            plaintext = Padding.removePadding(plaintext, mode=0)
+        except:
+            ()
         msgHMAC = hmac.new(hmackey, plaintext.encode(), hashlib.sha256)
 
-        crt.writeDebug(f"{msgHMAC.hexdigest()} == {hmacdb}")
+        # crt.writeDebug(f"{msgHMAC.hexdigest()} == {hmacdb}")
         if (msgHMAC.hexdigest() == hmacdb):
             if ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), True):
                 crt.writeSuccess("YOU DID IT!")
             else:
                 crt.writeError("You got it, but I could not save the answer.")
         else:
-            ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), False)
-            crt.writeMessage("Better luck next time :(")
+            if ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), False):
+                crt.writeMessage("Better luck next time :(")
+            else:
+                crt.writeError("You did NOT got it, but I could not save the answer.")
         crt.pause()
