@@ -37,9 +37,9 @@ class User(object):
         f"             Email : {self._email}\n"           \
         f"Created Challenges : {self._created}\n"         \
         f"          (Cypher) : {self._cyphercreated}\n"   \
-        f"            (Hash) : {self._hashcreated}\n"     \
-        f"  Tried Challenges : {self._tried}\n"           \
-        f" Solved Challenges : {self._solved}\n"          \
+        f"            (Hash) : {self._hashcreated}\n"     #\
+        #f"  Tried Challenges : {self._tried}\n"           \
+        #f" Solved Challenges : {self._solved}\n"          \
         
         
     def updateProfile(self):

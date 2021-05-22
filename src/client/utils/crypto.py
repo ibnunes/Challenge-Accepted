@@ -42,7 +42,7 @@ class Cypher:
         TYPE = "ONETIMEPAD"
 
         def encrypt(plaintext, key):
-            return onetimepad.encrypt(plaintext, key)
+            return onetimepad.encrypt(plaintext, key).encode()
 
         def decrypt(ciphertext, key):
             return onetimepad.decrypt(bytearray(ciphertext).decode(), key)
@@ -51,7 +51,7 @@ class Cypher:
         TYPE = "VIGENERE"
 
         def encrypt(plaintext, key):
-            return encipher_vigenere(plaintext, key)
+            return encipher_vigenere(plaintext, key).encode()
 
         def decrypt(ciphertext, key):
             return decipher_vigenere(bytearray(ciphertext).decode(), key)
