@@ -139,11 +139,13 @@ class User(object):
 
         while True:
             email = Read.asString("Email: ")
-            if not User.validateEmail(email):
+            isvalid = self._dbcontrol.emailExists(email)
+            exists = self._dbcontrol.emailExists(email)
+            if not isvalid:
                 crt.writeWarning(f"Email '{email}' not valid.")
-            elif self._dbcontrol.emailExists(email):
+            if exists:
                 crt.writeWarning(f"Email '{email}' already in use.")
-            else:
+            if (isvalid and (not exists)):
                 break
                 
         while True:
@@ -235,7 +237,7 @@ class User(object):
             bool: True or False depending if the email address exists or/and can be delivered.
             None: If the result is ambigious.
         """
-        return True
+        # return True
         return validate_email(
             email_address=email,
             check_format=True,

@@ -12,7 +12,7 @@ from utils.crypto import Cypher, Hash
 
 class App(object):
     class info:
-        version = "1.1.0-beta"
+        version = "1.2.0"
         date    = "May 22, 2021"
 
 
