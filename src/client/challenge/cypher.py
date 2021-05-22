@@ -77,10 +77,10 @@ class ChallengeCypher(object):
         
         elif algorithm == Cypher.CTR.TYPE:
             plaintext  = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
-            ciphertext = Cypher.CTR.encrypt(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+            ciphertext = Cypher.CTR.encrypt(plaintext.encode(), key, AES.MODE_CTR, iv.encode())
         
         elif algorithm == Cypher.Caesar.TYPE:
-            ciphertext = Cypher.Caesar.encrypt(val, password_caesar)
+            ciphertext = Cypher.Caesar.encrypt(plaintext, password_caesar)
         
         elif algorithm == Cypher.OTP.TYPE:
             ciphertext = Cypher.OTP.encrypt(plaintext, password)

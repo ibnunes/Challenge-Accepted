@@ -15,7 +15,7 @@ class Cypher:
         TYPE = "ECB"
         
         def encrypt(plaintext, key, mode):
-            return AES.new(key, mode).encrypt(plaintext).decode()
+            return AES.new(key, mode).encrypt(plaintext)
         
         def decrypt(ciphertext, key, mode):
             return AES.new(key, mode).decrypt(ciphertext).decode()
@@ -24,7 +24,7 @@ class Cypher:
         TYPE = "CBC"
         
         def encrypt(plaintext, key, mode, iv):
-            return AES.new(key, mode, iv).encrypt(plaintext).decode()
+            return AES.new(key, mode, iv).encrypt(plaintext)
         
         def decrypt(ciphertext, key, mode, iv):
             return AES.new(key, mode, iv).decrypt(ciphertext).decode()
@@ -33,7 +33,7 @@ class Cypher:
         TYPE = "CTR"
 
         def encrypt(plaintext, key, mode, iv):
-            return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).encrypt(plaintext).decode()
+            return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).encrypt(plaintext)
         
         def decrypt(ciphertext, key, mode, iv):
             return AES.new(key, mode, counter=Counter.new(128, initial_value=Cypher.int_of_string(iv))).decrypt(ciphertext).decode()
@@ -42,7 +42,7 @@ class Cypher:
         TYPE = "ONETIMEPAD"
 
         def encrypt(plaintext, key):
-            return onetimepad.encrypt(plaintext, key)
+            return onetimepad.encrypt(plaintext, key).encode()
 
         def decrypt(ciphertext, key):
             return onetimepad.decrypt(bytearray(ciphertext).decode(), key)
@@ -51,7 +51,7 @@ class Cypher:
         TYPE = "VIGENERE"
 
         def encrypt(plaintext, key):
-            return encipher_vigenere(plaintext, key)
+            return encipher_vigenere(plaintext, key).encode()
 
         def decrypt(ciphertext, key):
             return decipher_vigenere(bytearray(ciphertext).decode(), key)
@@ -60,7 +60,7 @@ class Cypher:
         TYPE = "CAESAR"
 
         def encrypt(plaintext, key):
-            return pycaesarcipher.pycaesarcipher().caesar_encipher(plaintext, key)
+            return pycaesarcipher.pycaesarcipher().caesar_encipher(plaintext, key).encode()
 
         def decrypt(ciphertext, key):
             return pycaesarcipher.pycaesarcipher().caesar_decipher(bytearray(ciphertext).decode(), key)

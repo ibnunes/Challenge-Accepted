@@ -62,7 +62,7 @@ class DBControl(object):
 
 
     def userExists(self, username):
-        data = {'username' : username}
+        data = {'username' : str(username)}
         r = requests.post(
             url=f"{self._url}/auth/user",
             data=data,
@@ -75,7 +75,7 @@ class DBControl(object):
 
 
     def emailExists(self, email):
-        data = {'email' : email}
+        data = {'email' : str(email)}
         r = requests.post(
             url=f"{self._url}/auth/email",
             data=data,
@@ -88,7 +88,10 @@ class DBControl(object):
 
 
     def loginUser(self, username, password):
-        data = {'username' : username, 'password' : password}
+        data = {
+            'username' : str(username),
+            'password' : str(password)
+        }
         r = requests.post(
             url=f"{self._url}/auth/login",
             data=data,
@@ -103,7 +106,11 @@ class DBControl(object):
 
 
     def registerUser(self, username, password, email):
-        data = {'username' : username, 'password' : password, 'email': email}
+        data = {
+            'username' : str(username),
+            'password' : str(password),
+            'email'    : str(email)
+        }
         r = requests.post(
             url=f"{self._url}/auth/signup",
             data=data,
@@ -117,13 +124,13 @@ class DBControl(object):
 
     def addCypherChallenge(self, id_user, tip, msg, val, iv, hmacdb, algorithm):
         data = {
-                'userid' : id_user,
-                'tip'    : tip,
-                'msg'    : msg,
-                'val'    : val,
-                'iv'     : iv,
-                'hmac'   : hmacdb,
-                'algo'   : algorithm
+                'userid' : str(id_user),
+                'tip'    : str(tip),
+                'msg'    : str(msg),
+                'val'    : str(val),
+                'iv'     : str(iv),
+                'hmac'   : str(hmacdb),
+                'algo'   : str(algorithm)
             }
         r = requests.post(
             url=f"{self._url}/challenge/cypher",
