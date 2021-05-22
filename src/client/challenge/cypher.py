@@ -46,14 +46,24 @@ class ChallengeCypher(object):
         if not user.isLoggedIn():
             return False
         
-        val      = Read.asString("Message: ")
-        password = Read.asString("Cypher key: ")
-        tip      = Read.asString("[Optional] Tip / Help: ")
+        val = Read.asString("Message: ")
+
+        if algorithm == Cypher.Caesar.TYPE:
+            password_caesar = Read.tryAsInt("Cypher key (number): ")
+            password = str(password_caesar)
+        else:
+            while True:
+                password = Read.asString("Cypher key: ")
+                if (algorithm == Cypher.OTP.TYPE) and (len(val) != len(password)):
+                    crt.writeWarning("Message and cypher key must have same length!")
+                else:
+                    break
         
-        ival      = 10
+        tip = Read.asString("[Optional] Tip / Help: ")
+        
         plaintext = val
         key       = hashlib.md5(password.encode()).digest()
-        iv        = secrets.token_hex(8)    # hex(ival)[2:8].zfill(16)
+        iv        = secrets.token_hex(8)
         hmackey   = ChallengeCypher.APP.getDBController().getHMACKey()
         msgHMAC   = hmac.new(hmackey, val.encode(), hashlib.sha256).hexdigest()
         
@@ -68,6 +78,15 @@ class ChallengeCypher(object):
         elif algorithm == Cypher.CTR.TYPE:
             plaintext  = Padding.appendPadding(plaintext,blocksize=Padding.AES_blocksize,mode=0)
             ciphertext = Cypher.CTR.encrypt(plaintext.encode(),key,AES.MODE_CTR,iv.encode())
+        
+        elif algorithm == Cypher.Caesar.TYPE:
+            ciphertext = Cypher.Caesar.encrypt(val, password_caesar)
+        
+        elif algorithm == Cypher.OTP.TYPE:
+            ciphertext = Cypher.OTP.encrypt(plaintext, password)
+        
+        elif algorithm == Cypher.Vigenere.TYPE:
+            ciphertext = Cypher.Vigenere.encrypt(plaintext, password)
         
         msg = base64.b64encode(bytearray(ciphertext)).decode()
 
@@ -143,7 +162,12 @@ class ChallengeCypher(object):
 
         challenge['plaintext'] = Padding.appendPadding(challenge['plaintext'], blocksize=Padding.AES_blocksize, mode=0)
 
-        proposal = Read.asString("Insert your answer: ")
+        if challenge['algorithm'] == Cypher.Caesar.TYPE:
+            proposal_caesar = Read.tryAsInt("Insert your answer (number): ")
+            proposal = str(proposal_caesar)
+        else:
+            proposal = Read.asString("Insert your answer: ")
+        
         key      = hashlib.md5(proposal.encode()).digest()
         iv       = challenge['iv']
         hmacdb   = challenge['hmac']
@@ -151,11 +175,22 @@ class ChallengeCypher(object):
 
         if challenge['algorithm'] == Cypher.ECB.TYPE:
             plaintext = Cypher.ECB.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_ECB)
+        
         elif challenge['algorithm'] == Cypher.CBC.TYPE:
             plaintext = Cypher.CBC.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_CBC, iv.encode())
+        
         elif challenge['algorithm'] == Cypher.CTR.TYPE:
             plaintext = Cypher.CTR.decrypt(base64.b64decode(challenge['answer']), key, AES.MODE_CTR, iv.encode())
-
+        
+        elif challenge['algorithm'] == Cypher.Caesar.TYPE:
+            plaintext = Cypher.Caesar.decrypt(base64.b64decode(challenge['answer']), proposal_caesar)
+        
+        elif challenge['algorithm'] == Cypher.OTP.TYPE:
+            plaintext = Cypher.OTP.decrypt(base64.b64decode(challenge['answer']), proposal)
+        
+        elif challenge['algorithm'] == Cypher.Vigenere.TYPE:
+            plaintext = Cypher.Vigenere.decrypt(base64.b64decode(challenge['answer']), proposal)
+        
         #try:
         plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         #except:
@@ -172,4 +207,3 @@ class ChallengeCypher(object):
             ChallengeCypher.APP.getDBController().updateCypherChallengeTry(id_user, id_challenge, Clock.now(), False)
             crt.writeMessage("Better luck next time :(")
         crt.pause()
-

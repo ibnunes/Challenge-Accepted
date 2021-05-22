@@ -268,7 +268,7 @@ class DBControl(object):
         r = requests.patch(
             url=f"{self._url}/challenge/hash/{id_challenge}",
             data=data,
-            headers=self._appauth.generatePatchHeader()
+            headers=self._appauth.generatePatchHeader(data)
         )
         if r.status_code != 200:
             raise StatusCodeError(str(r.status_code))
