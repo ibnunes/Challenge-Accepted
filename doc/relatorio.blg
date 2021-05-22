@@ -1,10 +1,15 @@
-This is BibTeX, Version 0.99d (TeX Live 2021)
+This is BibTeX, Version 0.99d (TeX Live 2021/W32TeX)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: relatorio.aux
 A level-1 auxiliary file: capa.aux
+A level-1 auxiliary file: resumo.aux
 A level-1 auxiliary file: acronimos.aux
+A level-1 auxiliary file: introducao.aux
+A level-1 auxiliary file: engenharia.aux
+A level-1 auxiliary file: implementacao.aux
+A level-1 auxiliary file: reflexao.aux
+A level-1 auxiliary file: conclusao.aux
 The style file: IEEEtran.bst
-I found no \citation commands---while reading file relatorio.aux
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
@@ -16,45 +21,44 @@ Database file #1: bibliografia.bib
 -- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
 
 Done.
-You've used 0 entries,
+You've used 9 entries,
             4087 wiz_defined-function locations,
-            823 strings with 7320 characters,
-and the built_in function-call counts, 104 in all, are:
-= -- 0
-> -- 0
+            861 strings with 8794 characters,
+and the built_in function-call counts, 3385 in all, are:
+= -- 262
+> -- 33
 < -- 0
-+ -- 0
-- -- 0
-* -- 19
-:= -- 27
-add.period$ -- 0
-call.type$ -- 0
-change.case$ -- 0
++ -- 17
+- -- 8
+* -- 116
+:= -- 603
+add.period$ -- 18
+call.type$ -- 9
+change.case$ -- 18
 chr.to.int$ -- 0
-cite$ -- 0
-duplicate$ -- 0
-empty$ -- 1
-format.name$ -- 0
-if$ -- 3
+cite$ -- 9
+duplicate$ -- 295
+empty$ -- 332
+format.name$ -- 8
+if$ -- 741
 int.to.chr$ -- 0
-int.to.str$ -- 0
-missing$ -- 0
-newline$ -- 23
-num.names$ -- 0
-pop$ -- 0
+int.to.str$ -- 9
+missing$ -- 71
+newline$ -- 50
+num.names$ -- 8
+pop$ -- 198
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 2
-skip$ -- 1
+skip$ -- 266
 stack$ -- 0
-substring$ -- 0
-swap$ -- 0
+substring$ -- 27
+swap$ -- 159
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 5
-type$ -- 0
+type$ -- 9
 warning$ -- 0
-while$ -- 0
-width$ -- 0
-write$ -- 22
-(There was 1 error message)
+while$ -- 8
+width$ -- 10
+write$ -- 93

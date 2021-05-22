@@ -19,7 +19,7 @@ Foram primeiramente delineados vários pontos fulcrais, em particular:
 \section{Ferramentas e tecnologias utilizadas}
 \label{sec::engsoft:tecnologia}
 
-As ferramentas utilizadas no âmbito da realização do projeto, sumariadas na Tabela \ref{tab::ferramentas}, visam três componentes essenciais na sua gestão: 1) linguagem de programação, 2) servidor, 3) administração bd, 4) relatório, 5) controlo de versões.
+As ferramentas utilizadas no âmbito da realização do projeto, sumariadas na Tabela \ref{tab::ferramentas}, visam três componentes essenciais na sua gestão: 1) linguagem de programação, 2) servidor, 3) administração da \acl{BD}, 4) controlo de versões.
 
 
 \begin{table}[!htbp]
@@ -40,7 +40,7 @@ As ferramentas utilizadas no âmbito da realização do projeto, sumariadas na T
         & \textit{DBeaver} & 21.0.5 \\
         \midrule
         %\multicolumn{3}{l}{\bfseries Relatório} \\
-        %& \textit{Overleaf} & \\
+        % & \textit{Overleaf} & \\
         %\midrule
         \multicolumn{3}{l}{\bfseries Controlo de versões} \\
         & \textit{git} & 2.17.1 \\
@@ -73,7 +73,19 @@ A plataforma deve:
         \item Informações sobre a aplicação;
         \item \textit{Scoreboard} dos utilizadores;
     \end{enumerate}
-    \item Permitir responder a desafios;
+    \item Permitir responder a desafios com as seguintes cifras/algoritmos:
+    \begin{enumerate}
+        \item Cifra de César \cite{caesar};
+        \item El Gamal \cite{elgamal};
+        \item Vigenere \cite{vigenere};
+        \item \textit{One Time Pad} \cite{otp};
+        \item AES-128-CBC \cite{aes,aes-using};
+        \item AES-128-CTR \cite{aes,aes-using};
+        \item AES-128-ECB \cite{aes,aes-using};
+        \item MD5 \cite{hash};
+        \item SHA256 \cite{hash};
+        \item SHA512 \cite{hash};
+    \end{enumerate}
     \item Permitir submeter dois tipos de desafios, em que um é de decifra de mensagem e outro de descoberta de mensagem.
 \end{enumerate}
 
@@ -87,7 +99,8 @@ A plataforma deve:
     \item Permitir apenas uma tentiva a cada 15 segundos para os desafios cifrados;
     \item Impedir a resolução de desafios propostos pelo próprio utilizador;
     \item Ter uma \ac{TUI} minimalista e \textit{user-friendly};
-    \item Ser segura em termos do armazenamento dos dados na base de dados (se possível cifrar os dados guardados duplamente no caso dos desafios).
+    \item Ser segura em termos do armazenamento dos dados na base de dados (se possível cifrar os dados guardados duplamente no caso dos desafios);
+    \item Apenas permitir \textit{passwords} fortes \cite{password} e \textit{emails} válidos \cite{valemail}.
 \end{enumerate}
 
 
