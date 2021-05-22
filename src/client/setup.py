@@ -1,4 +1,4 @@
-from distutils.core import setup, find_packages
+from setuptools import setup, find_packages
 
 setup(
     name='Challenge Accepted CLI',
@@ -19,9 +19,9 @@ The idea of this work is to develop a system that allows different users to publ
         'onetimepad',
     ],
     packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'challenge-accepted-client = .app:main'
-        ]
-    }
+#    entry_points={
+#        'console_scripts': [
+#            'chapted-client = src.app:main'
+#        ]
+#    }
 )
