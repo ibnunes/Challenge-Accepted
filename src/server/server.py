@@ -5,6 +5,7 @@ import json
 from dbhelper.dbcontrol import *
 from utils.appauth import *
 
+
 app = Flask(__name__)
 
 db = DBControl()
@@ -13,6 +14,20 @@ appAuth = AppAuthenticationServer()
 
 @app.route("/auth/hmac", methods=['GET'])
 def getHMACKey():
+    """
+    * Description: Gets HMAC Key.
+    * Endpoint:    `/auth/hmac`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * `{"success" : (str)}` - Returns HMAC.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                    - Exception 
+    * `{"error" : "Unknown error authenticating app"}` - Unable to authenticate the app
+    * `{"error" : "Username not found"}`               - UsernameNotFound
+    * `{"error" : "Wrong passowrd"}`                   - WrongPassword
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -28,6 +43,20 @@ def getHMACKey():
 
 @app.route("/auth/login", methods=['POST'])
 def login():
+    """
+    * Description: Authenticates a User using `username` and `password` combination.
+    * Endpoint:    `/auth/login`
+    * HTTP Method: ``POST``
+    
+    Possible Success:
+    * `{"success" : { "user_id" : user_id }}` - Returns dictionary with the user_id.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                    - Exception 
+    * `{"error" : "Unknown error authenticating app"}` - Unable to authenticate the app
+    * `{"error" : "Username not found"}`               - UsernameNotFound
+    * `{"error" : "Wrong passowrd"}`                   - WrongPassword
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -49,6 +78,20 @@ def login():
 
 @app.route("/auth/signup", methods=['POST'])
 def signup():
+    """
+    * Description: Creates a new User using `username`, `email`, `password` combination.
+    * Endpoint:    `/auth/signup`
+    * HTTP Method: ``POST``
+    
+    Possible Success:
+    * `{"success" : { "user_id" : user_id }}` - Returns dictionary with the user_id.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                    - Exception 
+    * `{"error" : "Unknown error authenticating app"}` - Unable to authenticate the app
+    * `{"error" : "Username not found"}`               - UsernameNotFound
+    * `{"error" : "Wrong passowrd"}`                   - WrongPassword
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -68,6 +111,21 @@ def signup():
 
 @app.route("/auth/user", methods=['POST'])
 def userExists():
+    """
+    * Description: Checks if a username is already in use.
+    * Endpoint:    `/auth/user`
+    * HTTP Method: ``POST``
+    
+    Possible Success:
+    * `{ "success" : (bool) }` - Returns True IF `username` exists ELSE False.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to Authenticate the App
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -82,6 +140,21 @@ def userExists():
 
 @app.route("/auth/user", methods=['POST'])
 def emailExists():
+    """
+    * Description: Checks if an email is already in use.
+    * Endpoint:    `/auth/user`
+    * HTTP Method: ``POST``
+    
+    Possible Success:
+    * `{ "success" : (bool) }` - Returns True if `email` exists else False.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to Authenticate the App
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -96,6 +169,22 @@ def emailExists():
 
 @app.route("/user/email/", methods=['GET'])
 def getEmail():
+    """
+    * Description: Gets the email of an user using `user_id` as `id`.
+    * Endpoint:    `/user/email`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * `{ "success" : (str) }` - Returns the email.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch email"}`                - Unable to fetch email
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -114,6 +203,22 @@ def getEmail():
 # Cypher Related Routes
 @app.route("/challenge/cypher", methods=['GET'])
 def getCypherChallenges():
+    """
+    * Description: Gets every cypher challenge available.
+    * Endpoint:    `/challenge/cypher`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * `{ "success" : (list) }` - Returns list of dictionaries with the results table.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch cypher challenges"}`    - Unable to fetch cypher challenges
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -133,6 +238,33 @@ def getCypherChallenges():
 
 @app.route("/challenge/cypher/<chid>", methods=['GET'])
 def getCypherChallenge(chid):
+    """
+    * Description: Gets specific cypher challenge with the use of `challenge_id` as `chid`.
+    * Endpoint:    `/challenge/cypher/<chid>`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * ```{ 
+            "success" : {
+                'answer'    : (str),
+                'tip'       : (str),
+                'algorithm' : (str),
+                'plaintext' : (str),
+                'iv'        : (int),
+                'hmac'      : (str),
+                'username'  : (str)
+           } 
+         }``` - Returns dictionary with specified cypher challenge data
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch cypher challenge"}`     - Unable to fetch cypher challenge
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -149,6 +281,23 @@ def getCypherChallenge(chid):
 
 @app.route("/challenge/cypher/lasttry", methods=['GET'])
 def getCypherLastTry():
+    """
+    * Description: Gets date of last time a `user` as `userid` attempted to solve a `challenge` as `chid`. 
+    * Endpoint:    `/challenge/cypher/lasttry`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * ```{ "success" : (float)}``` - Returns date of last attempt to conclude a challenge
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch cypher last try"}`      - Unable to fetch cypher last try
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -167,12 +316,28 @@ def getCypherLastTry():
 
 @app.route("/challenge/cypher", methods=['POST'])
 def addCypherChallenge():
+    """
+    * Description: Adds cypher challenge to the Database. 
+    * Endpoint:    `/challenge/cypher`
+    * HTTP Method: ``POST``
+    
+    Possible Success:
+    * ```{ "success" : (bool)}``` - Returns True IF saved with success ELSE False
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
             return json.dumps({ "error": "Unknown error authenticating app" })
     except (ConnectionNotEstablished, InvalidAppAuthenticationChallenge, AppAuthHeaderNotFound) as ex:
-        return json.dumps({ "error": ex.message })
+        return json.dumps({"error": ex.message })
     
     userid = request.form["userid"]
     tip = request.form["tip"]
@@ -187,6 +352,23 @@ def addCypherChallenge():
 
 @app.route("/challenge/cypher/<chid>", methods=['PATCH'])
 def updateCypherChallenge(chid):
+    """
+    * Description: Adds attempt of concluding a challenge using User as `userid`, 
+    Challenge as `chid`, Date as `date` and Success as `success` 
+    * Endpoint:    `/challenge/cypher/<chid>`
+    * HTTP Method: ``PATCH``
+    
+    Possible Success:
+    * ```{ "success" : (bool)}``` - Returns True IF added with success ELSE False
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -204,6 +386,22 @@ def updateCypherChallenge(chid):
 # Hash Related Routes
 @app.route("/challenge/hash", methods=['GET'])
 def getHashChallenges():
+    """
+    * Description: Gets every hash challenge available.
+    * Endpoint:    `/challenge/hash`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * `{ "success" : (list) }` - Returns list of dictionaries with the results table.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch hash challenges"}`      - Unable to fetch hash challenges
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -223,6 +421,30 @@ def getHashChallenges():
 
 @app.route("/challenge/hash/<chid>", methods=['GET'])
 def getHashChallenge(chid):
+    """
+    * Description: Gets specific hash challenge with the use of Challenge as `chid`.
+    * Endpoint:    `/challenge/hash/<chid>`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * ```{ 
+            "success" : {
+                'answer'    : (str),
+                'tip'       : (str),
+                'algorithm' : (str),
+                'username'  : (str)
+            }
+         }``` - Returns dictionary with specified hash challenge data
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch hash challenge"}`       - Unable to fetch hash challenge
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -239,6 +461,23 @@ def getHashChallenge(chid):
 
 @app.route("/challenge/hash/lasttry", methods=['GET'])
 def getHashLastTry():
+    """
+    * Description: Gets date of last time a User as `userid` attempted to solve a Hash Challenge as `chid`. 
+    * Endpoint:    `/challenge/hash/lasttry`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * ```{ "success" : (float)}``` - Returns date of last attempt to conclude a challenge
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch hash last try"}`        - Unable to fetch hash last try
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -257,6 +496,22 @@ def getHashLastTry():
 
 @app.route("/challenge/hash", methods=['POST'])
 def addHashChallenge():
+    """
+    * Description: Adds hash challenge to the Database. 
+    * Endpoint:    `/challenge/hash`
+    * HTTP Method: ``POST``
+    
+    Possible Success:
+    * ```{ "success" : (bool)}``` - Returns True IF saved with success ELSE False
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -274,6 +529,23 @@ def addHashChallenge():
 
 @app.route("/challenge/hash/<chid>", methods=['PATCH'])
 def updateHashChallenge(chid):
+    """
+    * Description: Adds attempt of concluding a hash challenge using User as `userid`, 
+    Challenge as `chid`, Date as `date` and Success as `success` 
+    * Endpoint:    `/challenge/hash/<chid>`
+    * HTTP Method: ``PATCH``
+    
+    Possible Success:
+    * ```{ "success" : (bool)}``` - Returns True IF added with success ELSE False
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method, dict(request.form))
         if not ok:
@@ -290,6 +562,27 @@ def updateHashChallenge(chid):
 
 @app.route("/user/<userid>/challenges/count", methods=['GET'])
 def getUserCreatedAmount(userid):
+    """
+    * Description: Gets the amount of challenges created by a User.
+    * Endpoint:    `/challenge/hash/<chid>`
+    * HTTP Method: ``GET``
+    
+    Possible Success:
+    * ```{ "success" : {
+                'cypher': (int),
+                'hash':   (int),
+                'total':  (int)
+            }
+        }``` - Returns dictionary with all the created amounts
+    
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unable to fetch user created amount"}`  - Unable to fetch user created amount
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:
@@ -306,6 +599,23 @@ def getUserCreatedAmount(userid):
 
 @app.route("/scoreboard", methods=['GET'])
 def getScoreboard():
+    """
+    * Description: Adds attempt of concluding a hash challenge using User as `userid`, 
+    Challenge as `chid`, Date as `date` and Success as `success` 
+    * Endpoint:    `/challenge/hash/<chid>`
+    * HTTP Method: ``PATCH``
+    
+    Possible Success:
+    * ```{ "success" : list()}``` - Returns list of dictionaries with the results table.
+    
+    Possible Errors:
+    * `{"error" : "Unknown Error"}`                        - Exception 
+    * `{"error" : "Unknown error authenticating app"}`     - Unable to authenticate the app
+    * `{"error" : "Unable to fetch scoreboard"}`           - Unable to fetch scoreboard
+    * `{"error" : "Connection not established"}`           - ConnectionNotEstablished
+    * `{"error" : "Invalid App Authentication Challenge"}` - InvalidAppAuthenticationChallenge
+    * `{"error" : "App Auth Header Not Found"}`            - AppAuthHeaderNotFound
+    """
     try:
         ok = appAuth.authenticateApp(request.headers, request.method)
         if not ok:

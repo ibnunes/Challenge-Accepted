@@ -4,7 +4,7 @@ import configparser as ini
 from challenge.cypher import ChallengeCypher
 from challenge.hash import ChallengeHash
 from tui.menu import *
-from tui.banner import BANNER
+from tui.banner import banner
 from dbhelper.dbcontrol import *
 from login.user import *
 from utils.crypto import Cypher, Hash
@@ -103,6 +103,8 @@ class App(object):
     def loadUI(self):
         """Load each and every Menu. (Aka UI)"""        
         self.debug("Loading UI...", end='')
+        
+        BANNER = banner(App.info.version)
 
         self._menuAddChallengeCypher = Menu(
             "Cypher Challenge",
