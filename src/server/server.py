@@ -138,11 +138,11 @@ def userExists():
     return json.dumps({"success": ok})
 
 
-@app.route("/auth/user", methods=['POST'])
+@app.route("/auth/email", methods=['POST'])
 def emailExists():
     """
     * Description: Checks if an email is already in use.
-    * Endpoint:    `/auth/user`
+    * Endpoint:    `/auth/email`
     * HTTP Method: ``POST``
     
     Possible Success:

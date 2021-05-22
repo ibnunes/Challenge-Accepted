@@ -189,11 +189,10 @@ class ChallengeCypher(object):
             plaintext = Cypher.OTP.decrypt(base64.b64decode(challenge['answer']), proposal)
         
         elif challenge['algorithm'] == Cypher.Vigenere.TYPE:
-            plaintext = Cypher.Vigenere.decrypt(base64.b64decode(challenge['answer']), proposal)
+            plaintext = Cypher.Vigenere.decrypt(base64.b64decode(challenge['answer']), proposal).lower()
         
         try:
-            #plaintext = Padding.removePadding(plaintext.decode(),mode=0)
-            plaintext = Padding.removePadding(plaintext, mode=0)
+            plaintext = Padding.removePadding(plaintext.decode(),mode=0)
         except:
             ()
         msgHMAC = hmac.new(hmackey, plaintext.encode(), hashlib.sha256)
