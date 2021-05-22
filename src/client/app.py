@@ -9,7 +9,13 @@ from dbhelper.dbcontrol import *
 from login.user import *
 from utils.crypto import Cypher, Hash
 
+
 class App(object):
+    class info:
+        version = "1.1.0-beta"
+        date    = "May 22, 2021"
+
+
     class flags:
         """
         App flags
@@ -102,9 +108,9 @@ class App(object):
             "Cypher Challenge",
             "Featuring AES",
             [
-                MenuItem("Caesar",       lambda: ChallengeCypher.add(self, Cypher.Caesar.TYPE)),
-                MenuItem("One Time Pad", lambda: ChallengeCypher.add(self, Cypher.OTP.TYPE)),
-                MenuItem("Vigenere",     lambda: ChallengeCypher.add(self, Cypher.Vigenere.TYPE)),
+                MenuItem("Caesar",       lambda: ChallengeCypher.add(self._user, Cypher.Caesar.TYPE)),
+                MenuItem("One Time Pad", lambda: ChallengeCypher.add(self._user, Cypher.OTP.TYPE)),
+                MenuItem("Vigenere",     lambda: ChallengeCypher.add(self._user, Cypher.Vigenere.TYPE)),
                 MenuItem("AES-128-ECB",  lambda: ChallengeCypher.add(self._user, Cypher.ECB.TYPE)),
                 MenuItem("AES-128-CBC",  lambda: ChallengeCypher.add(self._user, Cypher.CBC.TYPE)),
                 MenuItem("AES-128-CTR",  lambda: ChallengeCypher.add(self._user, Cypher.CTR.TYPE)),
@@ -213,7 +219,7 @@ class App(object):
         """Content of About interface."""
         crt.clearScreen()
         crt.writeMessage(
-f"""{BANNER}
+f"""{banner(App.info.version)}
 
 Encryption contains excellent tools for developing challenging mystery games.
 The idea of this work is to develop a system that allows different users to publish and solve challenges.
@@ -229,8 +235,8 @@ The idea of this work is to develop a system that allows different users to publ
 UBI - University of Beira Interior, Portugal
 
 
-    Build:              1.0.0-beta
-    Date:               May 2021
+    Build:              {App.info.version}
+    Date:               {App.info.date}
     License:            GNU-GPL 3.0
 """
         )
