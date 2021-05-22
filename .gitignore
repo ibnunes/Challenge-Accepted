@@ -129,3 +129,12 @@ src/.idea
 
 src/archive
 .DS_Store
+
+#LaTeX
+doc/*.aux
+doc/*.lof
+doc/*.lot
+doc/*.out
+doc/*.synctex.gz
+doc/*.toc
+doc/*.pdf

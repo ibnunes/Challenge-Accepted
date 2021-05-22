@@ -1,0 +1,112 @@
+\chapter{Implementação}
+% OU \chapter{Trabalhos Relacionados}
+% OU \chapter{Engenharia de Software}
+% OU \chapter{Tecnologias e Ferramentas Utilizadas}
+\label{ch::implementacao}
+
+\section{Introdução}
+\label{sec::implementacao:intro}
+
+A fase de implementação envolveu a execução paralela de diferentes tarefas pelos vários elementos da equipa. Este Capítulo aborda em particular os seguintes aspetos desta fase do projeto:
+
+\begin{itemize}
+    \item Interface (Secção \ref{sec::implementacao:tui}): aborda as escolhas feitas na construção da \acf{TUI};
+    \item Escolhas de implementação (Secção \ref{sec::implementacao:escolhas}): explica as decisões feitas durante a implementação do código-fonte;
+    \item Detalhes de implementação (Secção \ref{sec::implementacao:detalhes}): explora os detalhes mais importantes do código-fonte.
+\end{itemize}
+
+Adicionalmente, são descritos o malual de instalação (Secção \ref{sec::implementacao:maninstall}) e o manual de utilização (Secção \ref{sec::implementacao:manuser}).
+
+
+\section{Interface --- \ac{TUI}}
+\label{sec::implementacao:tui}
+
+Para a interface foram analisadas primeiramente duas opções existentes em bibliotecas do \textit{Python}: \textit{npyscreen} e \textit{picotui}. Contudo, ambas revelaram ter uma curva de aprendizagem que não compensaria face às restantes tarefas a realizar na elaboração do projeto.
+
+Neste sentido, a \ac{TUI} segue uma filosofia minimalista e clássica de leitura de dados introduzidos por parte do utilizador, incluindo as opções dos menus para navegação.
+
+Não obstante, a aplicação segue um código de cores para diferenciar os diferentes tipos de informação dados ao utilizador (Tabela \ref{tab::cores}).
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{>{\itshape}l l p{1cm}}
+        \toprule
+        \normalfont{\bfseries Cor} & \normalfont{\bfseries Utilização} & \\
+        \midrule
+        Vermelho & Mensagem de erro (\textit{error})       & \cellcolor[rgb]{1., 0., 0.} \\
+        Amarelo  & Mensagem de aviso (\textit{warning})    & \cellcolor[rgb]{0.941, 0.886, 0.23} \\
+        Verde    & Mensagem de sucesso (\textit{success})  & \cellcolor[rgb]{0., 1., 0.} \\
+        Ciano    & Informação da aplicação (\textit{info}) & \cellcolor[rgb]{0.239, 0.843, 0.941} \\
+        Cinza    & Mensagens de \textit{debug} (reservado) & \cellcolor[rgb]{0.4, 0.4, 0.4} \\
+        \bottomrule
+    \end{tabular}
+    \caption[Cores por tipo de mensagem]{Palete de cores utilizada por cada tipo de mensagem dada ao utilizador.}
+    \label{tab::cores}
+\end{table}
+
+
+\section{Escolhas de Implementação}
+\label{sec::implementacao:escolhas}
+
+De entre as escolhas efetuadas durante a implementação da aplicação, três em
+particular destacam-se:
+
+\begin{itemize}
+    \item \textbf{\textit{Python}:}\\
+        A seleção da linguagem de programação teve como critérios ser de alto nível, fornecer bibliotecas atualizadas de segurança e criptografia, e disponibilizar \textit{frameworks} acessíveis para a criação de um \textit{webservice}. A escolha final recaiu, portanto, na linguagem \textit{Python}.
+    
+    \item \textbf{\textit{MariaDB}:}\\
+        Uma vez que o grupo se encontra familiarizado com bases de dados relacionais, e sendo este um modelo adequado para os dados a guardar, optou-se por uma solução \textit{open-source}, estável, atualizada e com reputação no mundo profissional: \textit{MariaDB}.
+    
+    \item \textbf{\textit{Flask}:}\\
+        Após a escolha da linguagem \textit{Python}, a \textit{framework} que rapidamente se destacou para a criação do \textit{webservice} foi o \textit{Flask}. Destaca-se o facto da curva de aprendizagem desta ferramenta ser curta.
+\end{itemize}
+
+
+\section{Detalhes de Implementação}
+\label{sec::implementacao:detalhes}
+
+% TODO: Detalhes
+
+%Porquanto a implementação no seu todo desse facilmente origem a um vasto documento técnico, três situações destacaram-se:
+
+\subsection{Estruturação dos \textit{packages} e classes}
+\label{ssec::implementacao:detalhes:estrutura}
+
+
+
+
+\subsection{Cifras e algoritmos de \textit{hash}}
+\label{ssec::implementacao:detalhes:cifras}
+
+
+
+
+\subsection{\textit{Webservice}}
+\label{ssec::implementacao:detalhes:webservice}
+
+
+
+
+\section{Manual de Instalação}
+\label{sec::implementacao:maninstall}
+
+Para a primeira utilização da aplicação é necessário executar o \textit{script} \verb|setup.py| no terminal, com recurso ao comando \verb|python3 setup.py|. Este instala automaticamente todas as dependências necessárias para o devido funcionamento do programa.
+
+
+\section{Manual de Utilização}
+\label{sec::implementacao:manuser}
+
+Ao correr a aplicação \appname, é apresentado ao utilizador um primeiro menu, no qual pode escolher entre criar uma conta (caso seja a primeira utilização da plataforma), fazer \textit{login}, ver informações da aplicação ou sair do programa.  Para o caso de criar conta, é-lhe pedido o fornecimento de um \textit{email} válido e uma \textit{password}, a qual é confirmada uma segunda vez.
+
+Após o \textit{login}, é apresentada ao utilizador uma \textit{homepage} onde o utilizador tem acesso às várias funcionalidades da aplicação: propor desafio, responder a desafio, listar desafios e ver \textit{scoreboard} dos jogadores.
+
+Um utilizador poderá submeter vários tipos de desafios, mas não poderá responder aos que por ele foram criados. Conforme o utilizador responda com sucesso aos desafios propostos, é-lhe atribuída uma pontuação e o mesmo poderá verificar em que lugar se encontra no \textit{scoreboard}.
+
+
+
+\section{Conclusões}
+\label{sec::implementacao:concs}
+
+A exposição dos pontos mais importantes relacionados com a fase de implementação do serviço \appname~permitiu à equipa fazer uma retrospetiva do seu trabalho e perceber quais foram os pontos fortes e os pontos fracos do resultado final. Tal abre a porta para a fase de reflexão crítica.
+
