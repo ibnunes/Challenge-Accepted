@@ -1,0 +1,163 @@
+\chapter{Implementação}
+% OU \chapter{Trabalhos Relacionados}
+% OU \chapter{Engenharia de Software}
+% OU \chapter{Tecnologias e Ferramentas Utilizadas}
+\label{ch::implementacao}
+
+\section{Introdução}
+\label{sec::implementacao:intro}
+
+A fase de implementação envolveu a execução paralela de diferentes tarefas pelos vários elementos da equipa. Este Capítulo aborda em particular os seguintes aspetos desta fase do projeto:
+
+\begin{itemize}
+    \item Interface (Secção \ref{sec::implementacao:tui}): aborda as escolhas feitas na construção da \acf{TUI};
+    \item Escolhas de implementação (Secção \ref{sec::implementacao:escolhas}): explica as decisões feitas durante a implementação do código-fonte;
+    \item Detalhes de implementação (Secção \ref{sec::implementacao:detalhes}): explora os detalhes mais importantes do código-fonte.
+\end{itemize}
+
+Adicionalmente, são descritos o manual de instalação (Secção \ref{sec::implementacao:maninstall}) e o manual de utilização (Secção \ref{sec::implementacao:manuser}).
+
+
+\section{Interface --- \ac{TUI}}
+\label{sec::implementacao:tui}
+
+Para a interface foram analisadas primeiramente duas opções existentes em bibliotecas do \textit{Python}: \textit{npyscreen} e \textit{picotui}. Contudo, ambas revelaram ter uma curva de aprendizagem que não compensaria face às restantes tarefas a realizar na elaboração do projeto.
+
+Neste sentido, a \ac{TUI} segue uma filosofia minimalista e clássica de leitura de dados introduzidos por parte do utilizador, incluindo as opções dos menus para navegação.
+
+Não obstante, a aplicação segue um código de cores para diferenciar os diferentes tipos de informação dados ao utilizador (Tabela \ref{tab::cores}).
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{>{\itshape}l l p{1cm}}
+        \toprule
+        \normalfont{\bfseries Cor} & \normalfont{\bfseries Utilização} & \\
+        \midrule
+        Vermelho & Mensagem de erro (\textit{error})       & \cellcolor[rgb]{1., 0., 0.} \\
+        Amarelo  & Mensagem de aviso (\textit{warning})    & \cellcolor[rgb]{0.941, 0.886, 0.23} \\
+        Verde    & Mensagem de sucesso (\textit{success})  & \cellcolor[rgb]{0., 1., 0.} \\
+        Ciano    & Informação da aplicação (\textit{info}) & \cellcolor[rgb]{0.239, 0.843, 0.941} \\
+        Cinza    & Mensagens de \textit{debug} (reservado) & \cellcolor[rgb]{0.4, 0.4, 0.4} \\
+        \bottomrule
+    \end{tabular}
+    \caption[Cores por tipo de mensagem]{Palete de cores utilizada por cada tipo de mensagem dada ao utilizador.}
+    \label{tab::cores}
+\end{table}
+
+
+\section{Escolhas de Implementação}
+\label{sec::implementacao:escolhas}
+
+De entre as escolhas efetuadas durante a implementação da aplicação, três em
+particular destacam-se:
+
+\begin{itemize}
+    \item \textbf{\textit{Python}:}\\
+        A seleção da linguagem de programação teve como critérios ser de alto nível, fornecer bibliotecas atualizadas de segurança e criptografia, e disponibilizar \textit{frameworks} acessíveis para a criação de um \textit{webservice}. A escolha final recaiu, portanto, na linguagem \textit{Python}.
+    
+    \item \textbf{\textit{MariaDB}:}\\
+        Uma vez que o grupo se encontra familiarizado com bases de dados relacionais, e sendo este um modelo adequado para os dados a guardar, optou-se por uma solução \textit{open-source}, estável, atualizada e com reputação no mundo profissional: \textit{MariaDB}.
+    
+    \item \textbf{\textit{Flask}:}\\
+        Após a escolha da linguagem \textit{Python}, a \textit{framework} que rapidamente se destacou para a criação do \textit{webservice} foi o \textit{Flask}. Destaca-se o facto da curva de aprendizagem desta ferramenta ser curta.
+\end{itemize}
+
+
+\section{Detalhes de Implementação}
+\label{sec::implementacao:detalhes}
+
+% TODO: Detalhes
+
+%Porquanto a implementação no seu todo desse facilmente origem a um vasto documento técnico, três situações destacaram-se:
+
+\subsection{Navegação}
+\label{ssec::implementacao:detalhes:nav}
+
+A navegação é feita com menus, os quais são objetos instanciados da classe \verb|Menu|, criada para este projeto. Esta classe permite fazer a gestão automatizada de menus, sendo uma função invocada quando uma dada opção válida do menu é selecionada.
+
+Tal permite tirar partido da \textit{stack} de invocações do sistema operativo, levando a que a navegação entre menus seja resultado da hierarquia destas chamadas.
+
+
+\subsection{Estruturação dos \textit{packages} e classes}
+\label{ssec::implementacao:detalhes:estrutura}
+
+A linguagem \textit{Python}, porquanto não siga a mesma filosofia de \textit{packages} da linguagem \textit{Java}, tem mecanismos que o permitem simular até certo ponto.
+
+Desta forma, os vários ficheiros que constituem bibliotecas da aplicação foram distribuídas por pastas, ficando o interpretador \textit{Python} a conhecer a sua localização graças à criação de ficheiros \verb|__init__.py| na raiz de cada pasta que se queira considerar como uma \textit{package}:
+
+\begin{itemize}
+    \item \verb|challenge|: Classes com métodos estáticos que implementam elementos da \ac{TUI} específicos ao programa;
+    \item \verb|dbhelper|: Comunicação com o \textit{webservice};
+    \item \verb|login|: Gestão de \textit{login}, registo e sessão local de um utilizador;
+    \item \verb|tui|: Elementos essenciais à \ac{TUI};
+    \item \verb|utils|: Utilitários variados transversais às restantes bibliotecas.
+\end{itemize}
+
+Por outro lado, diferentes objetivos e funcionalidades são divididos em classes distintas com métodos que permitem melhor abstrair, sequencialmente, as operações que se tornam progressivamente de mais ``baixo nível'' (i.e., da \ac{TUI} à comunicação com o \textit{webservice}).
+
+
+\subsection{Cifras e algoritmos de \textit{hash}}
+\label{ssec::implementacao:detalhes:cifras}
+
+Os algoritmos implementados foram reunidos nas classes \verb|Cypher| e \verb|Hash| do \textit{package} \verb|client.util|. Os respetivos métodos foram implementados com recurso a bibliotecas disponibilizadas pela ferramenta \textit{pip3}, as quais têm as vantagens de ser atuais, \textit{open-source} e vastamente utilizadas pela comunidade criptográfica e de \textit{development}.
+
+
+\subsection{\textit{Webservice}}
+\label{ssec::implementacao:detalhes:webservice}
+
+A fim de o cliente comunicar com o serviço alojado na \textit{cloud} de forma encriptada e segura, foi criado um \textit{webservice} com recurso à \textit{framework} \textit{\bfseries Flask}. Este escuta por pedidos no porto $443$ (protocolo \ac{HTTPS}) e, conforme o método do pedido (\verb|GET|, \verb|POST| ou \verb|PATCH|) e o \ac{URL} por onde este é efetuado, o \textit{webservice} executa uma ação programada e devolve uma resposta com o resultado do pedido.
+
+Os dados são bidirecionalmente encapsulados no formato \ac{JSON}. O \textit{webservice} em particular devolve uma resposta com indicação de sucesso no pedido (fornecendo os dados respetivos) ou de erro (com a respetiva mensagem associada).
+
+O \textit{webservice}, a cada pedido (e após confirmar que se trata de um pedido efetuado por uma \textit{app} autorizada (Secção \ref{ssec::implementacao:detalhes:auth})), abre uma conexão com a \acl{BD} e processa os resultados da \textit{query} de forma a devolvê-los num formato aceite pelo cliente (\textit{string} ou dicionário).
+
+O \textit{webservice} encontra-se atualmente alojado no domínio \url{https://chapted.igornunes.com}.
+
+
+\subsection{Serviço de autenticação de clientes}
+\label{ssec::implementacao:detalhes:auth}
+
+Um cliente apenas pode realizar pedidos ao \textit{webservice} caso seja uma \textit{app} autorizada. Para tal, o cliente deve enfrentar um desafio proposto pelo \textit{webservice} a fim de a autenticar.
+
+Para tal, é gerado um \textit{header} no pedido \ac{HTTPS} com os dados necessários para o \textit{webservice} constatar que o cliente superou o desafio e é, portanto, válido.
+
+O algoritmo envolve um ID da aplicação cliente, uma chave associada, e a geração do \textit{hash} do corpo do pedido \ac{HTTPS}, assim como um \textit{timestamp} e um \textit{nonce}. No final do desafio, a \textit{signature} deve coincidir com o \textit{HMAC} dos dados anteriores processados.
+
+A não presença deste \textit{header} (Figura \ref{fig::auth-fail}) ou a presença de dados que não permitem resolver o desafio do \textit{webservice} invalidam o acesso a este, sendo o pedido recusado.
+
+O algoritmo de \textit{hash} utilizado no processo é o \textit{SHA256}.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[scale=0.75]{authfail}
+    \caption[Falha de autenticação]{Exemplo de falha de autenticação ao aceder através de um \textit{browser}.}
+    \label{fig::auth-fail}
+\end{figure}
+
+
+
+\section{Manual de Instalação}
+\label{sec::implementacao:maninstall}
+
+Para a primeira utilização da aplicação é necessário, no terminal, mudar para o diretório onde se encontra o ficheiro \verb|setup.py| e executar o comando \verb|pip3 install .| a fim de instalar as dependências necessárias do \textit{Python}.
+
+Após este passo, o programa pode ser utilizado conforme indicado no manual de utilização (Capítulo \ref{sec::implementacao:manuser}).
+
+
+\section{Manual de Utilização}
+\label{sec::implementacao:manuser}
+
+Ao correr a aplicação \appname~(com o comando \verb|python3 app.py|), é apresentado ao utilizador um primeiro menu, no qual pode escolher entre criar uma conta (caso seja a primeira utilização da plataforma), fazer \textit{login}, ver informações da aplicação ou sair do programa.  Para o caso de criar conta, é-lhe pedido o fornecimento de um \textit{email} válido e uma \textit{password}, a qual é confirmada uma segunda vez.
+
+Após o \textit{login}, é apresentada ao utilizador uma \textit{homepage} onde o utilizador tem acesso às várias funcionalidades da aplicação: propor desafio, responder a desafio, listar desafios e ver \textit{scoreboard} dos jogadores.
+
+Um utilizador poderá submeter vários tipos de desafios, mas não poderá responder aos que por ele foram criados. Conforme o utilizador responda com sucesso aos desafios propostos, é-lhe atribuída uma pontuação e o mesmo poderá verificar em que lugar se encontra no \textit{scoreboard}.
+
+Está disponível com o argumento \verb|--debug| (ou \verb|-d|) um modo de \textit{debugging} para desenvolvimento.
+
+
+\section{Conclusões}
+\label{sec::implementacao:concs}
+
+A exposição dos pontos mais importantes relacionados com a fase de implementação do serviço \appname~permitiu à equipa fazer uma retrospetiva do seu trabalho e perceber quais foram os pontos fortes e os pontos fracos do resultado final. Tal abre a porta para a fase de reflexão crítica.
+

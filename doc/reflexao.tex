@@ -1,0 +1,150 @@
+\chapter{Reflexão Crítica e Problemas Encontrados}
+\label{chap:reflexao}
+
+\section{Introdução}
+\label{chap4:sec:intro}
+
+Não obstante o bom planeamento feito \textit{a priori} na fase de engenharia de \emph{software} (Capítulo \ref{ch::engsoft}), o projeto \appname~enfrentou contratempos, não tendo sido possível chegar a todas as ambições inicialmente imaginadas. Reflita-se, portanto, sobre o desenvolvimento deste projeto.
+
+Neste Capítulo são explorados os seguintes tópicos:
+\begin{itemize}
+    \item Objetivos propostos vs. alcançados (Secção \ref{chap4:sec:opvsoa}): compara os objetivos
+    inicialmente propostos com aqueles que foram concluídos no projeto final;
+    \item Divisão de trabalho pelos elementos do grupo (Secção \ref{chap4:sec:divisao}): lista as tarefas
+    realizadas por cada elemento da equipa;
+    \item Problemas encontrados (Secção \ref{chap4:sec:problemas}): na sequência da Secção \ref{chap4:sec:opvsoa}, explora
+    os problemas encontrados durante a implementação da aplicação;
+    \item Reflexão crítica (Secção \ref{chap4:sec:reflexao}): é feita uma \ac{SWOT} em retrospetiva pela equipa acerca do projeto.
+\end{itemize}
+
+
+\section{Objetivos Propostos vs. Alcançados}
+\label{chap4:sec:opvsoa}
+
+A Tabela \ref{tab::objetivos} expõe os objetivos propostos inicialmente para o projeto e identifica quais foram alcançados na sua plenitude, quais foram alcançados parcialmente, e quais não tiveram sucesso.
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{p{.65\textwidth} >{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{.25\textwidth}}
+        \toprule
+        {\bfseries Objetivo proposto} & {\bfseries Alcançado?} \\
+        \midrule
+        Registo de utilizadores com representação segura da palavra-passe na base de dados & $\bullet$ \\
+        Submissão de desafios do tipo cifra de mensagens, codificando-a em \textit{BASE64} & $\bullet$ \\	
+        Cálculo de código de autenticação de mensagens que permite verificar se uma mensagem foi bem decifradas & $\bullet$ \\
+        Submissão de desafios do tipo valor de \textit{hash}, codificando-a em \textit{BASE64} & $\bullet$ \\
+        Resposta a desafios e verificação do sucesso da tentativa  & $\bullet$ \\
+        Desafios com cifras AES-128-ECB, AES-128-CBC e AES-128-CTR & $\bullet$ \\
+        Desafios com funções de \textit{hash} MD5, SHA256 e SHA512          & $\bullet$ \\
+        Limite de uma tentativa a cada 15 segundos para os desafios &  $\bullet$\\
+        Verificar se uma mensagem foi bem decifrada através de assinaturas digitais RSA & -- \\
+        Suporte ao algoritmo El Gamal                                           & -- \\
+        Outros tipos de desafios criptográficos                                   & $\bullet$ \\
+        \bottomrule
+    \end{tabular}
+    \caption[Objetivos propostos vs. alcançados]{
+        Objetivos propostos e respetiva indicação de sucesso.\\
+        \textit{Legenda.} $\bullet$ Alcançado em pleno; $\circ$ Alcançado parcialmente. -- Não alcançado.
+    }
+    \label{tab::objetivos}
+\end{table}
+
+
+
+\section{Divisão do Trabalho pelos Elementos do Grupo}
+\label{chap4:sec:divisao}
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{l c c c c c}
+        \toprule
+        \textbf{Tarefa}                                      & \textbf{DL} & \textbf{JA} & \textbf{DS} & \textbf{BC} & \textbf{IN} \\
+        \midrule
+        Engenharia de \textit{Software}                      &             & $\circ$     &             & $\bullet$    &            \\
+        Instalação da infraestrutura de suporte              & $\bullet$   &             &             &              & $\bullet$  \\
+        Desenvolvimento da base de dados                     & $\bullet$   &             &             & $\circ$      &            \\
+        \textit{Webservice} com autenticação da \textit{app} &             &             &             &              & $\bullet$  \\
+        Implementação dos algoritmos de cifra                & $\bullet$   & $\bullet$   &             & $\bullet$    &            \\
+        \textit{Refactoring} do código final                 &             &             & $\circ$     &              & $\bullet$  \\
+        Validação de dados de utilizador                     &             &             & $\bullet$   &              &            \\
+        Documentação do código                               &             &             & $\bullet$   &              &            \\
+        Testes e tentativas de ataque                        & $\bullet$   &             & $\circ$     &              &            \\
+        Gestão do repositório \textit{git}                   &             &             &             &              & $\bullet$  \\
+        Relatório                                            &             & $\bullet$   &             & $\bullet$    & $\bullet$  \\
+        Apresentação                                         &             & $\bullet$   &             & $\bullet$    &            \\
+        \bottomrule
+    \end{tabular}
+    \caption[Distribuição de tarefas]{
+        Distribuição de tarefas pelos elementos do grupo.\\
+        \textit{Legenda.}~%
+        $\bullet$ principal responsável; $\circ$ auxiliou.
+        DL: Diogo Lavareda; JA: Joana Almeida; DS: Diogo Simões; BC: Beatriz Costa; IN: Igor Nunes.
+    }
+    \label{tab::divisao-trabalho}
+\end{table}
+
+
+\section{Problemas Encontrados}
+\label{chap4:sec:problemas}
+
+%\subsection{Rede \acs{eduroam} e certificado \acs{SSL}}
+%\label{chap4:subsec:eduroam}
+
+Nos primeiros testes à aplicação na rede \ac{eduroam}, onde o presente projeto será defendido, a equipa deparou-se com o problema desta rede bloquear as comunicações para o porto $3300$, utilizado na \acl{BD}.
+
+Também devido ao facto deste servidor não ter um \ac{FQDN} para aplicar certificado \ac{SSL}, optou-se por separar o \emph{webservice} da \acl{BD} de forma a minimizar as alterações à estrutura do servidor e para permitir que a aplicação possa ser executada no ambiente de rede da \ac{UBI}. Como vantagem adicional, a plena separação do cliente e da base de dados com um \textit{webservice} intermédio permite a comunicação por \ac{HTTPS} (porto $443$) e adiciona uma camada de segurança com autenticação da aplicação que lhe acede (Figura \ref{fig::diagrama-sistema}).
+
+
+\section{Reflexão Crítica}
+\label{chap4:sec:reflexao}
+
+Para reflexão da \groupname~face ao trabalho enveredado no desenvolvimento do serviço \appname, propõe-se efetivá-la com uma análise \ac{SWOT}.
+
+
+\subsection{Pontos Fortes}
+\label{chap4:subsec:pontosfortes}
+
+\begin{enumerate}[nosep]
+    \item A aplicação do cliente é \textit{cross-platform};
+    \item São fornecidas seis cifras e três algoritmos de \textit{hash};
+    \item Implementação de um sistema distribuído (arquitetura cliente -- \textit{webservice} -- \acl{BD});
+    \item Apenas uma aplicação autorizada pode aceder ao \textit{webservice}.
+\end{enumerate}
+
+
+\subsection{Pontos Fracos}
+\label{chap4:subsec:pontosfracos}
+
+\begin{enumerate}[nosep]
+    \item Falta de implementação das chaves de assinatura digital \ac{RSA};
+    \item Falta da presença do algoritmo de \textit{El Gamal};
+    \item A \acf{TUI} é demasiado minimalista.
+\end{enumerate}
+
+
+\subsection{Ameaças}
+\label{chap4:subsec:ameacas}
+
+\begin{enumerate}[nosep]
+    \item Algumas dependências de baixo nível (\textit{e.g.} bibliotecas externas ao \textit{Python}) mudam entre sistemas operativos;
+    \item As cifras \ac{AES} e os valores \textit{hash} são difíceis de resolver caso o utilizador não deixe uma dica útil (em último caso torna-se tecnicamente impossível de resolver);
+    \item A \ac{BD} encontra-se exposta a acessos externos ao do \textit{webservice} na arquitetura atual.
+\end{enumerate}
+
+
+
+\subsection{Oportunidades}
+\label{chap4:subsec:oportunidades}
+
+\begin{enumerate}[nosep]
+    \item Reforçar a segurança e verificação dos desafios através da assinatura digital \ac{RSA};
+    \item Incluir novas cifras e outros algoritmos criptográficos;
+    \item Implementação de uma \ac{GUI} e/ou de uma \textit{web app}.
+\end{enumerate}
+
+
+
+\section{Conclusões}
+\label{chap4:sec:concs}
+
+Esta fase de reflexão permitiu analisar o trabalho enveredado ao longo das semanas de planeamento, execução e teste. Com esta análise, a equipa pôde tirar conclusões não só sobre o seu desempenho, mas também acerca das tecnologias utilizadas, as quais serão expostas no Capítulo seguinte.
