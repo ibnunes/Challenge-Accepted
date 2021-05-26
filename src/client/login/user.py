@@ -48,6 +48,7 @@ class User(object):
         self._hashcreated = amount['hash']
         self._created = amount['total']
 
+
     def wipe(self):
         """Resets User stats."""        
         self._username = ""
@@ -139,15 +140,15 @@ class User(object):
 
         while True:
             email = Read.asString("Email: ")
-            isvalid = self._dbcontrol.emailExists(email)
             exists = self._dbcontrol.emailExists(email)
-            if not isvalid:
-                crt.writeWarning(f"Email '{email}' not valid.")
             if exists:
                 crt.writeWarning(f"Email '{email}' already in use.")
-            if (isvalid and (not exists)):
+            isvalid = self.validateEmail(email)
+            if not isvalid:
+                crt.writeWarning(f"Email '{email}' not valid.")
+            if (isvalid and not exists):
                 break
-                
+        
         while True:
             password = Read.asPassword("Password: ")
             isValid, tip = User.validatePassword(password)
